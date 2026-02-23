@@ -17,6 +17,8 @@ export const routes: Routes = [
         // canActivate: [RoleGuard], <-- Listo para cuando configuren seguridad
         children: [
             { path: 'dashboard', loadComponent: () => import('./features/super-admin/dashboard/dashboard').then(m => m.Dashboard) },
+            { path: 'configuracion', loadComponent: () => import('./features/super-admin/configuracion/configuracion').then(m => m.Configuracion) },
+            { path: 'campanias', loadComponent: () => import('./features/super-admin/campanias/campanias').then(m => m.Campanias) },
             { path: 'usuarios', loadComponent: () => import('./features/super-admin/users-management/users-management').then(m => m.UsersManagement) },
             { path: 'empresas', loadComponent: () => import('./features/super-admin/companies/companies').then(m => m.Companies) },
             { path: 'conductores', loadComponent: () => import('./features/super-admin/monitor/monitor').then(m => m.Monitor) },

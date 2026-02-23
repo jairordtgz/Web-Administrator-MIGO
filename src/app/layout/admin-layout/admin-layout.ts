@@ -16,7 +16,7 @@ export class AdminLayout implements OnInit {
     this.menuItems = [
       { label: 'Conductores', icon: 'pi pi-user', route: '/super-admin/conductores' },
       { label: 'Empresas/ Publicistas', icon: 'pi pi-building', route: '/super-admin/empresas' },
-      { label: 'Campañas', icon: 'pi pi-megaphone', route: '/company/mis-campanias', badge: 7 },
+      { label: 'Campañas', icon: 'pi pi-megaphone', route: '/super-admin/campanias', badge: 7 },
       { label: 'Solicitudes Pendientes', icon: 'pi pi-file', route: '/super-admin/solicitudes', badge: 4 },
       { label: 'Verificaciones Pendientes', icon: 'pi pi-pencil', route: '/super-admin/verificaciones' },
       { label: 'Notificaciones', icon: 'pi pi-bell', route: '/super-admin/notificaciones' },
