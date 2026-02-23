@@ -1,1 +1,59 @@
-<p>admin-layout works!</p>
+<div class="flex h-screen bg-[#f4f6f9] font-sans">
+
+    <aside class="w-64 bg-[#2b2b2b] flex flex-col flex-shrink-0 shadow-xl z-20">
+
+        <div class="p-6 flex justify-center mt-4">
+            <img src="/assets/migo_logo_alter.png" alt="Migo Logo" class="w-32 object-contain">
+        </div>
+
+        <div class="flex flex-col items-center mb-6 mt-2">
+            <img src="/assets/avatar.jpeg" alt="Usuario" class="h-20 w-20 rounded-full object-cover mb-3">
+            <span class="text-white text-sm tracking-widest font-light">KARLA VERA</span>
+            <div class="h-[1px] w-16 bg-white mt-3 opacity-50"></div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto">
+            <ul class="flex flex-col">
+
+                <li *ngFor="let item of menuItems">
+                    <a [routerLink]="item.route" routerLinkActive="bg-[#ffed00] text-black font-semibold"
+                        [routerLinkActiveOptions]="{exact: false}"
+                        class="relative flex items-center justify-between px-6 py-3 text-gray-300 hover:bg-zinc-700 hover:text-white transition-colors cursor-pointer">
+
+                        <div class="flex items-center gap-4">
+                            <i [class]="item.icon + ' text-lg'"></i>
+                            <span class="text-sm">{{ item.label }}</span>
+                        </div>
+
+                        <span *ngIf="item.badge"
+                            class="bg-[#d2a65a] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                            {{ item.badge }}
+                        </span>
+
+                    </a>
+                </li>
+
+                <li class="mt-4">
+                    <a routerLink="/login"
+                        class="flex items-center gap-4 px-6 py-3 text-gray-300 hover:bg-red-600 hover:text-white transition-colors cursor-pointer">
+                        <i class="pi pi-sign-out text-lg"></i>
+                        <span class="text-sm">Cerrar Sesión</span>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-y-auto relative">
+
+        <div class="w-full h-40 bg-gray-200 flex-shrink-0 border-b border-gray-300">
+            <img src="/assets/banner_panel.png" alt="City Banner" class="w-full h-full object-cover">
+        </div>
+
+        <div class="p-8">
+            <router-outlet></router-outlet>
+        </div>
+
+    </main>
+</div>

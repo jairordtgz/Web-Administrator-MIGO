@@ -1,1 +1,61 @@
-<p>users-management works!</p>
+<div class="p-6 bg-slate-50 min-h-full">
+    <p-toast></p-toast>
+
+    <div class="mb-6 flex justify-between items-end">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Roles y Permisos</h1>
+            <p class="text-gray-500 mt-1">Configura los accesos de visualización y edición para cada tipo de usuario.
+            </p>
+        </div>
+
+        <p-button label="Guardar Cambios" icon="pi pi-save" severity="primary" (onClick)="savePermissions()">
+        </p-button>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+
+        <div class="mb-6 flex items-center gap-4">
+            <label class="font-semibold text-gray-700">Seleccionar Perfil a Editar:</label>
+            <p-select [options]="roles" [(ngModel)]="selectedRole" optionLabel="name" (onChange)="onRoleChange($event)"
+                placeholder="Selecciona un rol" styleClass="w-64">
+            </p-select>
+        </div>
+
+        <p-table [value]="permissions" [tableStyle]="{ 'min-width': '50rem' }"
+            styleClass="p-datatable-sm p-datatable-striped">
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th class="text-gray-700 bg-gray-50">Módulo del Sistema</th>
+                    <th class="text-center text-gray-700 bg-gray-50">Ver</th>
+                    <th class="text-center text-gray-700 bg-gray-50">Crear</th>
+                    <th class="text-center text-gray-700 bg-gray-50">Editar</th>
+                    <th class="text-center text-gray-700 bg-gray-50">Eliminar</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-perm>
+                <tr>
+                    <td class="font-medium text-gray-800">{{ perm.moduleName }}</td>
+
+                    <td class="text-center">
+                        <p-checkbox [(ngModel)]="perm.canView" [binary]="true"></p-checkbox>
+                    </td>
+
+                    <td class="text-center">
+                        <p-checkbox [(ngModel)]="perm.canCreate" [binary]="true"></p-checkbox>
+                    </td>
+
+                    <td class="text-center">
+                        <p-checkbox [(ngModel)]="perm.canEdit" [binary]="true"></p-checkbox>
+                    </td>
+
+                    <td class="text-center">
+                        <p-checkbox [(ngModel)]="perm.canDelete" [binary]="true"></p-checkbox>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+    </div>
+</div>
