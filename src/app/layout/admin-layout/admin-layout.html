@@ -16,7 +16,7 @@
             <ul class="flex flex-col">
 
                 <li *ngFor="let item of menuItems">
-                    <a [routerLink]="item.route" routerLinkActive="bg-[#ffed00] text-black font-semibold"
+                    <a [routerLink]="item.route" routerLinkActive="bg-[#ffed00] !text-black font-semibold"
                         [routerLinkActiveOptions]="{exact: false}"
                         class="relative flex items-center justify-between px-6 py-3 text-gray-300 hover:bg-zinc-700 hover:text-white transition-colors cursor-pointer">
 
