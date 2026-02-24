@@ -1,15 +1,17 @@
 <div class="min-h-screen bg-zinc-900 flex flex-col lg:flex-row font-sans">
-  
+
   <!-- Columna de Marketing / Persuasión -->
-  <div class="lg:w-1/2 flex flex-col justify-center px-8 py-12 lg:px-24 bg-gradient-to-br from-zinc-800 to-black text-white">
+  <div
+    class="lg:w-1/2 flex flex-col justify-center px-8 py-12 lg:px-24 bg-gradient-to-br from-zinc-800 to-black text-white">
     <div class="mb-8">
-      <img src="/assets/migo_logo_alter.png" alt="Migo Logo" class="h-20 w-auto mb-6">
+      <img src="/assets/migo_logo_main_yellow.png" alt="Migo Logo" class="h-20 w-auto mb-6">
       <h1 class="text-4xl lg:text-6xl font-black tracking-tighter leading-none mb-4">
         LLEVA TU MARCA <br>
         <span class="text-[#ffed00]">A LAS CALLES.</span>
       </h1>
       <p class="text-xl text-gray-400 max-w-lg">
-        Transforma cientos de vehículos en paneles publicitarios móviles y monitorea el impacto de tu inversión en tiempo real.
+        Transforma cientos de vehículos en paneles publicitarios móviles y monitorea el impacto de tu inversión en
+        tiempo real.
       </p>
     </div>
 
@@ -20,7 +22,8 @@
         </div>
         <div>
           <h3 class="font-bold text-lg">Control Geográfico Total</h3>
-          <p class="text-gray-400">Define cercos virtuales y paga solo por el kilometraje recorrido en las zonas que te interesan.</p>
+          <p class="text-gray-400">Define cercos virtuales y paga solo por el kilometraje recorrido en las zonas que te
+            interesan.</p>
         </div>
       </div>
 
@@ -30,7 +33,8 @@
         </div>
         <div>
           <h3 class="font-bold text-lg">Métricas Reales</h3>
-          <p class="text-gray-400">Accede a dashboards detallados con el rendimiento de cada conductor y el presupuesto ejecutado.</p>
+          <p class="text-gray-400">Accede a dashboards detallados con el rendimiento de cada conductor y el presupuesto
+            ejecutado.</p>
         </div>
       </div>
 
@@ -40,7 +44,8 @@
         </div>
         <div>
           <h3 class="font-bold text-lg">Validación de Brandeo</h3>
-          <p class="text-gray-400">Verifica la calidad y el estado de tu publicidad mediante evidencias fotográficas constantes.</p>
+          <p class="text-gray-400">Verifica la calidad y el estado de tu publicidad mediante evidencias fotográficas
+            constantes.</p>
         </div>
       </div>
     </div>
@@ -66,81 +71,91 @@
       </div>
 
       <div class="bg-[#2b2b2b] py-8 px-6 shadow-2xl rounded-2xl border border-zinc-700">
-        
+
         @if (successMessage) {
-          <div class="mb-4 bg-green-500/10 border border-green-500 text-green-500 p-4 rounded-md text-sm flex items-center gap-2">
-            <i class="pi pi-check-circle"></i> {{ successMessage }}
-          </div>
+        <div
+          class="mb-4 bg-green-500/10 border border-green-500 text-green-500 p-4 rounded-md text-sm flex items-center gap-2">
+          <i class="pi pi-check-circle"></i> {{ successMessage }}
+        </div>
         }
 
         @if (errorMessage) {
-          <div class="mb-4 bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-md text-sm flex items-center gap-2">
-            <i class="pi pi-exclamation-circle"></i> {{ errorMessage }}
-          </div>
+        <div
+          class="mb-4 bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-md text-sm flex items-center gap-2">
+          <i class="pi pi-exclamation-circle"></i> {{ errorMessage }}
+        </div>
         }
 
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-5">
           <div class="grid grid-cols-1 gap-5">
-            
+
             <!-- RUC -->
             <div>
-              <label for="ruc" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">RUC</label>
+              <label for="ruc"
+                class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">RUC</label>
               <input id="ruc" formControlName="ruc" type="text" placeholder="Ej: 1790000000001"
-                     class="block w-full bg-zinc-800 border border-zinc-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00] focus:border-transparent transition-all">
+                class="block w-full bg-zinc-800 border border-zinc-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00] focus:border-transparent transition-all">
               @if (registerForm.get('ruc')?.touched && registerForm.get('ruc')?.invalid) {
-                <p class="mt-1 text-xs text-red-400">RUC inválido (solo números).</p>
+              <p class="mt-1 text-xs text-red-400">RUC inválido (solo números).</p>
               }
             </div>
 
             <!-- Nombre Empresa -->
             <div>
-              <label for="nombre" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Nombre de la Empresa</label>
+              <label for="nombre" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Nombre
+                de la Empresa</label>
               <input id="nombre" formControlName="nombre" type="text" placeholder="Tu Empresa S.A."
-                     class="block w-full bg-zinc-800 border border-zinc-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00] focus:border-transparent transition-all">
+                class="block w-full bg-zinc-800 border border-zinc-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00] focus:border-transparent transition-all">
               @if (registerForm.get('nombre')?.touched && registerForm.get('nombre')?.invalid) {
-                <p class="mt-1 text-xs text-red-400">El nombre es requerido.</p>
+              <p class="mt-1 text-xs text-red-400">El nombre es requerido.</p>
               }
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <!-- Nombre Representante -->
               <div>
-                <label for="representante_nombre" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Representante</label>
+                <label for="representante_nombre"
+                  class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Representante</label>
                 <input id="representante_nombre" formControlName="representante_nombre" type="text"
-                       class="block w-full bg-zinc-800 border border-zinc-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00] focus:border-transparent transition-all">
-                @if (registerForm.get('representante_nombre')?.touched && registerForm.get('representante_nombre')?.invalid) {
-                  <p class="mt-1 text-xs text-red-400">Requerido.</p>
+                  class="block w-full bg-zinc-800 border border-zinc-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00] focus:border-transparent transition-all">
+                @if (registerForm.get('representante_nombre')?.touched &&
+                registerForm.get('representante_nombre')?.invalid) {
+                <p class="mt-1 text-xs text-red-400">Requerido.</p>
                 }
               </div>
 
               <!-- Contacto Representante -->
               <div>
-                <label for="representante_contacto" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Teléfono</label>
+                <label for="representante_contacto"
+                  class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Teléfono</label>
                 <input id="representante_contacto" formControlName="representante_contacto" type="text"
-                       class="block w-full bg-zinc-800 border border-zinc-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00] focus:border-transparent transition-all">
-                @if (registerForm.get('representante_contacto')?.touched && registerForm.get('representante_contacto')?.invalid) {
-                  <p class="mt-1 text-xs text-red-400">Requerido.</p>
+                  class="block w-full bg-zinc-800 border border-zinc-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00] focus:border-transparent transition-all">
+                @if (registerForm.get('representante_contacto')?.touched &&
+                registerForm.get('representante_contacto')?.invalid) {
+                <p class="mt-1 text-xs text-red-400">Requerido.</p>
                 }
               </div>
             </div>
 
             <!-- Correo -->
             <div>
-              <label for="email" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Correo Corporativo</label>
+              <label for="email" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Correo
+                Corporativo</label>
               <input id="email" formControlName="email" type="email" placeholder="contacto@empresa.com"
-                     class="block w-full bg-zinc-800 border border-zinc-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00] focus:border-transparent transition-all">
+                class="block w-full bg-zinc-800 border border-zinc-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00] focus:border-transparent transition-all">
               @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
-                <p class="mt-1 text-xs text-red-400">Email inválido.</p>
+              <p class="mt-1 text-xs text-red-400">Email inválido.</p>
               }
             </div>
 
             <!-- Dirección -->
             <div>
-              <label for="direccion" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Dirección</label>
+              <label for="direccion"
+                class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Dirección</label>
               <input id="direccion" formControlName="direccion" type="text"
-                     class="block w-full bg-zinc-800 border border-zinc-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00] focus:border-transparent transition-all">
+                class="block w-full bg-zinc-800 border border-zinc-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00] focus:border-transparent transition-all">
               @if (registerForm.get('direccion')?.touched && registerForm.get('direccion')?.invalid) {
-                <p class="mt-1 text-xs text-red-400">La dirección es requerida.</p>
+              <p class="mt-1 text-xs text-red-400">La dirección es requerida.</p>
               }
             </div>
           </div>
@@ -154,13 +169,13 @@
 
           <div class="pt-4">
             <button type="submit" [disabled]="loading || registerForm.invalid"
-                    class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-sm text-sm font-black text-black bg-[#ffed00] hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02]">
+              class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-sm text-sm font-black text-black bg-[#ffed00] hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02]">
               @if (!loading) {
-                <i class="pi pi-send"></i>
-                <span>ENVIAR SOLICITUD</span>
+              <i class="pi pi-send"></i>
+              <span>ENVIAR SOLICITUD</span>
               } @else {
-                <i class="pi pi-spin pi-spinner"></i>
-                <span>PROCESANDO...</span>
+              <i class="pi pi-spin pi-spinner"></i>
+              <span>PROCESANDO...</span>
               }
             </button>
           </div>
