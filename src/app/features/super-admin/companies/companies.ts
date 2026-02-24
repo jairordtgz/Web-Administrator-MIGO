@@ -29,27 +29,7 @@ import { CompaniesService } from '../../../services/companies.service';
   ],
   providers: [MessageService],
   templateUrl: './companies.html',
-  styles: [`
-    :host ::ng-deep .p-dialog .p-inputtext:not(.p-password-input), 
-    :host ::ng-deep .p-dialog .p-select {
-        border-radius: 9999px !important;
-        background-color: #f3f4f6 !important;
-        border: none !important;
-        padding-top: 0.75rem;
-        padding-bottom: 0.75rem;
-        padding-left: 1rem;
-    }
-    :host ::ng-deep .p-dialog .p-dialog-header {
-        background-color: transparent;
-        padding-bottom: 0;
-    }
-    :host ::ng-deep .p-datatable .p-datatable-header {
-        background-color: transparent;
-        border: none;
-        padding: 0.5rem 0;
-    }
-    :host ::ng-deep .p-datepicker { border: none; box-shadow: none; }
-  `]
+  styleUrl: './companies.css'
 })
 export class Companies implements OnInit {
   @ViewChild('dt') dt!: Table;

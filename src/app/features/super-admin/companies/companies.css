@@ -1,0 +1,28 @@
+/* Estilos para forzar inputs redondeados y grises dentro del modal */
+:host ::ng-deep .p-dialog .p-inputtext:not(.p-password-input), 
+:host ::ng-deep .p-dialog .p-select {
+    border-radius: 9999px !important;
+    background-color: #f3f4f6 !important; /* gray-100 */
+    border: none !important;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    padding-left: 1rem; /* Un poco más de padding a la izquierda */
+}
+
+/* Quitamos el fondo de la cabecera por defecto para usar el nuestro */
+:host ::ng-deep .p-dialog .p-dialog-header {
+    background-color: transparent;
+    padding-bottom: 0;
+}
+
+/* Limpiamos la cabecera de la tabla */
+:host ::ng-deep .p-datatable .p-datatable-header {
+    background-color: transparent;
+    border: none;
+    padding: 0.5rem 0;
+}
+
+:host ::ng-deep .p-datepicker { 
+    border: none; 
+    box-shadow: none; 
+}
