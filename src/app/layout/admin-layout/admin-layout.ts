@@ -1,18 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router'; // IMPORTANTE: Esto reemplaza a RouterOutlet
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule], // Ya no importamos MenuModule de PrimeNG
+  imports: [CommonModule, RouterModule],
   templateUrl: './admin-layout.html'
 })
 export class AdminLayout implements OnInit {
   menuItems: any[] = [];
 
   ngOnInit() {
-    // Recreamos exactamente el menú de tu imagen
     this.menuItems = [
       { label: 'Conductores', icon: 'pi pi-user', route: '/super-admin/conductores' },
       { label: 'Empresas/ Publicistas', icon: 'pi pi-building', route: '/super-admin/empresas' },

@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // Necesario para los checkboxes (ngModel)
-
-// Importaciones de PrimeNG
+import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
@@ -10,7 +8,7 @@ import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
-// Interfaz temporal (luego se moverá a src/app/models/)
+// Interfaz temporal (luego se moverá a src/app/interfaces/)
 interface ModulePermission {
   moduleName: string;
   canView: boolean;
@@ -44,26 +42,22 @@ export class UsersManagement implements OnInit {
   constructor(private messageService: MessageService) { }
 
   ngOnInit() {
-    // 1. Cargamos los roles falsos para el Dropdown
     this.roles = [
       { name: 'Super Administrador', code: 'ADMIN' },
       { name: 'Empresa', code: 'COMPANY' },
       { name: 'Publicista', code: 'PUBLICIST' }
     ];
 
-    this.selectedRole = this.roles[0]; // Seleccionamos Admin por defecto
+    this.selectedRole = this.roles[0];
 
-    // 2. Cargamos los módulos exactos que pide HUSA1
     this.loadMockPermissions();
   }
 
-  // Cuando se cambia el rol en el dropdown, idealmente pediríamos los permisos al backend
   onRoleChange(event: any) {
     this.loadMockPermissions();
     this.messageService.add({ severity: 'info', summary: 'Rol Cambiado', detail: `Cargando permisos para ${event.value.name}` });
   }
 
-  // Los 6 módulos obligatorios de HUSA1
   loadMockPermissions() {
     this.permissions = [
       { moduleName: 'Usuarios', canView: true, canCreate: true, canEdit: true, canDelete: true },
@@ -75,7 +69,7 @@ export class UsersManagement implements OnInit {
     ];
   }
 
-  // Acción de guardar que NO calcula nada, solo envía al backend
+  // Acción de guardar solo envía al backend
   savePermissions() {
     const payload = {
       role: this.selectedRole.code,
