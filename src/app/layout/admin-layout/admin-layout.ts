@@ -19,7 +19,7 @@ export class AdminLayout implements OnInit {
       { label: 'Solicitudes Pendientes', icon: 'pi pi-file', route: '/super-admin/solicitudes', badge: 4 },
       { label: 'Verificaciones Pendientes', icon: 'pi pi-pencil', route: '/super-admin/verificaciones' },
       { label: 'Notificaciones', icon: 'pi pi-bell', route: '/super-admin/notificaciones' },
-      { label: 'Permisos', icon: 'pi pi-check-circle', route: '/super-admin/usuarios' },
+      { label: 'Permisos', icon: 'pi pi-check-circle', route: '/super-admin/roles' },
       { label: 'Panel de control', icon: 'pi pi-desktop', route: '/super-admin/dashboard' },
       { label: 'Configuración', icon: 'pi pi-cog', route: '/super-admin/configuracion' }
     ];

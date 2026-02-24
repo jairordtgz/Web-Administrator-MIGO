@@ -30,10 +30,10 @@ interface ModulePermission {
     ToastModule
   ],
   providers: [MessageService],
-  templateUrl: './users-management.html',
-  styleUrls: ['./users-management.css']
+  templateUrl: './roles-management.html',
+  styleUrls: ['./roles-management.css']
 })
-export class UsersManagement implements OnInit {
+export class RolesManagement implements OnInit {
 
   roles: any[] = [];
   selectedRole: any;

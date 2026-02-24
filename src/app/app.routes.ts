@@ -19,7 +19,7 @@ export const routes: Routes = [
             { path: 'dashboard', loadComponent: () => import('./features/super-admin/dashboard/dashboard').then(m => m.Dashboard) },
             { path: 'configuracion', loadComponent: () => import('./features/super-admin/configuracion/configuracion').then(m => m.Configuracion) },
             { path: 'campanias', loadComponent: () => import('./features/super-admin/campanias/campanias').then(m => m.Campanias) },
-            { path: 'usuarios', loadComponent: () => import('./features/super-admin/users-management/users-management').then(m => m.UsersManagement) },
+            { path: 'roles', loadComponent: () => import('./features/super-admin/roles-management/roles-management').then(m => m.RolesManagement) },
             { path: 'empresas', loadComponent: () => import('./features/super-admin/companies/companies').then(m => m.Companies) },
             { path: 'conductores', loadComponent: () => import('./features/super-admin/monitor/monitor').then(m => m.Monitor) },
             { path: 'notificaciones', loadComponent: () => import('./features/super-admin/notifications/notifications').then(m => m.Notifications) },
