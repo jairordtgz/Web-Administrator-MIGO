@@ -31,10 +31,13 @@
     "@angular/router": "^21.1.0",
     "@primeuix/themes": "^2.0.3",
     "autoprefixer": "^10.4.24",
+    "jspdf": "^4.2.0",
+    "jspdf-autotable": "^5.0.7",
     "primeicons": "^7.0.0",
     "primeng": "^21.1.1",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@angular/build": "^21.1.4",

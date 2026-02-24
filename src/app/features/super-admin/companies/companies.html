@@ -1,1 +1,198 @@
-<p>companies works!</p>
+<div class="px-6 pt-4 pb-6 min-h-full relative font-sans">
+    <p-toast></p-toast>
+
+    <div class="bg-white p-6 shadow-sm mb-6 flex flex-col md:flex-row justify-between items-center rounded-sm">
+        <div>
+            <h1 class="text-3xl font-bold text-[#2b2b2b] uppercase tracking-wide">EMPRESAS REGISTRADOS</h1>
+            <p class="text-sm text-gray-500 font-medium mt-1">Bienvenid@, Karla Vera</p>
+        </div>
+
+        <div class="relative w-full md:w-[400px] mt-4 md:mt-0">
+            <input pInputText type="text" (input)="onSearch($event)" placeholder="Buscar empresa, RUC, correo..."
+                class="w-full !rounded-full !bg-[#f0f2f5] !text-gray-700 !border-none py-3 pl-6 pr-12 focus:!ring-2 focus:!ring-gray-300 transition-all outline-none" />
+            <i class="pi pi-search text-gray-500 absolute right-6 top-1/2 -translate-y-1/2 text-xl font-bold"></i>
+        </div>
+    </div>
+
+
+    <div class="bg-white p-6 shadow-sm mb-6 flex flex-col md:flex-row gap-6 rounded-sm">
+
+        <div (click)="opFiltro.toggle($event)"
+            class="flex-1 bg-[#f0f2f5] rounded-xl px-5 py-4 flex justify-between items-center text-gray-600 cursor-pointer hover:bg-gray-200 transition-colors">
+            <span class="font-medium text-sm text-gray-500">{{ tipoActual }}</span>
+            <i class="pi pi-filter text-gray-500 text-xl"></i>
+        </div>
+
+        <p-popover #opFiltro
+            [style]="{'padding': '0', 'border-radius': '12px', 'overflow': 'hidden', 'box-shadow': '0 10px 25px -5px rgba(0,0,0,0.1)'}">
+            <div class="flex flex-col min-w-[200px]">
+                <div class="p-3 text-sm font-bold text-gray-700 bg-gray-50 border-b border-gray-100">Filtrar por Tipo
+                </div>
+
+                <button pButton label="Todos los registros"
+                    class="p-button-text !text-gray-600 !justify-start !px-4 !py-3 hover:!bg-gray-100"
+                    (click)="filtrarPorTipo('', opFiltro, 'Todos los Filtros')"></button>
+                <button pButton label="Solo Marcas"
+                    class="p-button-text !text-blue-600 !justify-start !px-4 !py-3 hover:!bg-blue-50 font-bold"
+                    (click)="filtrarPorTipo('marca', opFiltro, 'Solo Marcas')"></button>
+                <button pButton label="Solo Publicistas"
+                    class="p-button-text !text-purple-600 !justify-start !px-4 !py-3 hover:!bg-purple-50 font-bold"
+                    (click)="filtrarPorTipo('publicista', opFiltro, 'Solo Publicistas')"></button>
+            </div>
+        </p-popover>
+
+        <div (click)="op.toggle($event)"
+            class="flex-1 bg-[#f0f2f5] rounded-xl px-5 py-4 flex justify-between items-center text-gray-600 cursor-pointer hover:bg-gray-200 transition-colors">
+            <span class="font-medium text-sm text-gray-500">
+                {{ fechaFiltro ? (fechaFiltro | date:'dd/MM/yyyy') : 'Fecha de Registro' }}
+            </span>
+            <i class="pi pi-calendar text-gray-500 text-xl"></i>
+        </div>
+
+        <p-popover #op
+            [style]="{'padding': '0', 'border-radius': '12px', 'overflow': 'hidden', 'box-shadow': '0 10px 25px -5px rgba(0,0,0,0.1)'}">
+            <div class="flex flex-col">
+                <p-datepicker [(ngModel)]="fechaFiltro" [inline]="true" dateFormat="dd/mm/yy"
+                    styleClass="border-0"></p-datepicker>
+                <div class="p-2 bg-gray-50 flex justify-end border-t border-gray-100">
+                    <button pButton label="Limpiar" icon="pi pi-times"
+                        class="p-button-text p-button-sm p-button-secondary" (click)="limpiarFecha(op)"></button>
+
+                    <button pButton label="Aplicar" icon="pi pi-check"
+                        class="p-button-text p-button-sm p-button-warning ml-2"
+                        (click)="aplicarFiltroFecha(op)"></button>
+                </div>
+            </div>
+        </p-popover>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] overflow-hidden border border-gray-100">
+        <p-table #dt [value]="empresasMock" [paginator]="true" [rows]="4"
+            [globalFilterFields]="['nombres', 'ruc', 'correo', 'tipo']" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+                        Nombres
+                    </th>
+                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+                        RUC</th>
+                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+                        Fecha de
+                        Ingreso</th>
+                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+                        Correo
+                    </th>
+                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+                        Tipo</th>
+                    <th
+                        class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none !text-center">
+                        Opciones</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-empresa>
+                <tr class="border-b border-gray-100 hover:bg-yellow-50/50 transition-colors">
+                    <td class="p-4 font-bold text-gray-800">{{ empresa.nombres }}</td>
+                    <td class="p-4 text-gray-600 font-medium">{{ empresa.ruc }}</td>
+                    <td class="p-4 text-gray-600">{{ empresa.fecha }}</td>
+                    <td class="p-4 text-gray-600">{{ empresa.correo }}</td>
+                    <td class="p-4 text-gray-600 font-medium">
+                        <span
+                            [ngClass]="{'text-blue-600': empresa.tipo === 'marca', 'text-purple-600': empresa.tipo === 'publi.'}">
+                            {{ empresa.tipo | titlecase }}
+                        </span>
+                    </td>
+                    <td class="p-4 flex justify-center gap-2 py-3">
+                        <p-tag value="Habilitar" class="cursor-pointer hover:scale-105 transition-transform"
+                            [style]="{'background': '#22c55e', 'color': 'white', 'padding': '4px 12px', 'border-radius': '9999px', 'font-weight': '600', 'font-size': '11px'}"></p-tag>
+                        <p-tag value="Deshabilitar" class="cursor-pointer hover:scale-105 transition-transform"
+                            [style]="{'background': '#3b82f6', 'color': 'white', 'padding': '4px 12px', 'border-radius': '9999px', 'font-weight': '600', 'font-size': '11px'}"></p-tag>
+                        <p-tag value="Eliminar" class="cursor-pointer hover:scale-105 transition-transform"
+                            [style]="{'background': '#ef4444', 'color': 'white', 'padding': '4px 12px', 'border-radius': '9999px', 'font-weight': '600', 'font-size': '11px'}"></p-tag>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="paginatorright">
+                <div class="flex gap-2">
+                    <button pButton label="Exportar Excel" icon="pi pi-file-excel"
+                        class="p-button-outlined p-button-secondary p-button-sm !rounded-lg !font-bold !border-gray-300"
+                        (click)="exportExcel()"></button>
+                    <button pButton label="Exportar PDF" icon="pi pi-file-pdf"
+                        class="p-button-outlined p-button-secondary p-button-sm !rounded-lg !font-bold !border-gray-300"
+                        (click)="exportPdf()"></button>
+                </div>
+            </ng-template>
+        </p-table>
+    </div>
+
+
+    <p-dialog [(visible)]="mostrarModalRegistro" [modal]="true" [draggable]="false" [resizable]="false"
+        [style]="{width: '500px'}" styleClass="p-fluid rounded-3xl overflow-hidden font-sans custom-modal-header">
+
+        <ng-template pTemplate="header">
+            <div class="w-full text-center pt-4 pb-2">
+                <h2 class="text-2xl font-extrabold text-gray-900">Registrar Nueva Empresa</h2>
+                <p class="text-sm text-gray-500 font-normal mt-1">Complete los datos</p>
+            </div>
+        </ng-template>
+
+        <div class="flex flex-col gap-5 pt-2 px-4 pb-4">
+
+            <div class="flex flex-col gap-1"><label class="font-bold text-gray-700 ml-3 text-sm">Ruc:</label><input
+                    pInputText [(ngModel)]="nuevaEmpresa.ruc" class="w-full shadow-sm" placeholder="Ingrese RUC" />
+            </div>
+            <div class="flex flex-col gap-1"><label class="font-bold text-gray-700 ml-3 text-sm">Nombre:</label><input
+                    pInputText [(ngModel)]="nuevaEmpresa.nombre" class="w-full shadow-sm" placeholder="Razón Social" />
+            </div>
+            <div class="flex flex-col gap-1"><label class="font-bold text-gray-700 ml-3 text-sm">Tipo:</label><p-select
+                    [options]="tiposEmpresa" [(ngModel)]="nuevaEmpresa.tipo" optionLabel="label"
+                    placeholder="Seleccionar Tipo" styleClass="w-full shadow-sm"></p-select></div>
+            <div class="flex flex-col gap-1"><label class="font-bold text-gray-700 ml-3 text-sm">Email:</label><input
+                    pInputText type="email" [(ngModel)]="nuevaEmpresa.email" class="w-full shadow-sm"
+                    placeholder="correo@ejemplo.com" /></div>
+
+            <div class="flex flex-col gap-1">
+                <div class="flex justify-between items-center ml-3 pr-1">
+                    <label class="font-bold text-gray-700 text-sm">Contraseña:</label>
+                    <button type="button" pButton label="Auto-generar clave" icon="pi pi-sync"
+                        class="p-button-link p-button-sm !text-[#d2a65a] !no-underline !p-0 hover:!text-yellow-600 transition-colors font-semibold text-xs"
+                        (click)="generarClaveFuerte()"></button>
+                </div>
+                <p-password [(ngModel)]="nuevaEmpresa.password" [toggleMask]="true" [feedback]="false"
+                    placeholder="••••••••" styleClass="w-full shadow-sm"
+                    inputStyleClass="w-full !rounded-full !bg-gray-100 !border-none py-3 px-4"></p-password>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <label class="font-bold text-gray-700 ml-3 text-sm">Confirmar Contraseña:</label>
+                <p-password [(ngModel)]="nuevaEmpresa.confirmPassword" [toggleMask]="true" [feedback]="false"
+                    placeholder="••••••••" styleClass="w-full shadow-sm"
+                    inputStyleClass="w-full !rounded-full !bg-gray-100 !border-none py-3 px-4"></p-password>
+            </div>
+
+            <div class="flex flex-col gap-1"><label class="font-bold text-gray-700 ml-3 text-sm">Teléfono:</label><input
+                    pInputText [(ngModel)]="nuevaEmpresa.telefono" class="w-full shadow-sm" placeholder="099..." />
+            </div>
+            <div class="flex flex-col gap-1"><label
+                    class="font-bold text-gray-700 ml-3 text-sm">Representante:</label><input pInputText
+                    [(ngModel)]="nuevaEmpresa.representante" class="w-full shadow-sm" placeholder="Nombre Apellido" />
+            </div>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <div class="flex gap-3 w-full mt-4 px-4 pb-4">
+                <button pButton label="CANCELAR"
+                    class="p-button-secondary w-full !bg-[#e5e7eb] !text-gray-700 !border-none !font-bold !rounded-full hover:!bg-gray-300 transition-colors py-3"
+                    (click)="cerrarModalRegistro()"></button>
+                <button pButton label="REGISTRAR"
+                    class="p-button-warning w-full !bg-[#ffed00] !text-black !border-none !font-bold !rounded-full hover:!bg-yellow-400 transition-colors py-3"
+                    (click)="registrarEmpresa()"></button>
+            </div>
+        </ng-template>
+    </p-dialog>
+
+    <div class="mt-8 mb-4 text-right">
+        <button pButton label="Registrar Nueva Empresa" icon="pi pi-plus"
+            class="p-button-warning p-button-rounded !font-bold !px-6 shadow-sm"
+            (click)="abrirModalRegistro()"></button>
+    </div>
+</div>
