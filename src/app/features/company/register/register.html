@@ -1,0 +1,154 @@
+<div class="min-h-screen bg-zinc-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="flex justify-center">
+      <img src="/assets/migo_logo_alter.png" alt="Migo Logo" class="h-16 w-auto">
+    </div>
+    <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
+      Registro de Empresa
+    </h2>
+    <p class="mt-2 text-center text-sm text-gray-400">
+      O
+      <a routerLink="/login" class="font-medium text-[#ffed00] hover:text-yellow-400">
+        inicia sesión con tu cuenta existente
+      </a>
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
+    <div class="bg-[#2b2b2b] py-8 px-4 shadow-2xl sm:rounded-lg sm:px-10 border border-zinc-700">
+      
+      @if (successMessage) {
+        <div class="mb-4 bg-green-500/10 border border-green-500 text-green-500 p-4 rounded-md text-sm">
+          {{ successMessage }}
+        </div>
+      }
+
+      @if (errorMessage) {
+        <div class="mb-4 bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-md text-sm">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- RUC -->
+          <div>
+            <label for="ruc" class="block text-sm font-medium text-gray-300">RUC</label>
+            <input id="ruc" formControlName="ruc" type="text" 
+                   class="mt-1 block w-full bg-zinc-800 border border-zinc-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-[#ffed00] focus:border-[#ffed00] sm:text-sm">
+            @if (registerForm.get('ruc')?.touched && registerForm.get('ruc')?.invalid) {
+              <p class="mt-1 text-xs text-red-400">
+                RUC es requerido y debe contener solo números.
+              </p>
+            }
+          </div>
+
+          <!-- Nombre Empresa -->
+          <div>
+            <label for="nombre" class="block text-sm font-medium text-gray-300">Nombre de la Empresa</label>
+            <input id="nombre" formControlName="nombre" type="text"
+                   class="mt-1 block w-full bg-zinc-800 border border-zinc-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-[#ffed00] focus:border-[#ffed00] sm:text-sm">
+            @if (registerForm.get('nombre')?.touched && registerForm.get('nombre')?.invalid) {
+              <p class="mt-1 text-xs text-red-400">
+                Nombre es requerido (mín. 3 caracteres).
+              </p>
+            }
+          </div>
+
+          <!-- Nombre Representante -->
+          <div>
+            <label for="representante_nombre" class="block text-sm font-medium text-gray-300">Nombre del Representante</label>
+            <input id="representante_nombre" formControlName="representante_nombre" type="text"
+                   class="mt-1 block w-full bg-zinc-800 border border-zinc-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-[#ffed00] focus:border-[#ffed00] sm:text-sm">
+            @if (registerForm.get('representante_nombre')?.touched && registerForm.get('representante_nombre')?.invalid) {
+              <p class="mt-1 text-xs text-red-400">
+                Nombre del representante es requerido.
+              </p>
+            }
+          </div>
+
+          <!-- Contacto Representante -->
+          <div>
+            <label for="representante_contacto" class="block text-sm font-medium text-gray-300">Contacto del Representante</label>
+            <input id="representante_contacto" formControlName="representante_contacto" type="text"
+                   class="mt-1 block w-full bg-zinc-800 border border-zinc-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-[#ffed00] focus:border-[#ffed00] sm:text-sm">
+            @if (registerForm.get('representante_contacto')?.touched && registerForm.get('representante_contacto')?.invalid) {
+              <p class="mt-1 text-xs text-red-400">
+                Contacto es requerido.
+              </p>
+            }
+          </div>
+
+          <!-- Correo -->
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-300">Correo Electrónico</label>
+            <input id="email" formControlName="email" type="email"
+                   class="mt-1 block w-full bg-zinc-800 border border-zinc-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-[#ffed00] focus:border-[#ffed00] sm:text-sm">
+            @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
+              <p class="mt-1 text-xs text-red-400">
+                Correo válido es requerido.
+              </p>
+            }
+          </div>
+
+          <!-- Dirección -->
+          <div>
+            <label for="direccion" class="block text-sm font-medium text-gray-300">Dirección</label>
+            <input id="direccion" formControlName="direccion" type="text"
+                   class="mt-1 block w-full bg-zinc-800 border border-zinc-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-[#ffed00] focus:border-[#ffed00] sm:text-sm">
+            @if (registerForm.get('direccion')?.touched && registerForm.get('direccion')?.invalid) {
+              <p class="mt-1 text-xs text-red-400">
+                Dirección es requerida.
+              </p>
+            }
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <!-- <div>
+          <label for="descripcion" class="block text-sm font-medium text-gray-300">Descripción de la Empresa (Opcional)</label>
+          <textarea id="descripcion" formControlName="descripcion" rows="3"
+                    class="mt-1 block w-full bg-zinc-800 border border-zinc-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-[#ffed00] focus:border-[#ffed00] sm:text-sm"></textarea>
+        </div> -->
+
+        <!-- <div class="grid grid-cols-1 md:grid-cols-2 gap-6"> -->
+          <!-- Password -->
+          <!-- <div>
+            <label for="password" class="block text-sm font-medium text-gray-300">Contraseña</label>
+            <input id="password" formControlName="password" type="password"
+                   class="mt-1 block w-full bg-zinc-800 border border-zinc-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-[#ffed00] focus:border-[#ffed00] sm:text-sm">
+            @if (registerForm.get('password')?.touched && registerForm.get('password')?.invalid) {
+              <p class="mt-1 text-xs text-red-400">
+                Contraseña requerida (mín. 6 caracteres).
+              </p>
+            }
+          </div> -->
+
+          <!-- Confirm Password -->
+          <!-- <div>
+            <label for="confirmPassword" class="block text-sm font-medium text-gray-300">Confirmar Contraseña</label>
+            <input id="confirmPassword" formControlName="confirmPassword" type="password"
+                   class="mt-1 block w-full bg-zinc-800 border border-zinc-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-[#ffed00] focus:border-[#ffed00] sm:text-sm">
+            @if (registerForm.hasError('mismatch') && registerForm.get('confirmPassword')?.touched) {
+              <p class="mt-1 text-xs text-red-400">
+                Las contraseñas no coinciden.
+              </p>
+            }
+          </div> -->
+        <!-- </div> -->
+
+        <div>
+          <button type="submit" [disabled]="loading || registerForm.invalid"
+                  class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-black bg-[#ffed00] hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            @if (!loading) {
+              <span>Registrar Empresa</span>
+            } @else {
+              <span>Procesando...</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -10,7 +10,6 @@ export const routes: Routes = [
         path: 'reset-password',
         loadComponent: () => import('./features/auth/reset-password/reset-password').then(m => m.ResetPassword)
     },
-
     {
         path: 'super-admin',
         component: AdminLayout,
@@ -29,7 +28,11 @@ export const routes: Routes = [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
     },
-
+    {
+        // no agregar abajo, no usa el AdminLayout
+        path: 'company/register',
+        loadComponent: () => import('./features/company/register/register').then(m => m.CompanyRegister)
+    },
     {
         path: 'company',
         component: AdminLayout,
