@@ -13,7 +13,7 @@ export class AdminLayout implements OnInit {
 
   ngOnInit() {
     this.menuItems = [
-      { label: 'Conductores', icon: 'pi pi-user', route: '/super-admin/conductores' },
+      { label: 'Conductores', icon: 'pi pi-car', route: '/super-admin/conductores' },
       { label: 'Empresas/ Publicistas', icon: 'pi pi-building', route: '/super-admin/empresas' },
       { label: 'Campañas', icon: 'pi pi-megaphone', route: '/super-admin/campanias', badge: 7 },
       { label: 'Solicitudes Pendientes', icon: 'pi pi-file', route: '/super-admin/solicitudes', badge: 4 },
