@@ -1,0 +1,46 @@
+<div class="p-6 bg-[#f4f6f9] min-h-screen font-sans flex justify-center items-start">
+  <p-toast></p-toast>
+
+  <div class="bg-white w-full max-w-3xl rounded-sm shadow-sm p-8 mt-4 border border-gray-100">
+    
+    <div class="flex items-center gap-4 mb-8 border-b border-gray-100 pb-4">
+        <button pButton icon="pi pi-arrow-left" class="p-button-rounded p-button-text p-button-secondary !text-gray-500" (click)="cancelar()"></button>
+        <div>
+            <h1 class="text-3xl font-bold text-[#2b2b2b] uppercase tracking-wide">Registrar Nueva Empresa</h1>
+            <p class="text-sm text-gray-500 font-medium mt-1">Ingresa los datos de la nueva empresa</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <div class="flex flex-col gap-1"><label class="font-bold text-gray-700 ml-3 text-sm">Ruc:</label><input pInputText [(ngModel)]="nuevaEmpresa.ruc" class="w-full shadow-sm" placeholder="Ingrese RUC" /></div>
+        <div class="flex flex-col gap-1"><label class="font-bold text-gray-700 ml-3 text-sm">Nombre:</label><input pInputText [(ngModel)]="nuevaEmpresa.nombre" class="w-full shadow-sm" placeholder="Razón Social" /></div>
+        <div class="flex flex-col gap-1"><label class="font-bold text-gray-700 ml-3 text-sm">Tipo:</label><p-select [options]="tiposEmpresa" [(ngModel)]="nuevaEmpresa.tipo" optionLabel="label" placeholder="Seleccionar Tipo" styleClass="w-full shadow-sm"></p-select></div>
+        <div class="flex flex-col gap-1"><label class="font-bold text-gray-700 ml-3 text-sm">Email:</label><input pInputText type="email" [(ngModel)]="nuevaEmpresa.email" class="w-full shadow-sm" placeholder="correo@ejemplo.com" /></div>
+
+        <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-xl border border-gray-100 mt-2">
+            <div class="flex flex-col gap-1">
+                <div class="flex justify-between items-center ml-3 pr-1">
+                    <label class="font-bold text-gray-700 text-sm">Contraseña:</label>
+                    <button type="button" pButton label="Auto-generar clave" icon="pi pi-sync" class="p-button-link p-button-sm !text-gray-500 hover:!text-gray-800 transition-colors font-bold text-xs" (click)="generarClaveFuerte()"></button>
+                </div>
+                <p-password [(ngModel)]="nuevaEmpresa.password" [toggleMask]="true" [feedback]="false" placeholder="••••••••" styleClass="w-full shadow-sm" inputStyleClass="w-full !rounded-full !bg-white !border-none py-3 px-4"></p-password>
+            </div>
+
+            <div class="flex flex-col gap-1 mt-1 md:mt-0 justify-end">
+                <label class="font-bold text-gray-700 ml-3 text-sm mb-1">Confirmar Contraseña:</label>
+                <p-password [(ngModel)]="nuevaEmpresa.confirmPassword" [toggleMask]="true" [feedback]="false" placeholder="••••••••" styleClass="w-full shadow-sm" inputStyleClass="w-full !rounded-full !bg-white !border-none py-3 px-4"></p-password>
+            </div>
+        </div>
+        
+        <div class="flex flex-col gap-1 mt-2"><label class="font-bold text-gray-700 ml-3 text-sm">Teléfono:</label><input pInputText [(ngModel)]="nuevaEmpresa.telefono" class="w-full shadow-sm" placeholder="099..." /></div>
+        <div class="flex flex-col gap-1 mt-2"><label class="font-bold text-gray-700 ml-3 text-sm">Representante:</label><input pInputText [(ngModel)]="nuevaEmpresa.representante" class="w-full shadow-sm" placeholder="Nombre Apellido" /></div>
+    </div>
+
+    <div class="flex justify-end gap-4 w-full mt-10 pt-6 border-t border-gray-100">
+        <button pButton label="CANCELAR" icon="pi pi-times" class="p-button-secondary !bg-[#e5e7eb] !text-gray-700 !border-none !font-bold !rounded-full hover:!bg-gray-300 transition-colors py-3 px-8" (click)="cancelar()"></button>
+        <button pButton label="GUARDAR EMPRESA" icon="pi pi-check" class="p-button-warning !bg-[#10b981] !text-white !border-none !font-bold !rounded-full hover:!bg-green-600 transition-colors py-3 px-8 shadow-md" (click)="guardar()"></button>
+    </div>
+
+  </div>
+</div>

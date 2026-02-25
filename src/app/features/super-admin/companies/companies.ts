@@ -16,6 +16,8 @@ import { PopoverModule } from 'primeng/popover';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { Router } from '@angular/router';
+import { CompaniesService } from '../../../services/companies.service';
 
 @Component({
   selector: 'app-companies',
@@ -28,22 +30,19 @@ import autoTable from 'jspdf-autotable';
   providers: [MessageService],
   templateUrl: './companies.html',
   styles: [`
-    /* Estilos para forzar inputs redondeados y grises dentro del modal */
     :host ::ng-deep .p-dialog .p-inputtext:not(.p-password-input), 
     :host ::ng-deep .p-dialog .p-select {
         border-radius: 9999px !important;
-        background-color: #f3f4f6 !important; /* gray-100 */
+        background-color: #f3f4f6 !important;
         border: none !important;
         padding-top: 0.75rem;
         padding-bottom: 0.75rem;
-        padding-left: 1rem; /* Un poco más de padding a la izquierda */
+        padding-left: 1rem;
     }
-    /* Quitamos el fondo de la cabecera por defecto para usar el nuestro */
     :host ::ng-deep .p-dialog .p-dialog-header {
         background-color: transparent;
         padding-bottom: 0;
     }
-    /* Limpiamos la cabecera de la tabla */
     :host ::ng-deep .p-datatable .p-datatable-header {
         background-color: transparent;
         border: none;
@@ -56,75 +55,17 @@ export class Companies implements OnInit {
   @ViewChild('dt') dt!: Table;
 
   empresasMock: any[] = [];
-  mostrarModalRegistro: boolean = false;
   fechaFiltro: Date | undefined;
   tipoActual: string = 'Todos los Filtros';
 
-  tiposEmpresa = [
-    { label: 'Marca', value: 'MARCA' },
-    { label: 'Publicista', value: 'PUBLICISTA' }
-  ];
-
-  nuevaEmpresa = {
-    ruc: '', nombre: '', tipo: null, email: '',
-    password: '', confirmPassword: '', telefono: '', representante: ''
-  };
-
-  constructor(private messageService: MessageService) { }
+  constructor(private messageService: MessageService, private companiesService: CompaniesService, private router: Router) { }
 
   ngOnInit() {
-    this.empresasMock = [
-      { nombres: 'Roberto Ruiz', ruc: '#0985428795', fecha: '23/10/2023', correo: 'dirección@correo.com', tipo: 'marca', estado: 'activo' },
-      { nombres: 'Agencia Creativa', ruc: '#0991234567001', fecha: '25/10/2023', correo: 'contacto@agencia.com', tipo: 'publicista', estado: 'inactivo' },
-      { nombres: 'Tech Solutions', ruc: '#0987654321001', fecha: '26/10/2023', correo: 'info@tech.ec', tipo: 'marca', estado: 'activo' },
-      { nombres: 'Publicidad Global', ruc: '#1712345678001', fecha: '27/10/2023', correo: 'ejecutivo@global.com', tipo: 'publicista', estado: 'activo' }
-    ];
+    this.empresasMock = this.companiesService.getEmpresas();
   }
 
-  abrirModalRegistro() {
-    this.nuevaEmpresa = { ruc: '', nombre: '', tipo: null, email: '', password: '', confirmPassword: '', telefono: '', representante: '' };
-    this.mostrarModalRegistro = true;
-  }
-
-  cerrarModalRegistro() {
-    this.mostrarModalRegistro = false;
-  }
-
-  generarClaveFuerte() {
-    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-    let claveGenerada = '';
-    for (let i = 0; i < 12; i++) {
-      claveGenerada += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
-    }
-    this.nuevaEmpresa.password = claveGenerada;
-    this.nuevaEmpresa.confirmPassword = claveGenerada;
-    this.messageService.add({ severity: 'info', summary: 'Clave Generada', detail: 'Se ha creado una combinación segura.' });
-  }
-
-  registrarEmpresa() {
-    if (!this.nuevaEmpresa.ruc || !this.nuevaEmpresa.nombre || !this.nuevaEmpresa.email || !this.nuevaEmpresa.password) {
-      this.messageService.add({ severity: 'warn', summary: 'Faltan Datos', detail: 'Completa los campos obligatorios.' });
-      return;
-    }
-    if (this.nuevaEmpresa.password !== this.nuevaEmpresa.confirmPassword) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Las contraseñas no coinciden.' });
-      return;
-    }
-
-    this.empresasMock = [
-      {
-        nombres: this.nuevaEmpresa.nombre,
-        ruc: '#' + this.nuevaEmpresa.ruc,
-        fecha: new Date().toLocaleDateString('es-ES'),
-        correo: this.nuevaEmpresa.email,
-        tipo: this.nuevaEmpresa.tipo ? (this.nuevaEmpresa.tipo as any).label.toLowerCase() : 'marca',
-        estado: 'activo'
-      },
-      ...this.empresasMock
-    ];
-
-    this.messageService.add({ severity: 'success', summary: '¡Registrado!', detail: 'La empresa ha sido creada correctamente.' });
-    this.cerrarModalRegistro();
+  irARegistro() {
+    this.router.navigate(['/super-admin/empresas/registrar']);
   }
 
   onSearch(event: Event) {
