@@ -114,27 +114,42 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <!-- Nombre Representante -->
               <div>
-                <label for="representante_nombre"
-                  class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Representante</label>
-                <input id="representante_nombre" formControlName="representante_nombre" type="text"
+                <label for="representante_first_name"
+                  class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Nombre Representante</label>
+                <input id="representante_first_name" formControlName="representante_first_name" type="text"
+                  placeholder="Ej: Juan"
                   class="block w-full bg-zinc-800 border border-zinc-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00] focus:border-transparent transition-all">
-                @if (registerForm.get('representante_nombre')?.touched &&
-                registerForm.get('representante_nombre')?.invalid) {
+                @if (registerForm.get('representante_first_name')?.touched &&
+                registerForm.get('representante_first_name')?.invalid) {
                 <p class="mt-1 text-xs text-red-400">Requerido.</p>
                 }
               </div>
 
-              <!-- Contacto Representante -->
+              <!-- Apellido Representante -->
               <div>
-                <label for="representante_contacto"
-                  class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Teléfono</label>
-                <input id="representante_contacto" formControlName="representante_contacto" type="text"
+                <label for="representante_last_name"
+                  class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Apellido Representante</label>
+                <input id="representante_last_name" formControlName="representante_last_name" type="text"
+                  placeholder="Ej: Pérez"
                   class="block w-full bg-zinc-800 border border-zinc-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00] focus:border-transparent transition-all">
-                @if (registerForm.get('representante_contacto')?.touched &&
-                registerForm.get('representante_contacto')?.invalid) {
+                @if (registerForm.get('representante_last_name')?.touched &&
+                registerForm.get('representante_last_name')?.invalid) {
                 <p class="mt-1 text-xs text-red-400">Requerido.</p>
                 }
               </div>
+            </div>
+
+            <!-- Contacto Representante -->
+            <div>
+              <label for="representante_contacto"
+                class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Teléfono de Contacto</label>
+              <input id="representante_contacto" formControlName="representante_contacto" type="text"
+                placeholder="Ej: 0998887777"
+                class="block w-full bg-zinc-800 border border-zinc-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00] focus:border-transparent transition-all">
+              @if (registerForm.get('representante_contacto')?.touched &&
+              registerForm.get('representante_contacto')?.invalid) {
+              <p class="mt-1 text-xs text-red-400">El teléfono es requerido.</p>
+              }
             </div>
 
             <!-- Correo -->
