@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule, Table } from 'primeng/table';
@@ -38,10 +38,19 @@ export class Companies implements OnInit {
   fechaFiltro: Date | undefined;
   tipoActual: string = 'Todos los Filtros';
 
-  constructor(private messageService: MessageService, private companiesService: CompaniesService, private router: Router) { }
+  constructor(private messageService: MessageService, private companiesService: CompaniesService, private router: Router, private cdr: ChangeDetectorRef) { }
 
   ngOnInit() {
-    this.empresasMock = this.companiesService.getEmpresas();
+    this.companiesService.getEmpresasBackend().subscribe({
+      next: (empresas) => {
+        this.empresasMock = [...empresas, ...this.companiesService.getEmpresas()];
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al traer los datos de Django:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo conectar con la base de datos.' });
+      }
+    });
   }
 
   irARegistro() {
