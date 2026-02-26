@@ -20,12 +20,13 @@ export const routes: Routes = [
             { path: 'campanias', loadComponent: () => import('./features/super-admin/campanias/campanias').then(m => m.Campanias) },
             { path: 'roles', loadComponent: () => import('./features/super-admin/roles-management/roles-management').then(m => m.RolesManagement) },
             { path: 'empresas', loadComponent: () => import('./features/super-admin/companies/companies').then(m => m.Companies) },
+            { path: 'empresas/registrar', loadComponent: () => import('./features/super-admin/companies/register-company/register-company').then(m => m.RegisterCompany) },
             { path: 'conductores', loadComponent: () => import('./features/super-admin/monitor/monitor').then(m => m.Monitor) },
             { path: 'notificaciones', loadComponent: () => import('./features/super-admin/notifications/notifications').then(m => m.Notifications) },
             { path: 'publicidad', loadComponent: () => import('./features/super-admin/publicidad/publicidad').then(m => m.Publicidad) },
             { path: 'brandeo', loadComponent: () => import('./features/super-admin/brandeo/brandeo').then(m => m.Brandeo) },
             { path: 'solicitudes', loadComponent: () => import('./features/super-admin/solicitudes-pendientes/solicitudes-pendientes').then(m => m.SolicitudesPendientes) },
-            { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+            { path: '', redirectTo: 'conductores', pathMatch: 'full' }
         ]
     },
     {
