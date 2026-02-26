@@ -10,7 +10,6 @@ export const routes: Routes = [
         path: 'reset-password',
         loadComponent: () => import('./features/auth/reset-password/reset-password').then(m => m.ResetPassword)
     },
-
     {
         path: 'super-admin',
         component: AdminLayout,
@@ -19,7 +18,7 @@ export const routes: Routes = [
             { path: 'dashboard', loadComponent: () => import('./features/super-admin/dashboard/dashboard').then(m => m.Dashboard) },
             { path: 'configuracion', loadComponent: () => import('./features/super-admin/configuracion/configuracion').then(m => m.Configuracion) },
             { path: 'campanias', loadComponent: () => import('./features/super-admin/campanias/campanias').then(m => m.Campanias) },
-            { path: 'usuarios', loadComponent: () => import('./features/super-admin/users-management/users-management').then(m => m.UsersManagement) },
+            { path: 'roles', loadComponent: () => import('./features/super-admin/roles-management/roles-management').then(m => m.RolesManagement) },
             { path: 'empresas', loadComponent: () => import('./features/super-admin/companies/companies').then(m => m.Companies) },
             { path: 'empresas/registrar', loadComponent: () => import('./features/super-admin/companies/register-company/register-company').then(m => m.RegisterCompany) },
             { path: 'conductores', loadComponent: () => import('./features/super-admin/monitor/monitor').then(m => m.Monitor) },
@@ -30,7 +29,11 @@ export const routes: Routes = [
             { path: '', redirectTo: 'conductores', pathMatch: 'full' }
         ]
     },
-
+    {
+        // no agregar abajo, no usa el AdminLayout
+        path: 'company/register',
+        loadComponent: () => import('./features/company/register/register').then(m => m.CompanyRegister)
+    },
     {
         path: 'company',
         component: AdminLayout,
