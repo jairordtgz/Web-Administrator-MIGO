@@ -31,7 +31,7 @@ import { CompaniesService } from '../../../../services/companies.service';
 export class RegisterCompany {
 
   tiposEmpresa = [{ label: 'Marca', value: 'MARCA' }, { label: 'Publicista', value: 'PUBLICISTA' }];
-  nuevaEmpresa = { ruc: '', nombre: '', tipo: null, email: '', password: '', confirmPassword: '', telefono: '', representante: '' };
+  nuevaEmpresa = { ruc: '', nombre: '', direccion: '', email: '', password: '', confirmPassword: '', telefono: '', representante: '' };
 
   constructor(private companiesService: CompaniesService, private router: Router, private messageService: MessageService) { }
 
@@ -48,7 +48,7 @@ export class RegisterCompany {
     this.router.navigate(['/super-admin/empresas']);
   }
 
-  guardar() {
+  /*guardar() {
     if (!this.nuevaEmpresa.ruc || !this.nuevaEmpresa.nombre || !this.nuevaEmpresa.email || !this.nuevaEmpresa.password) {
       this.messageService.add({ severity: 'warn', summary: 'Faltan Datos', detail: 'Completa los campos obligatorios.' });
       return;
@@ -75,5 +75,31 @@ export class RegisterCompany {
     setTimeout(() => {
       this.router.navigate(['/super-admin/empresas']);
     }, 1500);
+  }*/
+
+  guardar() {
+    // Validamos que la dirección también esté llena
+    if (!this.nuevaEmpresa.ruc || !this.nuevaEmpresa.nombre || !this.nuevaEmpresa.email || !this.nuevaEmpresa.password || !this.nuevaEmpresa.direccion) {
+      this.messageService.add({ severity: 'warn', summary: 'Faltan Datos', detail: 'Completa todos los campos.' });
+      return;
+    }
+    if (this.nuevaEmpresa.password !== this.nuevaEmpresa.confirmPassword) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Las contraseñas no coinciden.' });
+      return;
+    }
+
+    // Llamada REAL al backend
+    this.companiesService.registrarEmpresa(this.nuevaEmpresa).subscribe({
+      next: (respuesta) => {
+        this.messageService.add({ severity: 'success', summary: '¡Registrado!', detail: 'Empresa guardada en la base de datos.' });
+        setTimeout(() => {
+          this.router.navigate(['/super-admin/empresas']);
+        }, 1500);
+      },
+      error: (error) => {
+        console.error('Error del backend:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error de Servidor', detail: 'Verifica que el RUC o Correo no estén ya registrados.' });
+      }
+    });
   }
 }
