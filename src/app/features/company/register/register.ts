@@ -1,7 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { CompanyService } from '../../../services/company.service';
+import { CompaniesService } from '../../../services/companies.service';
+import { RegisterCompanyDTO } from '../../../interfaces/company';
 
 @Component({
   selector: 'app-register',
@@ -11,7 +12,7 @@ import { CompanyService } from '../../../services/company.service';
   styleUrl: './register.css',
 })
 export class CompanyRegister {
-  private companyService = inject(CompanyService);
+  private companiesService = inject(CompaniesService);
   private router = inject(Router);
 
   loading = false;
@@ -33,9 +34,9 @@ export class CompanyRegister {
       this.loading = true;
       this.errorMessage = '';
       
-      const val = this.registerForm.value;
+      const val = this.registerForm.getRawValue();
 
-      const formData = {
+      const formData: RegisterCompanyDTO = {
         username: val.email,
         password: Math.random().toString(36).slice(-8), 
         email: val.email,
@@ -49,7 +50,7 @@ export class CompanyRegister {
         habilitada: false
       };
 
-      this.companyService.registerCompany(formData).subscribe({
+      this.companiesService.registrarEmpresa(formData).subscribe({
         next: () => {
           this.loading = false;
           this.successMessage = 'Información enviada exitosamente para su validación.';
