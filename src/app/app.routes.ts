@@ -8,12 +8,30 @@ export const routes: Routes = [
     },
     {
         path: 'reset-password',
-        loadComponent: () => import('./features/auth/reset-password/reset-password').then(m => m.ResetPassword)
+        loadComponent: () => import('./features/auth/reset-password/reset-password').then(m => m.ResetPassword),
+        children: [
+            { 
+                path: 'email', 
+                loadComponent: () => import('./features/auth/reset-password/steps/email/email').then(m => m.EmailStep) 
+            },
+            { 
+                path: 'token', 
+                loadComponent: () => import('./features/auth/reset-password/steps/token/token').then(m => m.TokenStep) 
+            },
+            { 
+                path: 'new-password', 
+                loadComponent: () => import('./features/auth/reset-password/steps/new-password/new-password').then(m => m.NewPasswordStep) 
+            },
+            { 
+                path: 'success', 
+                loadComponent: () => import('./features/auth/reset-password/steps/success/success').then(m => m.SuccessStep) 
+            },
+            { path: '', redirectTo: 'email', pathMatch: 'full' }
+        ]
     },
     {
         path: 'super-admin',
         component: AdminLayout,
-        // canActivate: [RoleGuard], <-- Listo para cuando configuren seguridad
         children: [
             { path: 'dashboard', loadComponent: () => import('./features/super-admin/dashboard/dashboard').then(m => m.Dashboard) },
             { path: 'configuracion', loadComponent: () => import('./features/super-admin/configuracion/configuracion').then(m => m.Configuracion) },
@@ -30,7 +48,6 @@ export const routes: Routes = [
         ]
     },
     {
-        // no agregar abajo, no usa el AdminLayout
         path: 'company/register',
         loadComponent: () => import('./features/company/register/register').then(m => m.CompanyRegister)
     },
@@ -46,7 +63,6 @@ export const routes: Routes = [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
     },
-
     {
         path: 'publicist',
         component: AdminLayout,
@@ -55,7 +71,6 @@ export const routes: Routes = [
             { path: '', redirectTo: 'empresas', pathMatch: 'full' }
         ]
     },
-
     { path: '', redirectTo: 'login', pathMatch: 'full' },
     { path: '**', redirectTo: 'login' }
 ];
