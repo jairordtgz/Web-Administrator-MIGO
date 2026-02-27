@@ -1,1 +1,88 @@
-<p>login works!</p>
+<p-toast></p-toast>
+
+<div class="login-container flex min-h-screen">
+    <!-- Lado Izquierdo: Imagen de Fondo -->
+    <div class="hidden md:flex md:w-1/2 relative">
+        <img src="/assets/back_principal.png" alt="Login Background" class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-black opacity-30"></div>
+    </div>
+
+    <!-- Lado Derecho: Formulario de Login -->
+    <div class="w-full md:w-1/2 flex items-center justify-center p-8 bg-white">
+        <div class="w-full max-w-md">
+            <!-- Logo -->
+            <div class="flex justify-center mb-8">
+                <img src="/assets/migo_logo_main_yellow.png" alt="Migo Logo" class="h-20 w-auto">
+            </div>
+
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">¡Bienvenido de nuevo!</h1>
+                <p class="text-gray-500 mt-2">Por favor, ingrese sus credenciales para continuar.</p>
+            </div>
+
+            <form (ngSubmit)="onLogin()" #loginForm="ngForm" class="space-y-6">
+                <!-- Email -->
+                <div class="flex flex-col gap-2">
+                    <label for="email" class="text-sm font-medium text-gray-700">Correo Electrónico</label>
+                    <div class="p-input-icon-left w-full">
+                        <i class="pi pi-envelope absolute ml-3 mt-3.5 text-gray-400"></i>
+                        <input 
+                            pInputText 
+                            id="email" 
+                            name="email" 
+                            type="email" 
+                            [(ngModel)]="email" 
+                            placeholder="ejemplo@correo.com" 
+                            required 
+                            class="w-full pl-10 h-12 rounded-full border-gray-300 focus:ring-[#ffed00] focus:border-[#ffed00]"
+                        >
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="flex flex-col gap-2">
+                    <label for="password" class="text-sm font-medium text-gray-700">Contraseña</label>
+                    <div class="p-input-icon-left w-full">
+                        <i class="pi pi-lock absolute ml-3 mt-3.5 text-gray-400"></i>
+                        <p-password 
+                            id="password" 
+                            name="password" 
+                            [(ngModel)]="password" 
+                            [toggleMask]="true" 
+                            [feedback]="false" 
+                            placeholder="**********" 
+                            required 
+                            styleClass="w-full"
+                            inputStyleClass="w-full pl-10 h-12 rounded-full border-gray-300 focus:ring-[#ffed00] focus:border-[#ffed00]"
+                        ></p-password>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-[#ffed00] focus:ring-[#ffed00] border-gray-300 rounded">
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-700">Recordarme</label>
+                    </div>
+                    <div class="text-sm">
+                        <a routerLink="/reset-password" class="font-medium text-gray-600 hover:text-gray-900 underline decoration-2">¿Olvidaste tu contraseña?</a>
+                    </div>
+                </div>
+
+                <!-- Botón Login -->
+                <button 
+                    pButton 
+                    type="submit" 
+                    label="Iniciar Sesión" 
+                    [loading]="loading"
+                    class="w-full h-12 rounded-full bg-[#ffed00] border-none text-black font-bold hover:bg-[#e6d500] transition-colors"
+                ></button>
+
+                <div class="text-center mt-6">
+                    <p class="text-gray-600">¿No tienes una cuenta? 
+                        <a routerLink="/company/register" class="font-bold text-gray-800 hover:underline">Regístrate aquí</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
