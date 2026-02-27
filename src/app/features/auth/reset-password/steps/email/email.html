@@ -1,0 +1,41 @@
+<p-toast></p-toast>
+<div class="text-center mb-8 animate-fadein">
+    <h1 class="text-3xl font-bold text-gray-800">Recuperar Contraseña</h1>
+    <p class="text-gray-500 mt-2">Ingresa tu correo electrónico y te enviaremos un código para restablecer tu contraseña.</p>
+</div>
+
+<form [formGroup]="emailForm" (ngSubmit)="onSubmit()" class="space-y-6 animate-fadein">
+    <div class="flex flex-col gap-2">
+        <label for="email" class="text-sm font-medium text-gray-700">Correo Electrónico</label>
+        <p-iconfield iconPosition="left" class="w-full">
+            <p-inputicon class="pi pi-envelope text-gray-400"></p-inputicon>
+            <input 
+                pInputText 
+                id="email" 
+                formControlName="email"
+                type="email" 
+                placeholder="ejemplo@correo.com" 
+                class="w-full h-12 rounded-full border-gray-300 focus:ring-[#ffed00] focus:border-[#ffed00]"
+                [invalid]="emailForm.get('email')?.invalid && emailForm.get('email')?.touched"
+            >
+        </p-iconfield>
+        <small class="text-red-500 ml-4" *ngIf="emailForm.get('email')?.invalid && emailForm.get('email')?.touched">
+            <span *ngIf="emailForm.get('email')?.errors?.['required']">El correo es obligatorio.</span>
+            <span *ngIf="emailForm.get('email')?.errors?.['email']">Ingrese un correo válido.</span>
+        </small>
+    </div>
+
+    <button 
+        pButton 
+        type="submit" 
+        label="Enviar Código" 
+        [loading]="loading"
+        class="w-full h-12 rounded-full bg-[#ffed00] border-none text-black font-bold hover:bg-[#e6d500] transition-colors"
+    ></button>
+
+    <div class="text-center mt-6">
+        <a routerLink="/login" class="text-sm font-medium text-gray-600 hover:text-gray-900 flex items-center justify-center gap-2">
+            <i class="pi pi-arrow-left"></i> Volver al Inicio de Sesión
+        </a>
+    </div>
+</form>

@@ -1,1 +1,65 @@
-<p>company-dashboard works!</p>
+<p-toast></p-toast>
+
+<div class="dashboard-content">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Panel de Control</h2>
+        <p class="text-gray-500">Bienvenido de nuevo, <span class="text-gray-800 font-semibold">{{ companyName }}</span></p>
+    </div>
+
+    <!-- Tarjetas de Resumen (Solo visual por ahora) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+            <div class="bg-blue-50 p-3 rounded-lg text-blue-600">
+                <i class="pi pi-car text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium uppercase tracking-wider">Mis Conductores</p>
+                <p class="text-2xl font-bold text-gray-800">24</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+            <div class="bg-yellow-50 p-3 rounded-lg text-yellow-600">
+                <i class="pi pi-megaphone text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium uppercase tracking-wider">Campañas Activas</p>
+                <p class="text-2xl font-bold text-gray-800">5</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+            <div class="bg-green-50 p-3 rounded-lg text-green-600">
+                <i class="pi pi-chart-line text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium uppercase tracking-wider">Impactos Totales</p>
+                <p class="text-2xl font-bold text-gray-800">12.5k</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+            <div class="bg-red-50 p-3 rounded-lg text-red-600">
+                <i class="pi pi-bell text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium uppercase tracking-wider">Notificaciones</p>
+                <p class="text-2xl font-bold text-gray-800">3</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido Principal Simulado -->
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 min-h-[400px] flex flex-col items-center justify-center text-center">
+        <div class="mb-6">
+            <img src="/assets/migo_logo_main_yellow.png" alt="Migo Logo" class="h-16 opacity-20 grayscale grayscale-100">
+        </div>
+        <h3 class="text-xl font-bold text-gray-700 mb-2">¡Todo listo para hoy!</h3>
+        <p class="text-gray-500 max-w-md mx-auto">Esta es tu zona de control. Aquí podrás gestionar tus conductores, campañas publicitarias y ver los reportes en tiempo real.</p>
+        
+        <div class="mt-8 flex gap-4">
+            <button class="px-6 py-2 bg-[#ffed00] hover:bg-yellow-400 text-black font-bold rounded-full transition-all">Crear Nueva Campaña</button>
+            <button class="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-full transition-all">Ver Reportes</button>
+        </div>
+    </div>
+</div>

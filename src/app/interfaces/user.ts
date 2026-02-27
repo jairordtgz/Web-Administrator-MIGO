@@ -1,10 +1,25 @@
+export enum EstadoUsuario {
+    INACTIVO = 'inactivo',
+    ACTIVO = 'activo',
+    DESHABILITADO = 'deshabilitado'
+}
+
+export enum RolUsuario {
+    CONDUCTOR = 'conductor',
+    EMPRESA = 'empresa',
+    PUBLICISTA = 'publicista',
+    ADMINISTRADOR = 'administrador'
+}
+
 export interface User {
-    id_usuario: number,
-    email: String,
-    placa: String,
-    contrasena: String,
-    fecha_creacion: String,
-    fecha_modificacion: String,
-    estado: number,
-    rol_usuario: number,
+    id?: number;
+    username: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    password?: string;
+    tipo_usuario?: RolUsuario;
+    estado?: EstadoUsuario;
+    fecha_creacion?: string;
+    fecha_modificacion?: string;
 }

@@ -1,7 +1,8 @@
 import { Component, inject } from '@angular/core';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { CompanyService } from '../../../services/company.service';
+import { CompaniesService } from '../../../services/companies.service';
+import { RegisterCompanyDTO } from '../../../interfaces/company';
 
 @Component({
   selector: 'app-register',
@@ -11,7 +12,7 @@ import { CompanyService } from '../../../services/company.service';
   styleUrl: './register.css',
 })
 export class CompanyRegister {
-  private companyService = inject(CompanyService);
+  private companiesService = inject(CompaniesService);
   private router = inject(Router);
 
   loading = false;
@@ -21,31 +22,35 @@ export class CompanyRegister {
   registerForm = new FormGroup({
     ruc: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern('^[0-9]+$')] }),
     nombre: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
-    // descripcion: new FormControl('', { nonNullable: true }),
-    representante_nombre: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    representante_first_name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    representante_last_name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     representante_contacto: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
     direccion: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    // password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] }),
-    // confirmPassword: new FormControl('', { nonNullable: true, validators: [Validators.required] })
-  }, { 
-    // validators: [this.passwordMatchValidator] 
   });
-
-  // passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
-  //   const password = control.get('password');
-  //   const confirmPassword = control.get('confirmPassword');
-  //   
-  //   return password && confirmPassword && password.value === confirmPassword.value
-  //     ? null : { mismatch: true };
-  // }
 
   onSubmit() {
     if (this.registerForm.valid) {
       this.loading = true;
       this.errorMessage = '';
+      
+      const val = this.registerForm.getRawValue();
 
-      this.companyService.registerCompany(this.registerForm.getRawValue()).subscribe({
+      const formData: RegisterCompanyDTO = {
+        username: val.email,
+        password: Math.random().toString(36).slice(-8), 
+        email: val.email,
+        first_name: val.representante_first_name,
+        last_name: val.representante_last_name,
+        nombre: val.nombre, 
+        ruc: val.ruc,
+        direccion: val.direccion,
+        nombre_representante: `${val.representante_first_name} ${val.representante_last_name}`,
+        contacto_representante: val.representante_contacto,
+        habilitada: false
+      };
+
+      this.companiesService.registrarEmpresa(formData).subscribe({
         next: () => {
           this.loading = false;
           this.successMessage = 'Información enviada exitosamente para su validación.';

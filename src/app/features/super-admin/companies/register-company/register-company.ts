@@ -9,6 +9,7 @@ import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CompaniesService } from '../../../../services/companies.service';
+import { RegisterCompanyDTO } from '../../../../interfaces/company';
 
 @Component({
   selector: 'app-register-company',
@@ -30,8 +31,18 @@ import { CompaniesService } from '../../../../services/companies.service';
 })
 export class RegisterCompany {
 
-  tiposEmpresa = [{ label: 'Marca', value: 'MARCA' }, { label: 'Publicista', value: 'PUBLICISTA' }];
-  nuevaEmpresa = { ruc: '', nombre: '', direccion: '', email: '', password: '', confirmPassword: '', telefono: '', representante: '' };
+  tiposEmpresa = [{ label: 'Marca', value: 'marca' }, { label: 'Publicista', value: 'publicista' }];
+  nuevaEmpresa = { 
+    ruc: '', 
+    nombre: '', 
+    direccion: '', 
+    email: '', 
+    password: '', 
+    confirmPassword: '', 
+    telefono: '', 
+    representante: '',
+    tipo: { label: 'Marca', value: 'marca' } 
+  };
 
   constructor(private companiesService: CompaniesService, private router: Router, private messageService: MessageService) { }
 
@@ -88,8 +99,22 @@ export class RegisterCompany {
       return;
     }
 
+    const payload: RegisterCompanyDTO = {
+      username: this.nuevaEmpresa.email,
+      password: this.nuevaEmpresa.password,
+      email: this.nuevaEmpresa.email,
+      first_name: this.nuevaEmpresa.representante.split(' ')[0] || 'Representante',
+      last_name: this.nuevaEmpresa.representante.split(' ').slice(1).join(' ') || 'Empresa',
+      nombre: this.nuevaEmpresa.nombre,
+      ruc: this.nuevaEmpresa.ruc,
+      direccion: this.nuevaEmpresa.direccion,
+      nombre_representante: this.nuevaEmpresa.representante,
+      contacto_representante: this.nuevaEmpresa.telefono,
+      habilitada: true
+    };
+
     // Llamada REAL al backend
-    this.companiesService.registrarEmpresa(this.nuevaEmpresa).subscribe({
+    this.companiesService.registrarEmpresa(payload).subscribe({
       next: (respuesta) => {
         this.messageService.add({ severity: 'success', summary: '¡Registrado!', detail: 'Empresa guardada en la base de datos.' });
         setTimeout(() => {

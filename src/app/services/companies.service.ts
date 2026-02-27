@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, map } from 'rxjs';
+import { RegisterCompanyDTO } from '../interfaces/company';
 
 @Injectable({
   providedIn: 'root'
@@ -25,27 +26,14 @@ export class CompaniesService {
     this.empresas = [nueva, ...this.empresas];
   }
 
-  registrarEmpresa(datosFormulario: any): Observable<any> {
-    const payload = {
-      username: datosFormulario.email, 
-      password: datosFormulario.password,
-      email: datosFormulario.email,
-      first_name: datosFormulario.representante.split(' ')[0] || 'Representante',
-      last_name: datosFormulario.representante.split(' ').slice(1).join(' ') || 'Empresa',
-      nombre: datosFormulario.nombre,
-      ruc: datosFormulario.ruc,
-      direccion: datosFormulario.direccion,
-      nombre_representante: datosFormulario.representante,
-      contacto_representante: datosFormulario.telefono
-    };
-
+  registrarEmpresa(payload: RegisterCompanyDTO): Observable<any> {
     return this.http.post(this.apiUrl, payload).pipe(
       tap(() => {
         const nuevaVisual = {
-          nombres: datosFormulario.nombre,
-          ruc: datosFormulario.ruc,
+          nombres: payload.nombre,
+          ruc: payload.ruc,
           fecha: new Date().toLocaleDateString('es-ES'),
-          correo: datosFormulario.email,
+          correo: payload.email,
           tipo: 'marca', 
           estado: 'activo'
         };
@@ -60,7 +48,8 @@ export class CompaniesService {
         return respuestaBackend.map((empresa: any) => ({
           nombres: empresa.nombre,
           ruc: empresa.ruc,
-          fecha: new Date().toLocaleDateString('es-ES'),
+          // TODO estas fechas se estan generando aqui, implementar endpoint que las traiga de verdad
+          fecha: new Date().toLocaleDateString('es-ES'), 
           correo: empresa.email,
           tipo: empresa.tipo_empresa || 'marca',
           estado: empresa.habilitada ? 'activo' : 'inactivo'

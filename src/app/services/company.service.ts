@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { Empresa } from '../interfaces/empresa';
+import { Company, RegisterCompanyDTO } from '../interfaces/company';
 
 @Injectable({
   providedIn: 'root'
@@ -9,10 +9,11 @@ import { Empresa } from '../interfaces/empresa';
 export class CompanyService {
 
   constructor(private http: HttpClient) { }
-  // TODO cambiar any a DTOs cuando sean definidos
-  registerCompany(companyData: any): Observable<any> {
+  
+  registerCompany(companyData: RegisterCompanyDTO): Observable<any> {
     console.log('Sending registration data to backend:', companyData);
-    // Simulating backend response
+    // Simulating backend response or real call if URL is defined
+    // return this.http.post('YOUR_API_URL', companyData);
     return of({ success: true, message: 'Registro exitoso (Simulado)' });
   }
 }
