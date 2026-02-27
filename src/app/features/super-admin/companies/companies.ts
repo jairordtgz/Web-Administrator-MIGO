@@ -37,6 +37,7 @@ export class Companies implements OnInit {
   empresasMock: any[] = [];
   fechaFiltro: Date | undefined;
   tipoActual: string = 'Todos los Filtros';
+  viendoSoloActivos: boolean = false;
 
   constructor(private messageService: MessageService, private companiesService: CompaniesService, private router: Router, private cdr: ChangeDetectorRef) { }
 
@@ -81,6 +82,19 @@ export class Companies implements OnInit {
       op.hide();
     } else {
       this.limpiarFecha(op);
+    }
+  }
+
+  toggleFiltroActivos() {
+    this.viendoSoloActivos = !this.viendoSoloActivos;
+    if (this.dt) {
+      if (this.viendoSoloActivos) {
+        this.dt.filter('activo', 'estado', 'equals');
+        this.messageService.add({ severity: 'success', summary: 'Filtro', detail: 'Mostrando solo activos' });
+      } else {
+        this.dt.filter('', 'estado', 'contains');
+        this.messageService.add({ severity: 'info', summary: 'Filtro', detail: 'Mostrando todos' });
+      }
     }
   }
 

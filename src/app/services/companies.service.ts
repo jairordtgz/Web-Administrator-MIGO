@@ -62,8 +62,8 @@ export class CompaniesService {
           ruc: empresa.ruc,
           fecha: new Date().toLocaleDateString('es-ES'),
           correo: empresa.email,
-          tipo: 'marca',
-          estado: 'activo'
+          tipo: empresa.tipo_empresa || 'marca',
+          estado: empresa.habilitada ? 'activo' : 'inactivo'
         }));
       })
     );

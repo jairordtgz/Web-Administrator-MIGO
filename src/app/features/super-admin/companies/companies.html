@@ -64,6 +64,12 @@
                 </div>
             </div>
         </p-popover>
+
+        <p-button [label]="viendoSoloActivos ? 'Viendo Solo Activos' : 'Filtrar Solo Activos'"
+            [icon]="viendoSoloActivos ? 'pi pi-check-circle' : 'pi pi-filter'" (onClick)="toggleFiltroActivos()"
+            [severity]="viendoSoloActivos ? 'success' : 'secondary'" [outlined]="!viendoSoloActivos"
+            styleClass="p-button-rounded">
+        </p-button>
     </div>
 
     <div class="bg-white rounded-xl shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] overflow-hidden border border-gray-100">
