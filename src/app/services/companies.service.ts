@@ -7,7 +7,7 @@ import { RegisterCompanyDTO } from '../interfaces/company';
   providedIn: 'root'
 })
 export class CompaniesService {
-  private apiUrl = 'http://127.0.0.1:8000/api/admin/usuario/empresas/';
+  private apiUrl = 'http://127.0.0.1:8000/api/admin/usuario/empresa/';
 
   private empresas = [
     { nombres: 'Roberto Ruiz', ruc: '#0985428795', fecha: '23/10/2023', correo: 'dirección@correo.com', tipo: 'marca', estado: 'activo' },
@@ -34,7 +34,7 @@ export class CompaniesService {
           ruc: payload.ruc,
           fecha: new Date().toLocaleDateString('es-ES'),
           correo: payload.email,
-          tipo: 'marca', 
+          tipo: 'marca',
           estado: 'activo'
         };
         this.empresas = [nuevaVisual, ...this.empresas];
@@ -49,7 +49,7 @@ export class CompaniesService {
           nombres: empresa.nombre,
           ruc: empresa.ruc,
           // TODO estas fechas se estan generando aqui, implementar endpoint que las traiga de verdad
-          fecha: new Date().toLocaleDateString('es-ES'), 
+          fecha: new Date().toLocaleDateString('es-ES'),
           correo: empresa.email,
           tipo: empresa.tipo_empresa || 'marca',
           estado: empresa.habilitada ? 'activo' : 'inactivo'
