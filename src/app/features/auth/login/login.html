@@ -60,7 +60,7 @@
                     </p-iconfield>
                     <small class="text-red-500 ml-4" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
                         <span *ngIf="loginForm.get('password')?.errors?.['required']">La contraseña es obligatoria.</span>
-                        <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Mínimo 6 caracteres.</span>
+                        <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Mínimo 8 caracteres.</span>
                     </small>
                 </div>
 

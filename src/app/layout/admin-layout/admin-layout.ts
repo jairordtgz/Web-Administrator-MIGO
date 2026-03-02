@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -11,12 +12,14 @@ import { filter } from 'rxjs/operators';
 })
 export class AdminLayout implements OnInit {
   private router = inject(Router);
+  private authService = inject(AuthService);
   
   menuItems: any[] = [];
-  userName = 'KARLA VERA'; // Valor por defecto
-  userRole = 'Administrador';
+  userName = 'Usuario';
+  userRole = '';
 
   ngOnInit() {
+    this.loadUserData();
     this.updateNavigation();
 
     this.router.events.pipe(
@@ -26,19 +29,28 @@ export class AdminLayout implements OnInit {
     });
   }
 
+  loadUserData() {
+    const user = this.authService.getUser();
+    if (user) {
+      this.userName = user.first_name.toUpperCase();
+      this.userRole = user.tipo_usuario.charAt(0).toUpperCase() + user.tipo_usuario.slice(1);
+    }
+  }
+
   updateNavigation() {
+    this.loadUserData();
     const url = this.router.url;
 
     if (url.includes('/company')) {
       this.setCompanyMenu();
     } else if (url.includes('/super-admin')) {
       this.setSuperAdminMenu();
+    } else if (url.includes('/publicist')) {
+      this.setPublicistMenu();
     }
   }
 
   setSuperAdminMenu() {
-    this.userName = 'KARLA VERA';
-    this.userRole = 'Super Admin';
     this.menuItems = [
       { label: 'Conductores', icon: 'pi pi-car', route: '/super-admin/conductores' },
       { label: 'Empresas/ Publicistas', icon: 'pi pi-building', route: '/super-admin/empresas' },
@@ -53,11 +65,6 @@ export class AdminLayout implements OnInit {
   }
 
   setCompanyMenu() {
-    // Intentamos obtener el nombre de la empresa si está en localStorage
-    const savedName = localStorage.getItem('company_name');
-    this.userName = savedName ? savedName.toUpperCase() : 'MI EMPRESA';
-    this.userRole = 'Empresa';
-    
     this.menuItems = [
       { label: 'Dashboard', icon: 'pi pi-desktop', route: '/company/dashboard' },
       { label: 'Mis Campañas', icon: 'pi pi-megaphone', route: '/company/mis-campanias' },
@@ -65,5 +72,16 @@ export class AdminLayout implements OnInit {
       { label: 'Reportes', icon: 'pi pi-chart-bar', route: '/company/reportes' },
       { label: 'Notificaciones', icon: 'pi pi-bell', route: '/company/notificaciones', badge: 3 },
     ];
+  }
+
+  setPublicistMenu() {
+    this.menuItems = [
+      { label: 'Empresas', icon: 'pi pi-building', route: '/publicist/empresas' },
+    ];
+  }
+
+  onLogout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

@@ -34,7 +34,7 @@ export class NewPasswordStep implements OnInit {
   private messageService = inject(MessageService);
 
   passwordForm = this.fb.group({
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', [Validators.required]]
   }, { validators: this.passwordMatchValidator });
 

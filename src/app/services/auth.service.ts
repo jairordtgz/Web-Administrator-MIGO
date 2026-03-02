@@ -1,13 +1,54 @@
-import { Injectable } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of, delay, tap } from 'rxjs';
+import { AuthResponse, LoginCredentials, AuthUser } from '../interfaces/auth';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  private http = inject(HttpClient);
+  private apiUrl = 'http://127.0.0.1:8000/login/';
   private resetEmail: string = '';
 
   constructor() { }
+
+  login(credentials: LoginCredentials): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(this.apiUrl, credentials).pipe(
+      tap(response => {
+        this.saveToken(response.token);
+        this.saveUser(response.usuario);
+      })
+    );
+  }
+
+  saveToken(token: string) {
+    localStorage.setItem('auth_token', token);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('auth_token');
+  }
+
+  saveUser(user: AuthUser) {
+    localStorage.setItem('auth_user', JSON.stringify(user));
+    localStorage.setItem('company_name', user.first_name);
+  }
+
+  getUser(): AuthUser | null {
+    const user = localStorage.getItem('auth_user');
+    return user ? JSON.parse(user) : null;
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.getToken();
+  }
+
+  logout() {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    localStorage.removeItem('company_name');
+  }
 
   setResetEmail(email: string) {
     this.resetEmail = email;
