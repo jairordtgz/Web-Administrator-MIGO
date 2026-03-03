@@ -1,5 +1,5 @@
 import { User } from './user';
-
+import { PaginatedResponse } from './pagination';
 
 export interface Company {
     id?: number;
@@ -11,6 +11,15 @@ export interface Company {
     nombre_representante: string;
     contacto_representante: string;
     habilitada?: boolean;
+    
+    // API combined fields from User
+    username?: string;
+    email?: string;
+    first_name?: string;
+    last_name?: string;
+    fecha_creacion?: string;
+    token_notificacion?: string | null;
+    foto_perfil?: string | null;
 }
 
 export interface RegisterCompanyDTO extends 
@@ -19,3 +28,5 @@ export interface RegisterCompanyDTO extends
 }
 
 export type Empresa = Company;
+
+export type CompanyResponse = PaginatedResponse<Company>;
