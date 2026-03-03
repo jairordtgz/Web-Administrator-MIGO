@@ -10,6 +10,7 @@ import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TagModule } from 'primeng/tag';
+import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService } from 'primeng/api';
 import { DatePickerModule } from 'primeng/datepicker';
 import { PopoverModule } from 'primeng/popover';
@@ -25,7 +26,7 @@ import { CompaniesService } from '../../../services/companies.service';
   imports: [
     CommonModule, FormsModule, TableModule, DialogModule, ButtonModule,
     InputTextModule, PasswordModule, SelectModule, ToastModule, ToolbarModule,
-    TagModule, DatePickerModule, PopoverModule
+    TagModule, DatePickerModule, PopoverModule, SkeletonModule
   ],
   providers: [MessageService],
   templateUrl: './companies.html',
@@ -34,24 +35,65 @@ import { CompaniesService } from '../../../services/companies.service';
 export class Companies implements OnInit {
   @ViewChild('dt') dt!: Table;
 
-  empresasMock: any[] = [];
+  empresas: any[] = [];
+  totalRecords: number = 0;
+  first: number = 0;
+  rows: number = 10;
+  loading: boolean = false;
+  
   fechaFiltro: Date | undefined;
-  tipoActual: string = 'Todos los Filtros';
-  viendoSoloActivos: boolean = false;
+  tipoActual: string = 'Filtrar por Tipo';
 
   constructor(private messageService: MessageService, private companiesService: CompaniesService, private router: Router, private cdr: ChangeDetectorRef) { }
 
   ngOnInit() {
-    this.companiesService.getEmpresasBackend().subscribe({
-      next: (empresas) => {
-        this.empresasMock = [...empresas, ...this.companiesService.getEmpresas()];
+    // El onLazyLoad de la tabla cargará los datos al iniciar
+  }
+
+  loadCompanies(event?: any) {
+    this.loading = true;
+    
+    // Cálculo de página: PrimeNG envía 'first' (indice) y 'rows' (tamaño)
+    const page = event ? Math.floor(event.first / event.rows) + 1 : 1;
+    const rows = event ? event.rows : this.rows;
+
+    // Extraemos el valor del filtro global si existe
+    const searchValue = event?.filters?.['global']?.value || '';
+
+    // Manejo de ordenamiento
+    let ordering = '';
+    if (event?.sortField) {
+      // Mapeamos el campo del front al campo del back si es necesario
+      const fieldMap: { [key: string]: string } = {
+        'fecha': 'usuario__fecha_creacion'
+      };
+      
+      const backendField = fieldMap[event.sortField] || event.sortField;
+      ordering = event.sortOrder === 1 ? backendField : `-${backendField}`;
+    }
+
+    // Llenamos con objetos vacíos para que la tabla itere y muestre skeletons
+    this.empresas = Array.from({ length: rows }).map((_, i) => ({}));
+
+    this.companiesService.getEmpresas(page, rows, searchValue, ordering).subscribe({
+      next: (response) => {
+        this.empresas = response.results;
+        this.totalRecords = response.total;
+        this.loading = false;
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error al traer los datos de Django:', error);
+        this.loading = false;
+        console.error('Error al cargar los datos:', error);
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo conectar con la base de datos.' });
       }
     });
+  }
+
+  onLazyLoad(event: any) {
+    this.first = event.first;
+    this.rows = event.rows;
+    this.loadCompanies(event);
   }
 
   irARegistro() {
@@ -85,19 +127,6 @@ export class Companies implements OnInit {
     }
   }
 
-  toggleFiltroActivos() {
-    this.viendoSoloActivos = !this.viendoSoloActivos;
-    if (this.dt) {
-      if (this.viendoSoloActivos) {
-        this.dt.filter('activo', 'estado', 'equals');
-        this.messageService.add({ severity: 'success', summary: 'Filtro', detail: 'Mostrando solo activos' });
-      } else {
-        this.dt.filter('', 'estado', 'contains');
-        this.messageService.add({ severity: 'info', summary: 'Filtro', detail: 'Mostrando todos' });
-      }
-    }
-  }
-
   limpiarFecha(op: any) {
     this.fechaFiltro = undefined;
     if (this.dt) {
@@ -108,7 +137,7 @@ export class Companies implements OnInit {
   }
 
   exportExcel() {
-    const datosLimpios = this.empresasMock.map(emp => ({
+    const datosLimpios = this.empresas.map(emp => ({
       'Nombres': emp.nombres,
       'RUC': emp.ruc,
       'Fecha de Ingreso': emp.fecha,
@@ -133,7 +162,7 @@ export class Companies implements OnInit {
       { header: 'Tipo', dataKey: 'tipo' }
     ];
 
-    const filas = this.empresasMock.map(emp => ({
+    const filas = this.empresas.map(emp => ({
       nombres: emp.nombres, ruc: emp.ruc, fecha: emp.fecha,
       correo: emp.correo, tipo: emp.tipo.toUpperCase()
     }));

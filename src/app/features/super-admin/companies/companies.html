@@ -29,9 +29,6 @@
                 <div class="p-3 text-sm font-bold text-gray-700 bg-gray-50 border-b border-gray-100">Filtrar por Tipo
                 </div>
 
-                <button pButton label="Todos los registros"
-                    class="p-button-text !text-gray-600 !justify-start !px-4 !py-3 hover:!bg-gray-100"
-                    (click)="filtrarPorTipo('', opFiltro, 'Todos los Filtros')"></button>
                 <button pButton label="Solo Marcas"
                     class="p-button-text !text-blue-600 !justify-start !px-4 !py-3 hover:!bg-blue-50 font-bold"
                     (click)="filtrarPorTipo('marca', opFiltro, 'Solo Marcas')"></button>
@@ -64,16 +61,21 @@
                 </div>
             </div>
         </p-popover>
-
-        <p-button [label]="viendoSoloActivos ? 'Viendo Solo Activos' : 'Filtrar Solo Activos'"
-            [icon]="viendoSoloActivos ? 'pi pi-check-circle' : 'pi pi-filter'" (onClick)="toggleFiltroActivos()"
-            [severity]="viendoSoloActivos ? 'success' : 'secondary'" [outlined]="!viendoSoloActivos"
-            styleClass="p-button-rounded">
-        </p-button>
     </div>
 
-    <div class="bg-white rounded-xl shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] overflow-hidden border border-gray-100">
-        <p-table #dt [value]="empresasMock" [paginator]="true" [rows]="4"
+    <div class="bg-white rounded-xl shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] border border-gray-100">
+        <p-table #dt [value]="empresas" 
+            [size]="'large'"
+            [lazy]="true" 
+            (onLazyLoad)="onLazyLoad($event)"
+            [paginator]="true" 
+            [rows]="rows" 
+            [first]="first"
+            [totalRecords]="totalRecords"
+            [loading]="loading"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+            [rowsPerPageOptions]="[5, 10, 25, 50]"
             [globalFilterFields]="['nombres', 'ruc', 'correo', 'tipo']" styleClass="p-datatable-sm">
             <ng-template pTemplate="header">
                 <tr>
@@ -82,9 +84,12 @@
                     </th>
                     <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
                         RUC</th>
-                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
-                        Fecha de
-                        Ingreso</th>
+                    <th pSortableColumn="fecha" class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+                        <div class="flex items-center gap-2">
+                            Fecha de Ingreso
+                            <p-sortIcon field="fecha" />
+                        </div>
+                    </th>
                     <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
                         Correo
                     </th>
@@ -97,24 +102,41 @@
             </ng-template>
             <ng-template pTemplate="body" let-empresa>
                 <tr class="border-b border-gray-100 hover:bg-yellow-50/50 transition-colors">
-                    <td class="p-4 font-bold text-gray-800">{{ empresa.nombres }}</td>
-                    <td class="p-4 text-gray-600 font-medium">{{ empresa.ruc }}</td>
-                    <td class="p-4 text-gray-600">{{ empresa.fecha }}</td>
-                    <td class="p-4 text-gray-600">{{ empresa.correo }}</td>
-                    <td class="p-4 text-gray-600 font-medium">
-                        <span
-                            [ngClass]="{'text-blue-600': empresa.tipo === 'marca', 'text-purple-600': empresa.tipo === 'publi.'}">
-                            {{ empresa.tipo | titlecase }}
-                        </span>
-                    </td>
-                    <td class="p-4 flex justify-center gap-2 py-3">
-                        <p-tag value="Habilitar" class="cursor-pointer hover:scale-105 transition-transform"
-                            [style]="{'background': '#22c55e', 'color': 'white', 'padding': '4px 12px', 'border-radius': '9999px', 'font-weight': '600', 'font-size': '11px'}"></p-tag>
-                        <p-tag value="Deshabilitar" class="cursor-pointer hover:scale-105 transition-transform"
-                            [style]="{'background': '#3b82f6', 'color': 'white', 'padding': '4px 12px', 'border-radius': '9999px', 'font-weight': '600', 'font-size': '11px'}"></p-tag>
-                        <p-tag value="Eliminar" class="cursor-pointer hover:scale-105 transition-transform"
-                            [style]="{'background': '#ef4444', 'color': 'white', 'padding': '4px 12px', 'border-radius': '9999px', 'font-weight': '600', 'font-size': '11px'}"></p-tag>
-                    </td>
+                    @if (loading) {
+                        <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
+                        <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
+                        <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
+                        <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
+                        <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
+                        <td class="p-4 text-center">
+                            <div class="flex justify-center items-center gap-2">
+                                <p-skeleton width="60px" height="20px" borderRadius="9999px" />
+                                <p-skeleton width="60px" height="20px" borderRadius="9999px" />
+                                <p-skeleton width="60px" height="20px" borderRadius="9999px" />
+                            </div>
+                        </td>
+                    } @else {
+                        <td class="p-4 font-bold text-gray-800">{{ empresa.nombres }}</td>
+                        <td class="p-4 text-gray-600 font-medium">{{ empresa.ruc }}</td>
+                        <td class="p-4 text-gray-600">{{ empresa.fecha }}</td>
+                        <td class="p-4 text-gray-600">{{ empresa.correo }}</td>
+                        <td class="p-4 text-gray-600 font-medium">
+                            <span
+                                [ngClass]="{'text-blue-600': empresa.tipo === 'marca', 'text-purple-600': empresa.tipo === 'publicista'}">
+                                {{ empresa.tipo | titlecase }}
+                            </span>
+                        </td>
+                        <td class="p-4 text-center">
+                            <div class="flex justify-center items-center gap-2">
+                                <p-tag value="Habilitar" class="cursor-pointer hover:scale-105 transition-transform"
+                                    [style]="{'background': '#22c55e', 'color': 'white', 'padding': '4px 12px', 'border-radius': '9999px', 'font-weight': '600', 'font-size': '11px'}"></p-tag>
+                                <p-tag value="Deshabilitar" class="cursor-pointer hover:scale-105 transition-transform"
+                                    [style]="{'background': '#3b82f6', 'color': 'white', 'padding': '4px 12px', 'border-radius': '9999px', 'font-weight': '600', 'font-size': '11px'}"></p-tag>
+                                <p-tag value="Eliminar" class="cursor-pointer hover:scale-105 transition-transform"
+                                    [style]="{'background': '#ef4444', 'color': 'white', 'padding': '4px 12px', 'border-radius': '9999px', 'font-weight': '600', 'font-size': '11px'}"></p-tag>
+                            </div>
+                        </td>
+                    }
                 </tr>
             </ng-template>
             <ng-template pTemplate="paginatorright">
