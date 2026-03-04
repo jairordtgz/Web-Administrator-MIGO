@@ -1,12 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
+import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
 import { CompaniesService } from '../../../../services/companies.service';
 import { RegisterCompanyDTO } from '../../../../interfaces/company';
@@ -14,7 +15,7 @@ import { RegisterCompanyDTO } from '../../../../interfaces/company';
 @Component({
   selector: 'app-register-company',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, PasswordModule, SelectModule, ToastModule],
+  imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, PasswordModule, SelectModule, ToastModule, MessageModule],
   providers: [MessageService],
   templateUrl: './register-company.html',
   styles: [`
@@ -29,29 +30,41 @@ import { RegisterCompanyDTO } from '../../../../interfaces/company';
     }
   `]
 })
-export class RegisterCompany {
+export class RegisterCompany implements OnInit {
+
+  private fb = inject(FormBuilder);
+
+  empresaForm!: FormGroup;
 
   tiposEmpresa = [{ label: 'Marca', value: 'marca' }, { label: 'Publicista', value: 'publicista' }];
-  nuevaEmpresa = { 
-    ruc: '', 
-    nombre: '', 
-    direccion: '', 
-    email: '', 
-    password: '', 
-    confirmPassword: '', 
-    telefono: '', 
-    representante: '',
-    tipo: { label: 'Marca', value: 'marca' } 
-  };
 
   constructor(private companiesService: CompaniesService, private router: Router, private messageService: MessageService) { }
+
+  ngOnInit() {
+    this.empresaForm = this.fb.group({
+      ruc: ['', [Validators.required, Validators.pattern(/^\d{13}$/)]],
+      nombre: ['', Validators.required],
+      direccion: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required],
+      confirmPassword: ['', Validators.required],
+      telefono: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+      representante_nombre: ['', Validators.required],
+      representante_apellido: ['', Validators.required],
+      tipo: [{ label: 'Marca', value: 'marca' }]
+    });
+  }
 
   generarClaveFuerte() {
     const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
     let claveGenerada = '';
     for (let i = 0; i < 12; i++) { claveGenerada += caracteres.charAt(Math.floor(Math.random() * caracteres.length)); }
-    this.nuevaEmpresa.password = claveGenerada;
-    this.nuevaEmpresa.confirmPassword = claveGenerada;
+
+    this.empresaForm.patchValue({
+      password: claveGenerada,
+      confirmPassword: claveGenerada
+    });
+
     this.messageService.add({ severity: 'info', summary: 'Clave Generada', detail: 'Se ha creado una combinación segura.' });
   }
 
@@ -59,57 +72,34 @@ export class RegisterCompany {
     this.router.navigate(['/super-admin/empresas']);
   }
 
-  /*guardar() {
-    if (!this.nuevaEmpresa.ruc || !this.nuevaEmpresa.nombre || !this.nuevaEmpresa.email || !this.nuevaEmpresa.password) {
-      this.messageService.add({ severity: 'warn', summary: 'Faltan Datos', detail: 'Completa los campos obligatorios.' });
-      return;
-    }
-    if (this.nuevaEmpresa.password !== this.nuevaEmpresa.confirmPassword) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Las contraseñas no coinciden.' });
-      return;
-    }
-
-    const nueva = {
-      nombres: this.nuevaEmpresa.nombre,
-      ruc: '#' + this.nuevaEmpresa.ruc,
-      fecha: new Date().toLocaleDateString('es-ES'),
-      correo: this.nuevaEmpresa.email,
-      tipo: this.nuevaEmpresa.tipo ? (this.nuevaEmpresa.tipo as any).label.toLowerCase() : 'marca',
-      estado: 'activo'
-    };
-
-    this.companiesService.agregarEmpresa(nueva);
-
-    // Como ahora son páginas separadas, aquí en el futuro se conectara el Backend
-    this.messageService.add({ severity: 'success', summary: '¡Registrado!', detail: 'Empresa creada con éxito.' });
-
-    setTimeout(() => {
-      this.router.navigate(['/super-admin/empresas']);
-    }, 1500);
-  }*/
-
   guardar() {
-    // Validamos que la dirección también esté llena
-    if (!this.nuevaEmpresa.ruc || !this.nuevaEmpresa.nombre || !this.nuevaEmpresa.email || !this.nuevaEmpresa.password || !this.nuevaEmpresa.direccion) {
-      this.messageService.add({ severity: 'warn', summary: 'Faltan Datos', detail: 'Completa todos los campos.' });
+    if (this.empresaForm.invalid) {
+      if (this.empresaForm.get('ruc')?.hasError('pattern')) {
+        this.messageService.add({ severity: 'warn', summary: 'RUC Inválido', detail: 'El RUC debe tener exactamente 13 números.' });
+        return;
+      }
+      this.messageService.add({ severity: 'warn', summary: 'Faltan Datos o Inválidos', detail: 'Completa todos los campos correctamente.' });
       return;
     }
-    if (this.nuevaEmpresa.password !== this.nuevaEmpresa.confirmPassword) {
+
+    const formValues = this.empresaForm.value;
+
+    if (formValues.password !== formValues.confirmPassword) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Las contraseñas no coinciden.' });
       return;
     }
 
     const payload: RegisterCompanyDTO = {
-      username: this.nuevaEmpresa.email,
-      password: this.nuevaEmpresa.password,
-      email: this.nuevaEmpresa.email,
-      first_name: this.nuevaEmpresa.representante.split(' ')[0] || 'Representante',
-      last_name: this.nuevaEmpresa.representante.split(' ').slice(1).join(' ') || 'Empresa',
-      nombre: this.nuevaEmpresa.nombre,
-      ruc: this.nuevaEmpresa.ruc,
-      direccion: this.nuevaEmpresa.direccion,
-      nombre_representante: this.nuevaEmpresa.representante,
-      contacto_representante: this.nuevaEmpresa.telefono,
+      username: formValues.email,
+      password: formValues.password,
+      email: formValues.email,
+      first_name: formValues.representante_nombre,
+      last_name: formValues.representante_apellido,
+      nombre: formValues.nombre,
+      ruc: formValues.ruc,
+      direccion: formValues.direccion,
+      nombre_representante: `${formValues.representante_nombre} ${formValues.representante_apellido}`,
+      contacto_representante: formValues.telefono,
       habilitada: true
     };
 

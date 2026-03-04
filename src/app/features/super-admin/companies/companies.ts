@@ -12,8 +12,6 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService } from 'primeng/api';
-import { DatePickerModule } from 'primeng/datepicker';
-import { PopoverModule } from 'primeng/popover';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -26,7 +24,7 @@ import { CompaniesService } from '../../../services/companies.service';
   imports: [
     CommonModule, FormsModule, TableModule, DialogModule, ButtonModule,
     InputTextModule, PasswordModule, SelectModule, ToastModule, ToolbarModule,
-    TagModule, DatePickerModule, PopoverModule, SkeletonModule
+    TagModule, SkeletonModule
   ],
   providers: [MessageService],
   templateUrl: './companies.html',
@@ -40,9 +38,6 @@ export class Companies implements OnInit {
   first: number = 0;
   rows: number = 10;
   loading: boolean = false;
-  
-  fechaFiltro: Date | undefined;
-  tipoActual: string = 'Filtrar por Tipo';
 
   constructor(private messageService: MessageService, private companiesService: CompaniesService, private router: Router, private cdr: ChangeDetectorRef) { }
 
@@ -53,17 +48,13 @@ export class Companies implements OnInit {
   loadCompanies(event?: any) {
     this.loading = true;
     
-    // Cálculo de página: PrimeNG envía 'first' (indice) y 'rows' (tamaño)
     const page = event ? Math.floor(event.first / event.rows) + 1 : 1;
     const rows = event ? event.rows : this.rows;
 
-    // Extraemos el valor del filtro global si existe
     const searchValue = event?.filters?.['global']?.value || '';
 
-    // Manejo de ordenamiento
     let ordering = '';
     if (event?.sortField) {
-      // Mapeamos el campo del front al campo del back si es necesario
       const fieldMap: { [key: string]: string } = {
         'fecha': 'usuario__fecha_creacion'
       };
@@ -72,8 +63,7 @@ export class Companies implements OnInit {
       ordering = event.sortOrder === 1 ? backendField : `-${backendField}`;
     }
 
-    // Llenamos con objetos vacíos para que la tabla itere y muestre skeletons
-    this.empresas = Array.from({ length: rows }).map((_, i) => ({}));
+    this.empresas = Array.from({ length: rows }).map(() => ({}));
 
     this.companiesService.getEmpresas(page, rows, searchValue, ordering).subscribe({
       next: (response) => {
@@ -102,47 +92,20 @@ export class Companies implements OnInit {
 
   onSearch(event: Event) {
     const input = event.target as HTMLInputElement;
-    this.dt.filterGlobal(input.value, 'contains');
-  }
-
-  filtrarPorTipo(tipo: string, opFiltro: any, nombreFiltro: string) {
-    this.tipoActual = nombreFiltro;
     if (this.dt) {
-      this.dt.filter(tipo, 'tipo', 'contains');
+      this.dt.filterGlobal(input.value, 'contains');
     }
-    opFiltro.hide();
-  }
-
-  aplicarFiltroFecha(op: any) {
-    if (this.fechaFiltro && this.dt) {
-      const dia = this.fechaFiltro.getDate().toString().padStart(2, '0');
-      const mes = (this.fechaFiltro.getMonth() + 1).toString().padStart(2, '0');
-      const anio = this.fechaFiltro.getFullYear();
-      const fechaTexto = `${dia}/${mes}/${anio}`;
-
-      this.dt.filter(fechaTexto, 'fecha', 'contains');
-      op.hide();
-    } else {
-      this.limpiarFecha(op);
-    }
-  }
-
-  limpiarFecha(op: any) {
-    this.fechaFiltro = undefined;
-    if (this.dt) {
-      this.dt.filter('', 'fecha', 'contains');
-    }
-    op.hide();
-    this.messageService.add({ severity: 'info', summary: 'Filtro', detail: 'Filtro de fecha limpiado' });
   }
 
   exportExcel() {
+    if (!this.empresas || this.empresas.length === 0) return;
+
     const datosLimpios = this.empresas.map(emp => ({
-      'Nombres': emp.nombres,
-      'RUC': emp.ruc,
-      'Fecha de Ingreso': emp.fecha,
-      'Correo': emp.correo,
-      'Tipo': emp.tipo.toUpperCase()
+      'Nombres': emp.nombres || '',
+      'RUC': emp.ruc || '',
+      'Fecha de Ingreso': emp.fecha || '',
+      'Correo': emp.correo || '',
+      'Tipo': emp.tipo ? emp.tipo.toUpperCase() : ''
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(datosLimpios);
@@ -153,6 +116,8 @@ export class Companies implements OnInit {
   }
 
   exportPdf() {
+    if (!this.empresas || this.empresas.length === 0) return;
+
     const doc = new jsPDF('l', 'mm', 'a4');
     const columnas = [
       { header: 'Nombres', dataKey: 'nombres' },
@@ -163,8 +128,11 @@ export class Companies implements OnInit {
     ];
 
     const filas = this.empresas.map(emp => ({
-      nombres: emp.nombres, ruc: emp.ruc, fecha: emp.fecha,
-      correo: emp.correo, tipo: emp.tipo.toUpperCase()
+      nombres: emp.nombres || '', 
+      ruc: emp.ruc || '', 
+      fecha: emp.fecha || '',
+      correo: emp.correo || '', 
+      tipo: emp.tipo ? emp.tipo.toUpperCase() : ''
     }));
 
     autoTable(doc, {

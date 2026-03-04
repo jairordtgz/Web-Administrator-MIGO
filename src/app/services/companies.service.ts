@@ -1,18 +1,23 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, map } from 'rxjs';
-import { RegisterCompanyDTO, Company, CompanyResponse } from '../interfaces/company';
+import { RegisterCompanyDTO, Company, CompanyResponse, SolicitudEmpresa } from '../interfaces/company';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CompaniesService {
   private apiUrl = 'http://127.0.0.1:8000/api/admin/usuario/empresa/';
+  private solicitudUrl = 'http://127.0.0.1:8000/api/admin/solicitud/empresas/';
 
   constructor(private http: HttpClient) { }
 
   registrarEmpresa(payload: RegisterCompanyDTO): Observable<any> {
     return this.http.post(this.apiUrl, payload);
+  }
+
+  registrarSolicitudEmpresa(payload: SolicitudEmpresa): Observable<any> {
+    return this.http.post(this.solicitudUrl, payload);
   }
 
   getEmpresas(page: number = 1, pageSize: number = 10, search?: string, ordering?: string): Observable<{ total: number, results: any[] }> {

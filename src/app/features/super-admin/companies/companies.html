@@ -15,54 +15,6 @@
     </div>
 
 
-    <div class="bg-white p-6 shadow-sm mb-6 flex flex-col md:flex-row gap-6 rounded-sm">
-
-        <div (click)="opFiltro.toggle($event)"
-            class="flex-1 bg-[#f0f2f5] rounded-xl px-5 py-4 flex justify-between items-center text-gray-600 cursor-pointer hover:bg-gray-200 transition-colors">
-            <span class="font-medium text-sm text-gray-500">{{ tipoActual }}</span>
-            <i class="pi pi-filter text-gray-500 text-xl"></i>
-        </div>
-
-        <p-popover #opFiltro
-            [style]="{'padding': '0', 'border-radius': '12px', 'overflow': 'hidden', 'box-shadow': '0 10px 25px -5px rgba(0,0,0,0.1)'}">
-            <div class="flex flex-col min-w-[200px]">
-                <div class="p-3 text-sm font-bold text-gray-700 bg-gray-50 border-b border-gray-100">Filtrar por Tipo
-                </div>
-
-                <button pButton label="Solo Marcas"
-                    class="p-button-text !text-blue-600 !justify-start !px-4 !py-3 hover:!bg-blue-50 font-bold"
-                    (click)="filtrarPorTipo('marca', opFiltro, 'Solo Marcas')"></button>
-                <button pButton label="Solo Publicistas"
-                    class="p-button-text !text-purple-600 !justify-start !px-4 !py-3 hover:!bg-purple-50 font-bold"
-                    (click)="filtrarPorTipo('publicista', opFiltro, 'Solo Publicistas')"></button>
-            </div>
-        </p-popover>
-
-        <div (click)="op.toggle($event)"
-            class="flex-1 bg-[#f0f2f5] rounded-xl px-5 py-4 flex justify-between items-center text-gray-600 cursor-pointer hover:bg-gray-200 transition-colors">
-            <span class="font-medium text-sm text-gray-500">
-                {{ fechaFiltro ? (fechaFiltro | date:'dd/MM/yyyy') : 'Fecha de Registro' }}
-            </span>
-            <i class="pi pi-calendar text-gray-500 text-xl"></i>
-        </div>
-
-        <p-popover #op
-            [style]="{'padding': '0', 'border-radius': '12px', 'overflow': 'hidden', 'box-shadow': '0 10px 25px -5px rgba(0,0,0,0.1)'}">
-            <div class="flex flex-col">
-                <p-datepicker [(ngModel)]="fechaFiltro" [inline]="true" dateFormat="dd/mm/yy"
-                    styleClass="border-0"></p-datepicker>
-                <div class="p-2 bg-gray-50 flex justify-end border-t border-gray-100">
-                    <button pButton label="Limpiar" icon="pi pi-times"
-                        class="p-button-text p-button-sm p-button-secondary" (click)="limpiarFecha(op)"></button>
-
-                    <button pButton label="Aplicar" icon="pi pi-check"
-                        class="p-button-text p-button-sm p-button-warning ml-2"
-                        (click)="aplicarFiltroFecha(op)"></button>
-                </div>
-            </div>
-        </p-popover>
-    </div>
-
     <div class="bg-white rounded-xl shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] border border-gray-100">
         <p-table #dt [value]="empresas" 
             [size]="'large'"
