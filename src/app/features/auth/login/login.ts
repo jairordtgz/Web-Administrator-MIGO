@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
@@ -19,6 +20,7 @@ import { AuthService } from '../../../services/auth.service';
     ReactiveFormsModule,
     RouterModule,
     ButtonModule,
+    CheckboxModule,
     InputTextModule,
     PasswordModule,
     ToastModule,

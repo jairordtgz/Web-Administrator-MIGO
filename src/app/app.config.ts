@@ -2,7 +2,7 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeuix/themes/aura';
+import { MigoPreset } from './core/theme/migo-theme';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 
@@ -11,12 +11,12 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor])),
     providePrimeNG({
       theme: {
-        preset: Aura,
+        preset: MigoPreset,
         options: {
-            darkModeSelector: false || 'none'
+            darkModeSelector: false
         }
       },
-      
+      ripple: true
     }),
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes)
