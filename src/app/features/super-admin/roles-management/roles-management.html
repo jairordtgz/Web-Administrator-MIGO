@@ -8,20 +8,58 @@
             </p>
         </div>
 
-        <p-button label="Guardar Cambios" icon="pi pi-save" severity="primary" (onClick)="savePermissions()">
-        </p-button>
+        <div class="flex gap-2">
+            <p-button label="Crear Nuevo Rol" icon="pi pi-plus" styleClass="p-button-yellow" (onClick)="openNew()">
+            </p-button>
+            <p-button label="Guardar Cambios" icon="pi pi-save" styleClass="p-button-yellow" (onClick)="savePermissions()">
+            </p-button>
+        </div>
     </div>
+
+    <!-- Diálogo para crear nuevo rol -->
+    <p-dialog [(visible)]="roleDialog" [style]="{ 'width': 'auto', 'min-width': '400px', 'max-width': '95vw' }" header="Detalles del Rol" [modal]="true">
+        <ng-template pTemplate="content">
+            <div class="p-fluid mt-2">
+                <form [formGroup]="roleForm">
+                    <div class="field mb-6">
+                        <label for="nombre" class="font-bold block mb-2 text-gray-700">Nombre del Rol</label>
+                        <input type="text" pInputText id="nombre" formControlName="nombre" placeholder="Ej. Administrador de Ventas" required autofocus
+                            [ngClass]="{ 'ng-invalid ng-dirty': submitted && roleForm.get('nombre')?.invalid }" />
+                        @if (submitted && roleForm.get('nombre')?.invalid) {
+                            <small class="p-error block mt-1">El nombre es requerido.</small>
+                        }
+                    </div>
+                    <div class="field mb-2">
+                        <label for="descripcion" class="font-bold block mb-2 text-gray-700">Descripción</label>
+                        <textarea id="descripcion" pTextarea formControlName="descripcion" 
+                            placeholder="Describe brevemente las responsabilidades..." required rows="4"
+                            [ngClass]="{ 'ng-invalid ng-dirty': submitted && roleForm.get('descripcion')?.invalid }"></textarea>
+                        @if (submitted && roleForm.get('descripcion')?.invalid) {
+                            <small class="p-error block mt-1">La descripción es requerida.</small>
+                        }
+                    </div>
+                </form>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+            <div class="flex justify-end gap-2 p-2">
+                <p-button label="Cancelar" icon="pi pi-times" [text]="true" severity="secondary" (onClick)="hideDialog()"></p-button>
+                <p-button label="Guardar Rol" icon="pi pi-check" styleClass="p-button-yellow" (onClick)="saveRole()"></p-button>
+            </div>
+        </ng-template>
+    </p-dialog>
 
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
 
         <div class="mb-6 flex items-center gap-4">
             <label class="font-semibold text-gray-700">Seleccionar Perfil a Editar:</label>
-            <p-select [options]="roles" [(ngModel)]="selectedRole" optionLabel="name" (onChange)="onRoleChange($event)"
+            <p-select [options]="roles" [(ngModel)]="selectedRole" optionLabel="nombre" (onChange)="onRoleChange($event)"
                 placeholder="Selecciona un rol" styleClass="w-64">
             </p-select>
         </div>
 
-        <p-table [value]="permissions" [tableStyle]="{ 'min-width': '50rem' }"
+        <p-table [value]="permissionsMatrix" [tableStyle]="{ 'min-width': '50rem' }"
             styleClass="p-datatable-sm p-datatable-striped">
 
             <ng-template pTemplate="header">
@@ -39,19 +77,35 @@
                     <td class="font-medium text-gray-800">{{ perm.moduleName }}</td>
 
                     <td class="text-center">
-                        <p-checkbox [(ngModel)]="perm.canView" [binary]="true"></p-checkbox>
+                        @if (perm.view) {
+                            <p-checkbox [(ngModel)]="perm.view.active" [binary]="true"></p-checkbox>
+                        } @else {
+                            <i class="pi pi-minus text-gray-300"></i>
+                        }
                     </td>
 
                     <td class="text-center">
-                        <p-checkbox [(ngModel)]="perm.canCreate" [binary]="true"></p-checkbox>
+                        @if (perm.create) {
+                            <p-checkbox [(ngModel)]="perm.create.active" [binary]="true"></p-checkbox>
+                        } @else {
+                            <i class="pi pi-minus text-gray-300"></i>
+                        }
                     </td>
 
                     <td class="text-center">
-                        <p-checkbox [(ngModel)]="perm.canEdit" [binary]="true"></p-checkbox>
+                        @if (perm.edit) {
+                            <p-checkbox [(ngModel)]="perm.edit.active" [binary]="true"></p-checkbox>
+                        } @else {
+                            <i class="pi pi-minus text-gray-300"></i>
+                        }
                     </td>
 
                     <td class="text-center">
-                        <p-checkbox [(ngModel)]="perm.canDelete" [binary]="true"></p-checkbox>
+                        @if (perm.delete) {
+                            <p-checkbox [(ngModel)]="perm.delete.active" [binary]="true"></p-checkbox>
+                        } @else {
+                            <i class="pi pi-minus text-gray-300"></i>
+                        }
                     </td>
                 </tr>
             </ng-template>

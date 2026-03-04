@@ -1,0 +1,35 @@
+:host ::ng-deep {
+    .p-button-yellow {
+        background-color: #ffed00 !important;
+        border-color: #ffed00 !important;
+        color: #000000 !important;
+        font-weight: 700 !important;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .p-button-yellow:hover {
+        background-color: #e6d500 !important;
+        border-color: #e6d500 !important;
+        transform: scale(1.02);
+    }
+
+    .p-dialog {
+        border-radius: 1rem;
+    }
+
+    .p-dialog-header {
+        background-color: #f8fafc;
+        border-bottom: 1px solid #f1f5f9;
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+    }
+
+    .p-dialog-content {
+        padding: 2rem !important;
+    }
+
+    .p-inputtext:focus, .p-textarea:focus {
+        border-color: #ffed00 !important;
+        box-shadow: 0 0 0 0.2rem rgba(255, 237, 0, 0.2) !important;
+    }
+}
