@@ -55,7 +55,7 @@ export class EmailStep {
     this.authService.sendResetEmail(email!).subscribe({
       next: () => {
         this.loading = false;
-        this.router.navigate(['/reset-password/token']);
+        this.router.navigate(['/reset-password/confirm-email']);
       },
       error: () => {
         this.loading = false;
