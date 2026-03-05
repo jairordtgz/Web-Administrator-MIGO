@@ -1,1 +1,101 @@
-<p>solicitudes-pendientes works!</p>
+<div class="px-6 py-6 min-h-screen font-sans bg-[#f4f6f9]">
+    <p-toast></p-toast>
+
+    <div class="bg-white p-6 shadow-sm mb-6 flex flex-col gap-6 rounded-xl border border-gray-100">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-[#2b2b2b] uppercase tracking-wide">Solicitudes de Registro</h1>
+                <p class="text-sm text-gray-500 font-medium mt-1">Gestiona las solicitudes de nuevas empresas</p>
+            </div>
+            <div class="flex flex-wrap gap-2 bg-gray-100 p-1 rounded-full">
+                <button pButton label="TODAS" 
+                    [class]="filtroEstado === 'todas' ? '!bg-white !text-gray-900 shadow-sm' : '!bg-transparent !text-gray-500 hover:!bg-gray-200'"
+                    class="!rounded-full !font-bold !text-xs !px-4 !py-2.5 !border-none transition-all" (click)="filterByStatus('todas', dt)"></button>
+                <button pButton label="PENDIENTES" 
+                    [class]="filtroEstado === 'pendiente' ? '!bg-[#ffed00] !text-black shadow-sm' : '!bg-transparent !text-gray-500 hover:!bg-gray-200'"
+                    class="!rounded-full !font-bold !text-xs !px-4 !py-2.5 !border-none transition-all" (click)="filterByStatus('pendiente', dt)"></button>
+                <button pButton label="APROBADAS" 
+                    [class]="filtroEstado === 'aprobada' ? '!bg-green-500 !text-white shadow-sm' : '!bg-transparent !text-gray-500 hover:!bg-gray-200'"
+                    class="!rounded-full !font-bold !text-xs !px-4 !py-2.5 !border-none transition-all" (click)="filterByStatus('aprobada', dt)"></button>
+                <button pButton label="RECHAZADAS" 
+                    [class]="filtroEstado === 'rechazada' ? '!bg-red-500 !text-white shadow-sm' : '!bg-transparent !text-gray-500 hover:!bg-gray-200'"
+                    class="!rounded-full !font-bold !text-xs !px-4 !py-2.5 !border-none transition-all" (click)="filterByStatus('rechazada', dt)"></button>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4 justify-end items-center border-t border-gray-50 pt-4">
+            <p-iconfield iconPosition="left" class="w-full md:w-[400px]">
+                <p-inputicon class="pi pi-search text-gray-400"></p-inputicon>
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" 
+                    placeholder="Buscar por nombre, RUC, correo..."
+                    class="w-full !rounded-full !bg-gray-50 !border-gray-200 !py-3 !pl-10 focus:!ring-2 focus:!ring-[#ffed00] transition-all outline-none shadow-sm" />
+            </p-iconfield>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        <p-table #dt [value]="solicitudes" 
+            [paginator]="true" [rows]="rows" [totalRecords]="totalRecords" [loading]="loading"
+            [showCurrentPageReport]="true" [rowsPerPageOptions]="[5, 10, 25]"
+            [globalFilterFields]="['nombre', 'ruc', 'email', 'nombre_representante']"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} solicitudes"
+            styleClass="p-datatable-lg">
+            
+            <ng-template pTemplate="header">
+                <tr>
+                    <th class="!bg-[#2b2b2b] !text-white p-4 font-bold text-sm">Empresa</th>
+                    <th class="!bg-[#2b2b2b] !text-white p-4 font-bold text-sm">RUC / Cédula</th>
+                    <th class="!bg-[#2b2b2b] !text-white p-4 font-bold text-sm">Representante</th>
+                    <th class="!bg-[#2b2b2b] !text-white p-4 font-bold text-sm">Correo</th>
+                    <th class="!bg-[#2b2b2b] !text-white p-4 font-bold text-sm">Estado</th>
+                    <th class="!bg-[#2b2b2b] !text-white p-4 font-bold text-sm text-center">Acciones</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-solicitud>
+                <tr class="hover:bg-gray-50/50 transition-colors border-b border-gray-100">
+                    <td class="p-4">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-gray-800">{{ solicitud.nombre }}</span>
+                            <span class="text-xs text-gray-500">{{ solicitud.direccion }}</span>
+                        </div>
+                    </td>
+                    <td class="p-4 text-gray-600 font-medium">{{ solicitud.ruc }}</td>
+                    <td class="p-4 text-gray-700">
+                        <div class="flex flex-col">
+                            <span>{{ solicitud.nombre_representante }}</span>
+                            <span class="text-xs text-gray-500"><i class="pi pi-phone text-[10px]"></i> {{ solicitud.contacto_representante }}</span>
+                        </div>
+                    </td>
+                    <td class="p-4 text-gray-600">{{ solicitud.email }}</td>
+                    <td class="p-4">
+                        <p-tag [severity]="getSeverity(solicitud.estado)" [value]="solicitud.estado | uppercase" 
+                            [style]="{'border-radius': '9999px', 'padding': '4px 12px', 'font-size': '10px'}"></p-tag>
+                    </td>
+                    <td class="p-4">
+                        <div class="flex justify-center gap-2">
+                            @if (solicitud.estado === 'pendiente') {
+                                <button pButton icon="pi pi-check" label="APROBAR" 
+                                    class="p-button-success p-button-sm !rounded-full !font-bold !text-[10px] !px-4"
+                                    (click)="aprobar(solicitud)"></button>
+                                <button pButton icon="pi pi-times" label="RECHAZAR" 
+                                    class="p-button-danger p-button-sm !rounded-full !font-bold !text-[10px] !px-4"
+                                    (click)="rechazar(solicitud)"></button>
+                            } @else {
+                                <span class="text-xs text-gray-400 italic">Procesada</span>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6" class="p-8 text-center text-gray-500">
+                        No se encontraron solicitudes pendientes.
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

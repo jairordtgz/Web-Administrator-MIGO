@@ -1,11 +1,109 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { TagModule } from 'primeng/tag';
+import { ToastModule } from 'primeng/toast';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { MessageService } from 'primeng/api';
+import { CompaniesService } from '../../../services/companies.service';
+import { SolicitudEmpresa } from '../../../interfaces/company';
 
 @Component({
   selector: 'app-solicitudes-pendientes',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, TableModule, ButtonModule, InputTextModule, TagModule, ToastModule, IconFieldModule, InputIconModule],
+  providers: [MessageService],
   templateUrl: './solicitudes-pendientes.html',
-  styleUrl: './solicitudes-pendientes.css',
+  styles: [`
+    :host ::ng-deep .p-datatable-header {
+      background: white;
+      padding: 1.5rem;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+  `]
 })
-export class SolicitudesPendientes {
+export class SolicitudesPendientes implements OnInit {
+  private companiesService = inject(CompaniesService);
+  private messageService = inject(MessageService);
+  private cdr = inject(ChangeDetectorRef);
 
+  solicitudes: SolicitudEmpresa[] = [];
+  loading: boolean = false;
+  totalRecords: number = 0;
+  rows: number = 10;
+  filtroEstado: string = 'todas';
+
+  ngOnInit() {
+    this.loadSolicitudes();
+  }
+
+  loadSolicitudes() {
+    this.loading = true;
+    this.companiesService.getSolicitudesEmpresa().subscribe({
+      next: (res) => {
+        this.solicitudes = res;
+        this.totalRecords = res.length;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error(err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar las solicitudes.' });
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  filterByStatus(estado: string, table: any) {
+    this.filtroEstado = estado;
+    if (estado === 'todas') {
+      table.filter('', 'estado', 'equals');
+    } else {
+      table.filter(estado, 'estado', 'equals');
+    }
+  }
+
+  onGlobalFilter(table: any, event: Event) {
+    table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+  }
+
+  aprobar(solicitud: SolicitudEmpresa) {
+    if (!solicitud.id) return;
+    this.companiesService.aprobarSolicitud(solicitud.id).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Aprobada', detail: `Empresa ${solicitud.nombre} aprobada correctamente.` });
+        this.loadSolicitudes();
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo aprobar la solicitud.' });
+      }
+    });
+  }
+
+  rechazar(solicitud: SolicitudEmpresa) {
+    if (!solicitud.id) return;
+    this.companiesService.rechazarSolicitud(solicitud.id).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'warn', summary: 'Rechazada', detail: `La solicitud de ${solicitud.nombre} ha sido rechazada.` });
+        this.loadSolicitudes();
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo rechazar la solicitud.' });
+      }
+    });
+  }
+
+  getSeverity(estado: string | undefined) {
+    switch (estado) {
+      case 'pendiente': return 'warn';
+      case 'aprobada': return 'success';
+      case 'rechazada': return 'danger';
+      default: return 'info';
+    }
+  }
 }

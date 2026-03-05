@@ -20,6 +20,22 @@ export class CompaniesService {
     return this.http.post(this.solicitudUrl, payload);
   }
 
+  getSolicitudesEmpresa(search?: string): Observable<SolicitudEmpresa[]> {
+    let url = this.solicitudUrl;
+    if (search) {
+      url += `?search=${encodeURIComponent(search)}`;
+    }
+    return this.http.get<SolicitudEmpresa[]>(url);
+  }
+
+  aprobarSolicitud(id: number): Observable<any> {
+    return this.http.post(`${this.solicitudUrl}${id}/aprobar/`, {});
+  }
+
+  rechazarSolicitud(id: number): Observable<any> {
+    return this.http.post(`${this.solicitudUrl}${id}/rechazar/`, {});
+  }
+
   getEmpresas(page: number = 1, pageSize: number = 10, search?: string, ordering?: string): Observable<{ total: number, results: any[] }> {
     let url = `${this.apiUrl}?page=${page}&page_size=${pageSize}`;
     
