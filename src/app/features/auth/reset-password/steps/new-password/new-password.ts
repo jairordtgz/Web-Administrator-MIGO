@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { PasswordModule } from 'primeng/password';
 import { IconField } from 'primeng/iconfield';
@@ -30,8 +30,12 @@ import { AuthService } from '../../../../../services/auth.service';
 export class NewPasswordStep implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private messageService = inject(MessageService);
+
+  uid: string | null = null;
+  token: string | null = null;
 
   passwordForm = this.fb.group({
     password: ['', [Validators.required, Validators.minLength(8)]],
@@ -48,9 +52,19 @@ export class NewPasswordStep implements OnInit {
   }
 
   ngOnInit() {
-    if (!this.authService.getResetEmail()) {
-      this.router.navigate(['/reset-password/email']);
-    }
+    this.route.queryParams.subscribe(params => {
+      this.uid = params['uid'];
+      this.token = params['token'];
+
+      if (!this.uid || !this.token) {
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Enlace inválido', 
+          detail: 'El enlace de recuperación está incompleto o es inválido.' 
+        });
+        setTimeout(() => this.router.navigate(['/auth/login']), 3000);
+      }
+    });
   }
 
   onSubmit() {
@@ -66,14 +80,15 @@ export class NewPasswordStep implements OnInit {
     this.loading = true;
     const { password } = this.passwordForm.getRawValue();
 
-    this.authService.updatePassword(password!).subscribe({
+    this.authService.updatePassword(password!, this.uid!, this.token!).subscribe({
       next: () => {
         this.loading = false;
         this.router.navigate(['/reset-password/success']);
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo actualizar la contraseña.' });
+        const mensajeError = err.error?.error || 'No se pudo actualizar la contraseña.';
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: mensajeError });
       }
     });
   }

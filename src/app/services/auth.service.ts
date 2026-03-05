@@ -8,7 +8,7 @@ import { AuthResponse, LoginCredentials, AuthUser } from '../interfaces/auth';
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://127.0.0.1:8000/login/login';
+  private apiUrl = 'http://127.0.0.1:8000/autenticacion/login';
   private resetEmail: string = '';
 
   constructor() { }
@@ -64,7 +64,8 @@ export class AuthService {
   sendResetEmail(email: string): Observable<any> {
     console.log(`Enviando correo de recuperación a: ${email}`);
     this.setResetEmail(email);
-    return of({ success: true, message: 'Correo enviado' }).pipe(delay(1500));
+    //return of({ success: true, message: 'Correo enviado' }).pipe(delay(1500));
+    return this.http.post('http://127.0.0.1:8000/autenticacion/restablecer-contrasenia/', { email });
   }
 
   /**
@@ -78,8 +79,16 @@ export class AuthService {
   /**
    * Actualiza la contraseña (Simulado)
    */
-  updatePassword(password: string): Observable<any> {
+  updatePassword(nuevaPassword: string, uid: string, token: string): Observable<any> {
     console.log(`Actualizando contraseña para: ${this.resetEmail}`);
-    return of({ success: true }).pipe(delay(1500));
+    //return of({ success: true }).pipe(delay(1500));
+
+    const payload = {
+      uid: uid,
+      token: token,
+      nueva_password: nuevaPassword
+    };
+
+    return this.http.post('http://127.0.0.1:8000/autenticacion/confirmar-contrasenia/', payload);
   }
 }

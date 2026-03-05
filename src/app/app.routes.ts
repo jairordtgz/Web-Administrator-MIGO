@@ -15,16 +15,16 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/auth/reset-password/steps/email/email').then(m => m.EmailStep) 
             },
             { 
-                path: 'token', 
-                loadComponent: () => import('./features/auth/reset-password/steps/token/token').then(m => m.TokenStep) 
-            },
-            { 
                 path: 'new-password', 
                 loadComponent: () => import('./features/auth/reset-password/steps/new-password/new-password').then(m => m.NewPasswordStep) 
             },
             { 
                 path: 'success', 
                 loadComponent: () => import('./features/auth/reset-password/steps/success/success').then(m => m.SuccessStep) 
+            },
+            {
+                path: 'confirm-email',
+                loadComponent: () => import('./features/auth/reset-password/steps/confirm-email/confirm-email').then(m => m.ConfirmEmail)
             },
             { path: '', redirectTo: 'email', pathMatch: 'full' }
         ]
