@@ -1,0 +1,246 @@
+<div class="px-6 pt-4 pb-6 min-h-full relative font-sans bg-[#f8f9fa]">
+    <p-toast></p-toast>
+
+    <div class="bg-white p-8 shadow-sm mb-6 flex flex-col md:flex-row justify-between items-center rounded-sm border-b-4 border-primary">
+        <div>
+            <h1 class="text-3xl font-black text-[#2b2b2b] uppercase tracking-tighter">CREAR NUEVA CAMPAÑA</h1>
+            <p class="text-sm text-gray-500 font-medium mt-1">Sigue los pasos para configurar tu campaña publicitaria</p>
+        </div>
+        <div class="flex gap-4 mt-4 md:mt-0">
+            <button pButton label="CANCELAR" icon="pi pi-times" 
+                class="p-button-outlined p-button-secondary !rounded-full !font-bold !border-gray-300" 
+                (click)="cancelar()"></button>
+            <button pButton label="GUARDAR BORRADOR" icon="pi pi-save" 
+                class="p-button-outlined p-button-warning !rounded-full !font-bold !border-primary" 
+                (click)="onSubmit()"></button>
+        </div>
+    </div>
+
+    <form [formGroup]="campaniaForm" (ngSubmit)="onSubmit()">
+        <p-card styleClass="!shadow-none !border-none !p-0">
+            <p-stepper>
+                <!-- PASO 1: DATOS BÁSICOS -->
+                <p-step-panel header="DATOS BÁSICOS">
+                    <ng-template #content let-activateCallback="activateCallback">
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2 border-b pb-2">
+                                <i class="pi pi-info-circle text-primary"></i> 1. Información General
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="flex flex-col gap-2">
+                                    <label class="font-bold text-gray-700 ml-1 text-sm uppercase">Nombre de la Campaña:</label>
+                                    <input pInputText formControlName="nombre" placeholder="Ej: Verano 2026 - Migo" class="w-full !rounded-xl !py-3" />
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label class="font-bold text-gray-700 ml-1 text-sm uppercase">Ciclo de Pago:</label>
+                                    <p-select [options]="ciclosPago" formControlName="cicloPago" optionLabel="label" optionValue="value" class="w-full !rounded-xl" styleClass="!w-full !py-1"></p-select>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label class="font-bold text-gray-700 ml-1 text-sm uppercase">Presupuesto Total ($):</label>
+                                    <p-inputNumber formControlName="presupuesto" mode="currency" currency="USD" locale="en-US" placeholder="$0.00" styleClass="w-full" inputStyleClass="w-full !rounded-xl !py-3"></p-inputNumber>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="flex flex-col gap-2">
+                                        <label class="font-bold text-gray-700 ml-1 text-sm uppercase">Fecha Inicio:</label>
+                                        <p-datepicker formControlName="fechaInicio" placeholder="Inicio" styleClass="w-full" inputStyleClass="w-full !rounded-xl !py-3"></p-datepicker>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <label class="font-bold text-gray-700 ml-1 text-sm uppercase">Fecha Fin:</label>
+                                        <p-datepicker formControlName="fechaFin" placeholder="Fin" styleClass="w-full" inputStyleClass="w-full !rounded-xl !py-3"></p-datepicker>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex pt-8 justify-end">
+                                <button pButton label="Siguiente" icon="pi pi-arrow-right" iconPos="right" 
+                                    class="p-button-warning !rounded-full !font-bold !px-8 shadow-sm" (click)="activateCallback()"></button>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-step-panel>
+
+                <!-- PASO 2: VEHÍCULOS Y REQUISITOS -->
+                <p-step-panel header="VEHÍCULOS Y REQUISITOS">
+                    <ng-template #content let-activateCallback="activateCallback">
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2 border-b pb-2">
+                                <i class="pi pi-car text-primary"></i> 2. Configuración de Flota
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                <div>
+                                    <label class="font-bold text-gray-700 ml-1 text-sm uppercase mb-4 block">Vehículos Permitidos:</label>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl hover:bg-yellow-50 transition-all border border-transparent hover:border-primary cursor-pointer">
+                                            <p-checkbox formControlName="sedan_admisible" [binary]="true"></p-checkbox>
+                                            <span class="font-bold text-gray-700">Sedán / City Car</span>
+                                        </div>
+                                        <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl hover:bg-yellow-50 transition-all border border-transparent hover:border-primary cursor-pointer">
+                                            <p-checkbox formControlName="suv_admisible" [binary]="true"></p-checkbox>
+                                            <span class="font-bold text-gray-700">SUV</span>
+                                        </div>
+                                        <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl hover:bg-yellow-50 transition-all border border-transparent hover:border-primary cursor-pointer">
+                                            <p-checkbox formControlName="camioneta_admisible" [binary]="true"></p-checkbox>
+                                            <span class="font-bold text-gray-700">Camioneta</span>
+                                        </div>
+                                        <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl hover:bg-yellow-50 transition-all border border-transparent hover:border-primary cursor-pointer">
+                                            <p-checkbox formControlName="camion_admisible" [binary]="true"></p-checkbox>
+                                            <span class="font-bold text-gray-700">Camión</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-8 flex flex-col gap-3">
+                                        <div class="flex justify-between items-center mb-1">
+                                            <label class="font-bold text-gray-700 ml-1 text-sm uppercase">Límite de Vehículos:</label>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-xs text-gray-500 font-bold">Automático por presupuesto</span>
+                                                <p-toggleButton formControlName="limiteVehiculosAutomatico" onLabel="SÍ" offLabel="NO" styleClass="!h-8"></p-toggleButton>
+                                            </div>
+                                        </div>
+                                        @if (!campaniaForm.get('limiteVehiculosAutomatico')?.value) {
+                                            <p-inputNumber formControlName="limiteVehiculos" placeholder="Ingresa el límite (Ej: 50)" styleClass="w-full" inputStyleClass="w-full !rounded-xl !py-3"></p-inputNumber>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex flex-col gap-3 mb-6">
+                                        <label class="font-bold text-gray-700 ml-1 text-sm uppercase">Tipo de Brandeo:</label>
+                                        <p-select [options]="tiposBrandeo" formControlName="tipoBrandeo" optionLabel="label" optionValue="value" class="w-full !rounded-xl" styleClass="!w-full !py-1"></p-select>
+                                    </div>
+                                    <div class="flex flex-col gap-3">
+                                        <label class="font-bold text-gray-700 ml-1 text-sm uppercase">Requisitos y Términos:</label>
+                                        <textarea pTextarea formControlName="requisitos" rows="5" placeholder="Especifica requisitos extra (ej: modelo min 2018)" class="w-full !rounded-xl !p-4"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex pt-10 justify-between">
+                                <button pButton label="Anterior" icon="pi pi-arrow-left" 
+                                    class="p-button-outlined p-button-secondary !rounded-full !font-bold !px-8" (click)="activateCallback('prev')"></button>
+                                <button pButton label="Siguiente" icon="pi pi-arrow-right" iconPos="right" 
+                                    class="p-button-warning !rounded-full !font-bold !px-8 shadow-sm" (click)="activateCallback('next')"></button>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-step-panel>
+
+                <!-- PASO 3: UBICACIÓN Y HORARIOS -->
+                <p-step-panel header="UBICACIÓN Y TIEMPOS">
+                    <ng-template #content let-activateCallback="activateCallback">
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2 border-b pb-2">
+                                <i class="pi pi-map-marker text-primary"></i> 3. Sectores y Disponibilidad
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                <div>
+                                    <div class="flex justify-between items-center mb-4">
+                                        <label class="font-bold text-gray-700 ml-1 text-sm uppercase">Sectores de Circulación:</label>
+                                        <button type="button" pButton icon="pi pi-plus" label="Añadir" 
+                                            class="p-button-text p-button-warning p-button-sm !font-bold" (click)="addSector()"></button>
+                                    </div>
+                                    <div formArrayName="sectores" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                                        @for (sector of sectores.controls; track $index) {
+                                            <div [formGroupName]="$index" class="flex gap-3 items-start bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                                <div class="flex-1 flex flex-col gap-2">
+                                                    <input pInputText formControlName="nombre" placeholder="Nombre del Sector" class="w-full !rounded-lg !py-2" />
+                                                    <p-inputNumber formControlName="tarifaEspecial" placeholder="Tarifa especial KM (opcional)" styleClass="w-full" inputStyleClass="w-full !rounded-lg !py-2"></p-inputNumber>
+                                                </div>
+                                                <button type="button" pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="removeSector($index)"></button>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between items-center mb-4">
+                                        <label class="font-bold text-gray-700 ml-1 text-sm uppercase">Horarios de Monitoreo:</label>
+                                        <button type="button" pButton icon="pi pi-plus" label="Añadir" 
+                                            class="p-button-text p-button-warning p-button-sm !font-bold" (click)="addHorario()"></button>
+                                    </div>
+                                    <div formArrayName="horarios" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                                        @for (horario of horarios.controls; track $index) {
+                                            <div [formGroupName]="$index" class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                                <div class="grid grid-cols-3 gap-2">
+                                                    <input pInputText formControlName="dia" placeholder="Día" class="w-full !rounded-lg !py-2" />
+                                                    <p-inputNumber formControlName="horaInicio" placeholder="Desde" class="w-full !rounded-lg !py-2" [showButtons]="true" [min]="0" [max]="23"></p-inputNumber>
+                                                    <p-inputNumber formControlName="horaFin" placeholder="Hasta" class="w-full !rounded-lg !py-2" [showButtons]="true" [min]="0" [max]="23"></p-inputNumber>
+                                                </div>
+                                                <div class="flex justify-end mt-2">
+                                                    <button type="button" pButton label="Eliminar" icon="pi pi-trash" class="p-button-text p-button-danger !text-xs !p-1" (click)="removeHorario($index)"></button>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex pt-10 justify-between">
+                                <button pButton label="Anterior" icon="pi pi-arrow-left" 
+                                    class="p-button-outlined p-button-secondary !rounded-full !font-bold !px-8" (click)="activateCallback('prev')"></button>
+                                <button pButton label="Siguiente" icon="pi pi-arrow-right" iconPos="right" 
+                                    class="p-button-warning !rounded-full !font-bold !px-8 shadow-sm" (click)="activateCallback('next')"></button>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-step-panel>
+
+                <!-- PASO 4: TARIFAS Y FINALIZACIÓN -->
+                <p-step-panel header="TARIFAS Y PUBLICACIÓN">
+                    <ng-template #content let-activateCallback="activateCallback">
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2 border-b pb-2">
+                                <i class="pi pi-dollar text-primary"></i> 4. Configuración de Pagos
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                <div class="bg-yellow-50 p-8 rounded-2xl border border-yellow-200">
+                                    <h4 class="font-black text-[#2b2b2b] uppercase mb-6 flex items-center gap-2">
+                                        <i class="pi pi-bolt"></i> Tarifa Base
+                                    </h4>
+                                    <div class="flex flex-col gap-4">
+                                        <div class="flex flex-col gap-2">
+                                            <label class="font-bold text-gray-700 ml-1 text-sm uppercase">Tarifa por KM Recorrido ($):</label>
+                                            <p-inputNumber formControlName="tarifaKm" mode="currency" currency="USD" locale="en-US" placeholder="$0.00" styleClass="w-full" inputStyleClass="w-full !rounded-xl !py-4 !text-2xl !font-bold text-center"></p-inputNumber>
+                                        </div>
+                                        <div class="flex flex-col gap-2 mt-4">
+                                            <label class="font-bold text-gray-700 ml-1 text-sm uppercase">Mínimo KM para cobro (Conductor):</label>
+                                            <p-inputNumber formControlName="kmMinimoConductor" placeholder="Ej: 50" styleClass="w-full" inputStyleClass="w-full !rounded-xl !py-3 !text-center"></p-inputNumber>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-6">
+                                    <h4 class="font-bold text-gray-800 uppercase ml-1 flex items-center gap-2">
+                                        <i class="pi pi-sliders-h"></i> Ajustes por Tipo (Opcional)
+                                    </h4>
+                                    <div class="flex flex-col gap-2">
+                                        <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Tarifa Adicional Sedán ($):</label>
+                                        <p-inputNumber formControlName="tarifaSedan" mode="currency" currency="USD" placeholder="$0.00" styleClass="w-full" inputStyleClass="w-full !rounded-xl !py-2"></p-inputNumber>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Tarifa Adicional SUV ($):</label>
+                                        <p-inputNumber formControlName="tarifaSuv" mode="currency" currency="USD" placeholder="$0.00" styleClass="w-full" inputStyleClass="w-full !rounded-xl !py-2"></p-inputNumber>
+                                    </div>
+                                    
+                                    <div class="bg-gray-100 p-6 rounded-xl mt-4 border-l-4 border-gray-400">
+                                        <p class="text-xs text-gray-600 font-medium">
+                                            * Los conductores solo podrán ver esta campaña si cumplen con los requisitos de vehículo y están habilitados en la plataforma.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex pt-12 justify-between">
+                                <button pButton label="Anterior" icon="pi pi-arrow-left" 
+                                    class="p-button-outlined p-button-secondary !rounded-full !font-bold !px-8" (click)="activateCallback('prev')"></button>
+                                <button type="submit" pButton label="PUBLICAR CAMPAÑA" icon="pi pi-check" 
+                                    class="p-button-success !rounded-full !font-bold !px-12 !py-4 shadow-lg transform hover:scale-105 transition-all"></button>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-step-panel>
+            </p-stepper>
+        </p-card>
+    </form>
+</div>
