@@ -8,7 +8,7 @@ import { AuthResponse, LoginCredentials, AuthUser } from '../interfaces/auth';
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://127.0.0.1:8000/login/login';
+  private apiUrl = 'http://127.0.0.1:8000/autenticacion/login';
   private resetEmail: string = '';
 
   constructor() { }
