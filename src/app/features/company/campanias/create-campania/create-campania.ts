@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -11,29 +11,29 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { StepperModule } from 'primeng/stepper';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
 import { ToggleButtonModule } from 'primeng/togglebutton';
+import { DialogModule } from 'primeng/dialog';
+import { CampaniaCreacion, Tarifa } from '../../../../interfaces/campanas';
+
+export const dateRangeValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const inicio = control.get('fecha_inicio');
+  const fin = control.get('fecha_fin');
+  if (inicio && fin && inicio.value && fin.value && new Date(inicio.value) > new Date(fin.value)) {
+    return { dateRangeInvalid: true };
+  }
+  return null;
+};
 
 @Component({
   selector: 'app-create-campania',
   standalone: true,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    InputNumberModule,
-    SelectModule,
-    CheckboxModule,
-    DatePickerModule,
-    TextareaModule,
-    ToastModule,
-    StepperModule,
-    CardModule,
-    DividerModule,
-    ToggleButtonModule
+    CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, 
+    InputNumberModule, SelectModule, CheckboxModule, DatePickerModule, 
+    TextareaModule, ToastModule, CardModule, DividerModule, ToggleButtonModule,
+    DialogModule
   ],
   providers: [MessageService],
   templateUrl: './create-campania.html',
@@ -52,12 +52,46 @@ export class CreateCampania implements OnInit {
     { label: 'Mensual', value: 'mensual' }
   ];
 
-  tiposBrandeo = [
-    { label: 'Toda la carrocería', value: 'integral' },
-    { label: 'Solo puertas', value: 'puertas' },
-    { label: 'Solo ventanas', value: 'ventanas' },
-    { label: 'Solo capó', value: 'capo' }
+  diasSemana = [
+    { label: 'Lunes', value: 'Lunes' },
+    { label: 'Martes', value: 'Martes' },
+    { label: 'Miércoles', value: 'Miércoles' },
+    { label: 'Jueves', value: 'Jueves' },
+    { label: 'Viernes', value: 'Viernes' },
+    { label: 'Sábado', value: 'Sábado' },
+    { label: 'Domingo', value: 'Domingo' }
   ];
+
+  brandingPartsCatalog = [
+    { label: '1 Puerta', value: 1 },
+    { label: '2 Puertas', value: 2 },
+    { label: '3 o 4 Puertas (SUV/Sedan)', value: 3 },
+    { label: 'Vidrio de Atrás', value: 5 },
+    { label: '1 Lado Cajón (Camión)', value: 6 },
+    { label: '2 Lados Cajón (Camión)', value: 7 },
+    { label: 'LED encima Auto', value: 8 },
+    { label: 'LED Vidrio Atrás', value: 9 },
+    { label: 'Tiempo (Minutos)', value: 10 }
+  ];
+
+  categoriasVehiculo = [
+    { label: 'Sedán', value: 'sedan' },
+    { label: 'SUV', value: 'suv' },
+    { label: 'Camioneta', value: 'camioneta' },
+    { label: 'Camión', value: 'camion' },
+    { label: 'Moto', value: 'moto' }
+  ];
+
+  mockSectores = [
+    { id: 1, nombre: 'Centro Histórico', descripcion: 'Zona central con alta densidad.' },
+    { id: 2, nombre: 'Zona Norte', descripcion: 'Área residencial y comercial.' },
+    { id: 3, nombre: 'Sector Financiero', descripcion: 'Edificios de oficinas y bancos.' },
+    { id: 4, nombre: 'Parques y Recreación', descripcion: 'Zonas verdes y de esparcimiento.' }
+  ];
+
+  sectoresOptions: any[] = [];
+  displaySectorPreview: boolean = false;
+  selectedSectorForPreview: any = null;
 
   ngOnInit() {
     this.initForm();
@@ -65,99 +99,213 @@ export class CreateCampania implements OnInit {
 
   initForm() {
     this.campaniaForm = this.fb.group({
-      // Paso 1: Datos Básicos
-      nombre: ['', [Validators.required, Validators.minLength(5)]],
-      fechaInicio: [null, Validators.required],
-      fechaFin: [null, Validators.required],
-      presupuesto: [null, [Validators.required, Validators.min(1)]],
-      cicloPago: ['mensual', Validators.required],
-      
-      // Paso 2: Vehículos y Requisitos
-      limiteVehiculosAutomatico: [true],
-      limiteVehiculos: [null],
-      sedan_admisible: [true],
-      suv_admisible: [true],
-      camioneta_admisible: [false],
-      camion_admisible: [false],
-      bus_admisible: [false],
+      nombre: ['', [Validators.required, Validators.maxLength(200)]],
+      responsable_nombre: ['', [Validators.maxLength(150)]],
+      responsable_email: ['', [Validators.email]],
+      fecha_inicio: [null, Validators.required],
+      fecha_fin: [null, Validators.required],
+      fecha_limite_registro: [null],
+      presupuesto_total: [null, [Validators.required, Validators.min(0.01)]],
+      presupuesto_restante: [null],
+      ciclo_pago: ['mensual', [Validators.required, Validators.maxLength(20)]],
+      activa: [true],
+      limite_vehiculos_automatico: [true],
+      limite_vehiculos: [null],
       requisitos: [''],
-      tipoBrandeo: ['integral', Validators.required],
-
-      // Paso 3: Ubicación y Horarios
       sectores: this.fb.array([]),
       horarios: this.fb.array([]),
+      rateGroups: this.fb.array([]), // Grupos por Vehículo
+      km_minimo_conductor: [null, [Validators.required, Validators.min(0)]],
+    }, { validators: [dateRangeValidator] });
 
-      // Paso 4: Tarifas y Pagos
-      tarifaKm: [null, [Validators.required, Validators.min(0)]],
-      kmMinimoConductor: [null, [Validators.required, Validators.min(1)]],
-      
-      // Tarifas por tipo (opcional, si se quiere detallar)
-      tarifaSedan: [null],
-      tarifaSuv: [null],
-      tarifaCamioneta: [null]
+    this.campaniaForm.get('presupuesto_total')?.valueChanges.subscribe(val => {
+      this.campaniaForm.patchValue({ presupuesto_restante: val }, { emitEvent: false });
     });
 
-    // Añadir al menos un sector y un horario por defecto para la maqueta
+    this.sectores.valueChanges.subscribe(() => this.updateSectoresOptions());
+
     this.addSector();
     this.addHorario();
+    this.addVehicleGroup(); // Cargar el primer vehículo por defecto
+    this.updateSectoresOptions();
   }
 
-  get sectores() {
-    return this.campaniaForm.get('sectores') as FormArray;
-  }
+  get sectores() { return this.campaniaForm.get('sectores') as FormArray; }
+  get horarios() { return this.campaniaForm.get('horarios') as FormArray; }
+  get rateGroups() { return this.campaniaForm.get('rateGroups') as FormArray; }
 
-  get horarios() {
-    return this.campaniaForm.get('horarios') as FormArray;
-  }
-
-  addSector() {
-    const sectorForm = this.fb.group({
-      nombre: ['', Validators.required],
-      tarifaEspecial: [null]
+  updateSectoresOptions() {
+    this.sectoresOptions = this.sectores.controls.map((s, i) => {
+      const sectorId = s.get('id')?.value;
+      const sectorMock = this.mockSectores.find(ms => ms.id === sectorId);
+      return {
+        label: sectorMock?.nombre || `Sector ${i + 1}`,
+        value: sectorId
+      };
     });
-    this.sectores.push(sectorForm);
   }
 
-  removeSector(index: number) {
-    this.sectores.removeAt(index);
+  addSector() { 
+    this.sectores.push(this.fb.group({ 
+      id: [null, Validators.required] 
+    })); 
   }
 
-  addHorario() {
-    const horarioForm = this.fb.group({
-      dia: ['Lunes', Validators.required],
-      horaInicio: [null, Validators.required],
-      horaFin: [null, Validators.required]
+  removeSector(index: number) { this.sectores.removeAt(index); }
+
+  showSectorPreview(index: number) {
+    const sectorId = this.sectores.at(index).get('id')?.value;
+    if (sectorId) {
+      this.selectedSectorForPreview = this.mockSectores.find(s => s.id === sectorId);
+      this.displaySectorPreview = true;
+    } else {
+      this.messageService.add({ severity: 'warn', summary: 'Atención', detail: 'Selecciona un sector para previsualizar.' });
+    }
+  }
+
+  goToCreateSectors() {
+    // Por ahora solo una alerta o navegación simulada
+    this.messageService.add({ severity: 'info', summary: 'Navegación', detail: 'Redirigiendo a creación de sectores...' });
+    setTimeout(() => {
+        this.router.navigate(['/company/administrar-sectores']);
+    }, 1000);
+  }
+
+  addHorario() { this.horarios.push(this.fb.group({ dia: ['Lunes', Validators.required], hora_inicio: [null, Validators.required], hora_fin: [null, Validators.required] })); }
+  removeHorario(index: number) { this.horarios.removeAt(index); }
+
+  // --- Nueva Lógica de Grupos de Vehículo ---
+
+  addVehicleGroup() {
+    const group = this.fb.group({
+      categoria_vehiculo: ['sedan', Validators.required],
+      globalRates: this.fb.array([]), // Tarifas pre-cargadas para Sector Global
+      sectorGroups: this.fb.array([])  // Grupos adicionales por sectores específicos
     });
-    this.horarios.push(horarioForm);
+
+    // Pre-cargar TODOS los tipos de brandeo en la sección GLOBAL
+    const globalRates = group.get('globalRates') as FormArray;
+    this.brandingPartsCatalog.forEach(part => {
+      globalRates.push(this.fb.group({
+        tipo_brandeo: [part.value],
+        label: [part.label],
+        valor: [0, [Validators.required, Validators.min(0)]]
+      }));
+    });
+
+    this.rateGroups.push(group);
   }
 
-  removeHorario(index: number) {
-    this.horarios.removeAt(index);
+  removeVehicleGroup(index: number) { this.rateGroups.removeAt(index); }
+
+  getGlobalRates(vehicleIndex: number) {
+    return this.rateGroups.at(vehicleIndex).get('globalRates') as FormArray;
+  }
+
+  getSectorGroups(vehicleIndex: number) {
+    return this.rateGroups.at(vehicleIndex).get('sectorGroups') as FormArray;
+  }
+
+  addSectorGroupToVehicle(vehicleIndex: number) {
+    const group = this.fb.group({
+      sector_index: [null, Validators.required],
+      rates: this.fb.array([])
+    });
+    this.getSectorGroups(vehicleIndex).push(group);
+    this.addRateRowToSector(vehicleIndex, this.getSectorGroups(vehicleIndex).length - 1);
+  }
+
+  removeSectorGroupFromVehicle(vehicleIndex: number, sectorGroupIndex: number) {
+    this.getSectorGroups(vehicleIndex).removeAt(sectorGroupIndex);
+  }
+
+  getRatesFromSectorGroup(vehicleIndex: number, sectorGroupIndex: number) {
+    return this.getSectorGroups(vehicleIndex).at(sectorGroupIndex).get('rates') as FormArray;
+  }
+
+  addRateRowToSector(vehicleIndex: number, sectorGroupIndex: number) {
+    this.getRatesFromSectorGroup(vehicleIndex, sectorGroupIndex).push(this.fb.group({
+      tipo_brandeo: [1, Validators.required],
+      valor: [0, [Validators.required, Validators.min(0.0001)]]
+    }));
+  }
+
+  removeRateRowFromSector(vehicleIndex: number, sectorGroupIndex: number, rateIndex: number) {
+    this.getRatesFromSectorGroup(vehicleIndex, sectorGroupIndex).removeAt(rateIndex);
+  }
+
+  // Cálculos de Totales
+  calculateGlobalTotal(vehicleIndex: number): number {
+    return this.getGlobalRates(vehicleIndex).value.reduce((sum: number, r: any) => sum + (r.valor || 0), 0);
+  }
+
+  calculateSectorTotal(vehicleIndex: number, sectorGroupIndex: number): number {
+    return this.getRatesFromSectorGroup(vehicleIndex, sectorGroupIndex).value.reduce((sum: number, r: any) => sum + (r.valor || 0), 0);
   }
 
   onSubmit() {
     if (this.campaniaForm.invalid) {
-      this.messageService.add({ 
-        severity: 'error', 
-        summary: 'Error', 
-        detail: 'Por favor, completa todos los campos requeridos.' 
-      });
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Por favor completa todos los campos requeridos.' });
+      this.campaniaForm.markAllAsTouched();
       return;
     }
 
-    console.log('Datos de la campaña:', this.campaniaForm.value);
-    this.messageService.add({ 
-      severity: 'success', 
-      summary: 'Éxito', 
-      detail: 'Campaña maquetada correctamente (Simulación).' 
+    const formValues = this.campaniaForm.getRawValue();
+    const flattenedTarifas: Tarifa[] = [];
+
+    formValues.rateGroups.forEach((vGroup: any) => {
+      // 1. Añadir Tarifas Globales
+      vGroup.globalRates.forEach((gr: any) => {
+        if (gr.valor > 0) {
+          flattenedTarifas.push({
+            categoria_vehiculo: vGroup.categoria_vehiculo,
+            sector: null, // Global
+            tipo_brandeo: gr.tipo_brandeo,
+            valor: gr.valor
+          });
+        }
+      });
+
+      // 2. Añadir Tarifas por Sectores
+      vGroup.sectorGroups.forEach((sGroup: any) => {
+        sGroup.rates.forEach((r: any) => {
+          flattenedTarifas.push({
+            categoria_vehiculo: vGroup.categoria_vehiculo,
+            sector: sGroup.sector_index,
+            tipo_brandeo: r.tipo_brandeo,
+            valor: r.valor
+          });
+        });
+      });
     });
 
-    setTimeout(() => {
-      this.router.navigate(['/company/mis-campanias']);
-    }, 2000);
+    const payload: CampaniaCreacion = {
+      empresa_id: 1, // Stub
+      nombre: formValues.nombre,
+      responsable_nombre: formValues.responsable_nombre,
+      responsable_email: formValues.responsable_email,
+      fecha_inicio: this.formatDate(formValues.fecha_inicio),
+      fecha_fin: this.formatDate(formValues.fecha_fin),
+      fecha_limite_registro: formValues.fecha_limite_registro ? this.formatDate(formValues.fecha_limite_registro) : null,
+      presupuesto_total: formValues.presupuesto_total,
+      presupuesto_restante: formValues.presupuesto_restante,
+      km_minimo_conductor: formValues.km_minimo_conductor,
+      limite_vehiculos: formValues.limite_vehiculos_automatico ? 0 : formValues.limite_vehiculos,
+      ciclo_pago: formValues.ciclo_pago,
+      activa: formValues.activa,
+      tarifas: flattenedTarifas
+    };
+
+    console.log('Payload Final:', payload);
+    this.messageService.add({ severity: 'success', summary: 'Publicado', detail: 'Campaña creada con éxito.' });
+    setTimeout(() => this.router.navigate(['/company/mis-campanias']), 2000);
   }
 
-  cancelar() {
-    this.router.navigate(['/company/mis-campanias']);
+  private formatDate(date: any): string {
+    if (!date) return '';
+    const d = new Date(date);
+    return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
   }
+
+  cancelar() { this.router.navigate(['/company/mis-campanias']); }
 }

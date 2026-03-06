@@ -1,43 +1,3 @@
-:host ::ng-deep .p-stepper-nav {
-    display: flex;
-    justify-content: space-between;
-    padding: 1.5rem 10% !important;
-    background-color: #2b2b2b !important;
-    border-radius: 0 0 1rem 1rem !important;
-}
-
-:host ::ng-deep .p-stepper-header {
-    background-color: transparent !important;
-}
-
-:host ::ng-deep .p-stepper-title {
-    color: #9ca3af !important;
-    font-weight: 800 !important;
-    font-size: 0.75rem !important;
-    letter-spacing: 0.05em !important;
-}
-
-:host ::ng-deep .p-stepper-header.p-highlight .p-stepper-title {
-    color: #ffed00 !important;
-}
-
-:host ::ng-deep .p-stepper-number {
-    background-color: #4b5563 !important;
-    color: white !important;
-    border: none !important;
-    font-weight: 900 !important;
-}
-
-:host ::ng-deep .p-stepper-header.p-highlight .p-stepper-number {
-    background-color: #ffed00 !important;
-    color: #000 !important;
-}
-
-:host ::ng-deep .p-card {
-    background-color: transparent !important;
-    box-shadow: none !important;
-}
-
 /* Inputs styling matching the project */
 :host ::ng-deep .p-inputtext, 
 :host ::ng-deep .p-inputnumber-input,
@@ -58,6 +18,25 @@
     border-color: #ffed00 !important;
     box-shadow: 0 0 0 2px rgba(255, 237, 0, 0.2) !important;
     background-color: white !important;
+}
+
+/* Section Container Styling */
+.rounded-3xl {
+    border-radius: 1.5rem !important;
+}
+
+/* Custom Table for Rates Matrix */
+table {
+    border-spacing: 0;
+}
+
+thead th {
+    background-color: #2b2b2b !important;
+    color: white !important;
+}
+
+tbody tr:last-child {
+    border-bottom: none;
 }
 
 .bg-primary {
@@ -89,4 +68,23 @@
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
     background: #999;
+}
+
+/* Sticky Header adjustment */
+.sticky {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* Advanced Rate Table specific */
+.rate-total-badge {
+    background: #ffed00;
+    color: #000;
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    font-weight: 900;
+}
+
+/* Section Header Titles */
+.bg-gray-800 {
+    background-color: #2b2b2b !important;
 }

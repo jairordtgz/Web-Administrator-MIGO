@@ -58,6 +58,7 @@ export const routes: Routes = [
             { path: 'dashboard', loadComponent: () => import('./features/company/company-dashboard/company-dashboard').then(m => m.CompanyDashboard) },
             { path: 'mis-campanias', loadComponent: () => import('./features/company/campanias/campanias').then(m => m.Campanias) },
             { path: 'mis-campanias/crear', loadComponent: () => import('./features/company/campanias/create-campania/create-campania').then(m => m.CreateCampania) },
+            { path: 'administrar-sectores', loadComponent: () => import('./features/company/campanias/administrar-sectores/administrar-sectores').then(m => m.AdministrarSectores) },
             { path: 'conductores', loadComponent: () => import('./features/company/administrar-conduc/administrar-conduc').then(m => m.AdministrarConduc) },
             { path: 'reportes', loadComponent: () => import('./features/company/reports/reports').then(m => m.Reports) },
             { path: 'notificaciones', loadComponent: () => import('./features/company/notifications/notifications').then(m => m.Notifications) },

@@ -1,3 +1,69 @@
+import { Company } from './company';
+
+export interface Tarifa {
+    id?: number;
+    campania?: number;
+    sector?: number | null;
+    categoria_vehiculo: string;
+    tipo_brandeo: number; // ID of TipoBrandeoCatalogo
+    valor: number;
+}
+
+export interface CampaniaCreacion {
+    empresa_id: number;
+    nombre: string;
+    responsable_nombre?: string | null;
+    responsable_email?: string | null;
+    fecha_inicio: string;
+    fecha_fin: string;
+    fecha_limite_registro?: string | null;
+    presupuesto_total: number;
+    presupuesto_restante: number;
+    km_minimo_conductor: number;
+    limite_vehiculos: number;
+    ciclo_pago?: string;
+    activa?: boolean;
+    tipo_brandeo_id?: number | null;
+    tarifas?: Tarifa[];
+}
+
+export interface CampaniaList {
+    id?: number;
+    nombre: string;
+    responsable_nombre?: string | null;
+    responsable_email?: string | null;
+    fecha_inicio: string;
+    fecha_fin: string;
+    fecha_limite_registro?: string | null;
+    presupuesto_total: number;
+    presupuesto_restante: number;
+    km_minimo_conductor: number;
+    limite_vehiculos: number;
+    ciclo_pago?: "semanal" | "quincenal" | "mensual";
+    activa?: boolean;
+    estado?: string;
+    fecha_creacion?: string;
+    tipo_brandeo?: number | null;
+    empresa: number;
+}
+
+export interface CatalogoVehiculo {
+    id?: number;
+    marca: string;
+    modelo: string;
+    categoria: "sedan" | "suv" | "camioneta" | "camion" | "moto";
+    anio_minimo?: number | null;
+    activo?: boolean;
+}
+
+export interface TipoBrandeo {
+    id?: number;
+    nombre: string;
+    tipo_material: string;
+    activo?: boolean;
+}
+
+// Keep legacy for existing code compatibility if any, or remove if unused
 export interface Campania {
   id_campana: number
   nombre_campana: string
