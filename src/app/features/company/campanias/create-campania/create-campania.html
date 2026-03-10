@@ -59,14 +59,8 @@
                     </div>
                     <div class="flex flex-col gap-2">
                         <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Límite Vehículos:</label>
-                        <div class="flex gap-2">
-                            <p-toggleButton formControlName="limite_vehiculos_automatico" onLabel="AUTO"
-                                offLabel="MANUAL" styleClass="!h-10 !text-xs !rounded-xl"></p-toggleButton>
-                            @if (!campaniaForm.get('limite_vehiculos_automatico')?.value) {
-                            <p-inputNumber formControlName="limite_vehiculos" placeholder="Ctd." class="flex-1"
-                                inputStyleClass="w-full !rounded-xl !py-2"></p-inputNumber>
-                            }
-                        </div>
+                        <p-inputNumber formControlName="limite_vehiculos" placeholder="Ej: 100" 
+                            styleClass="w-full" inputStyleClass="w-full !rounded-xl !py-3"></p-inputNumber>
                     </div>
                     <div class="flex flex-col gap-2">
                         <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Fecha Inicio:</label>
@@ -97,15 +91,15 @@
                     </h3>
                     <div class="flex gap-2">
                         <button type="button" pButton icon="pi pi-plus" label="Añadir"
-                            class="p-button-text p-button-warning p-button-sm !font-black"
+                            class="p-button-text p-button-warning p-button-sm !font-black !bg-gray-800 !px-4 !rounded-full !shadow-md"
                             (click)="addSector()"></button>
                         <button type="button" pButton icon="pi pi-external-link" label="CREAR"
-                            class="p-button-text p-button-info p-button-sm !font-black"
+                            class="p-button-text !text-white p-button-sm !font-black !bg-gray-800 !px-4 !rounded-full !shadow-md"
                             (click)="goToCreateSectors()"></button>
                     </div>
                 </div>
                 <div class="p-6">
-                    <div formArrayName="sectores" class="space-y-4 max-h-[350px] overflow-y-auto pr-2">
+                    <div formArrayName="sectores" class="space-y-4 overflow-y-auto pr-2">
                         @if (sectores.length == 0) {
                         <p class="p-2 text-gray-500">No hay sectores disponibles, crea uno para empezar</p>
                         }
@@ -145,21 +139,22 @@
                         <i class="pi pi-clock text-primary"></i> 3. Horarios
                     </h3>
                     <button type="button" pButton icon="pi pi-plus" label="Añadir"
-                        class="p-button-text p-button-warning p-button-sm !font-black" (click)="addHorario()"></button>
+                        class="p-button-text p-button-warning p-button-sm !font-black !bg-white/10 !px-4 !rounded-full !shadow-md hover:!bg-white/20" 
+                        (click)="addHorario()"></button>
                 </div>
                 <div class="p-6">
-                    <div formArrayName="horarios" class="space-y-4 max-h-[350px] overflow-y-auto pr-2">
+                    <div formArrayName="horarios" class="space-y-4 overflow-y-auto pr-2">
                         @for (horario of horarios.controls; track $index) {
-                        <div [formGroupName]="$index" class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div [formGroupName]="$index" class="flex gap-3 items-center border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 flex-1">
                                 <div class="flex flex-col gap-1">
-                                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Día:</label>
+                                    <label class="text-[12px] font-bold text-gray-400 uppercase ml-1">Día:</label>
                                     <p-select [options]="diasSemana" formControlName="dia" optionLabel="label"
                                         optionValue="value" class="w-full !rounded-lg" styleClass="!w-full !py-1"
                                         appendTo="body"></p-select>
                                 </div>
                                 <div class="flex flex-col gap-1">
-                                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Inicio (H):</label>
+                                    <label class="text-[12px] font-bold text-gray-400 uppercase ml-1">Inicio (H):</label>
                                     <p-inputNumber formControlName="hora_inicio" placeholder="0" [showButtons]="true"
                                         [min]="0" [max]="23" buttonLayout="horizontal" 
                                         spinnerMode="horizontal" incrementButtonIcon="pi pi-plus"
@@ -168,7 +163,7 @@
                                         styleClass="!w-full flex justify-center"></p-inputNumber>
                                 </div>
                                 <div class="flex flex-col gap-1">
-                                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Fin (H):</label>
+                                    <label class="text-[12px] font-bold text-gray-400 uppercase ml-1">Fin (H):</label>
                                     <p-inputNumber formControlName="hora_fin" placeholder="23" [showButtons]="true"
                                         [min]="0" [max]="23" buttonLayout="horizontal" 
                                         spinnerMode="horizontal" incrementButtonIcon="pi pi-plus"
@@ -177,11 +172,9 @@
                                         styleClass="!w-full flex justify-center"></p-inputNumber>
                                 </div>
                             </div>
-                            <div class="flex justify-end mt-2">
-                                <button type="button" pButton label="Eliminar" icon="pi pi-trash"
-                                    class="p-button-text p-button-danger !text-xs !p-1"
-                                    (click)="removeHorario($index)"></button>
-                            </div>
+                            <button type="button" pButton icon="pi pi-trash"
+                                class="p-button-rounded p-button-text p-button-danger mt-4"
+                                (click)="removeHorario($index)"></button>
                         </div>
                         }
                     </div>
@@ -201,13 +194,7 @@
             </div>
 
             <div class="p-8">
-                <div class="bg-yellow-50 p-6 rounded-2xl border-l-8 border-primary mb-10">
-                    <label class="font-black text-gray-800 text-xs uppercase mb-2 block tracking-wider">Mínimo KM para
-                        pago (Conductor):</label>
-                    <p-inputNumber formControlName="km_minimo_conductor" placeholder="Ej: 50" styleClass="w-full"
-                        inputStyleClass="w-full !rounded-xl !py-3 !font-black !text-xl text-center"></p-inputNumber>
-                </div>
-
+               
                 <div formArrayName="rateGroups" class="space-y-16">
                     @for (vGroup of rateGroups.controls; track vIndex; let vIndex = $index) {
                     <div [formGroupName]="vIndex"
@@ -216,7 +203,7 @@
                         <div class="bg-gray-800 p-6 flex justify-between items-center text-white">
                             <div class="flex flex-col gap-1">
                                 <label
-                                    class="text-[12px] font-black text-primary uppercase tracking-widest">CONFIGURACIÓN
+                                    class="text-[12px] font-black text-white uppercase tracking-widest">CONFIGURACIÓN
                                     PARA:</label>
                                 <p-select [options]="categoriasVehiculo" formControlName="categoria_vehiculo"
                                     optionLabel="label" optionValue="value" class="!rounded-xl"
@@ -228,39 +215,65 @@
                         </div>
 
                         <div class="p-8 space-y-10">
-                            <!-- GLOBAL SECTION: TODOS LOS TIPOS YA CARGADOS -->
+                            <!-- GLOBAL SECTION: LISTA CON DROPDOWN -->
                             <div>
                                 <div class="flex items-center gap-3 mb-4">
                                     <div
-                                        class="bg-primary text-black text-[12px] font-black px-3 py-1 rounded-full uppercase">
+                                        class="bg-gray-800 text-white text-[12px] font-black px-3 py-1 rounded-full uppercase border border-primary/20">
                                         Sector: GLOBAL</div>
                                     <div class="h-px bg-gray-200 flex-1"></div>
-                                    <div class="text-[16px] font-black text-gray-400 uppercase">Suma Total / KM: {{
-                                        calculateGlobalTotal(vIndex) | currency:'USD':'symbol':'1.4-4' }}</div>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-                                    formArrayName="globalRates">
-                                    @for (gr of getGlobalRates(vIndex).controls; track grIndex; let grIndex = $index) {
-                                    <div [formGroupName]="grIndex"
-                                        class="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex flex-col gap-2 hover:border-primary transition-colors">
-                                        <label class="text-[12px] font-black text-gray-500 uppercase truncate">{{
-                                            gr.get('label')?.value }}</label>
-                                        <p-inputNumber formControlName="valor" mode="currency" currency="USD"
-                                            locale="en-US" placeholder="0.0000" [minFractionDigits]="4"
-                                            [maxFractionDigits]="4"
-                                            inputStyleClass="w-full !rounded-xl !py-2 !text-right !font-black bg-white"></p-inputNumber>
+                                    <div class="bg-gray-800 px-4 py-1.5 rounded-xl border border-gray-700 shadow-sm">
+                                        <div class="text-[14px] font-black text-white uppercase">Suma Total / KM: {{
+                                            calculateGlobalTotal(vIndex) | currency:'USD':'symbol':'1.4-4' }}</div>
                                     </div>
-                                    }
+                                </div>
+                                <div class="bg-gray-50 rounded-2xl border border-gray-200 overflow-hidden shadow-inner">
+                                    <table class="w-full text-left border-collapse">
+                                        <tbody formArrayName="globalRates">
+                                            @for (gr of getGlobalRates(vIndex).controls; track grIndex; let grIndex = $index) {
+                                            <tr [formGroupName]="grIndex"
+                                                class="border-b last:border-0 border-gray-200 hover:bg-yellow-50/20">
+                                                <td class="p-3">
+                                                    <p-select [options]="brandingPartsCatalog"
+                                                        formControlName="tipo_brandeo" optionLabel="label"
+                                                        optionValue="value" class="w-full !rounded-xl"
+                                                        styleClass="!w-full !py-1" appendTo="body"></p-select>
+                                                </td>
+                                                <td class="p-3 w-[200px]">
+                                                    <p-inputNumber formControlName="valor" mode="currency"
+                                                        currency="USD" [minFractionDigits]="4"
+                                                        [maxFractionDigits]="4" placeholder="0.0000"
+                                                        inputStyleClass="w-full !text-center !font-black !py-2 !rounded-xl bg-white"></p-inputNumber>
+                                                </td>
+                                                <td class="p-3 text-center w-[60px]">
+                                                    <button type="button" pButton icon="pi pi-times"
+                                                        class="p-button-rounded p-button-text p-button-danger p-button-sm"
+                                                        (click)="removeGlobalRateRow(vIndex, grIndex)"></button>
+                                                </td>
+                                            </tr>
+                                            }
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="3" class="p-2 text-center bg-white/50">
+                                                    <button type="button" pButton icon="pi pi-plus"
+                                                        label="Añadir Componente Global"
+                                                        class="p-button-text p-button-warning p-button-xs !font-black !text-[12px] !bg-[#2b2b2b] !px-4 !rounded-full !shadow-md"
+                                                        (click)="addGlobalRateRow(vIndex)"></button>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
                                 </div>
                             </div>
 
                             <!-- SECTORES ESPECÍFICOS: GRUPOS AÑADIBLES -->
                             <div class="space-y-8" formArrayName="sectorGroups">
                                 <div class="flex justify-between items-center border-b border-gray-100 pb-2">
-                                    <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest">Tarifas por
+                                    <h4 class="text-lg font-black text-gray-400 uppercase tracking-widest">Tarifas por
                                         Sectores Específicos</h4>
                                     <button type="button" pButton icon="pi pi-plus" label="Añadir Grupo de Sector"
-                                        class="p-button-text p-button-warning p-button-sm !font-black"
+                                        class="p-button-text p-button-warning p-button-sm !font-black !bg-[#2b2b2b] !px-4 !rounded-full !shadow-md"
                                         (click)="addSectorGroupToVehicle(vIndex)"></button>
                                 </div>
 
@@ -275,9 +288,12 @@
                                                 optionLabel="label" optionValue="value" placeholder="Seleccionar Sector"
                                                 class="!rounded-xl" styleClass="!min-w-[200px] !py-1"
                                                 appendTo="body"></p-select>
-                                            <span class="text-xs font-black text-primary">SUMA: {{
-                                                calculateSectorTotal(vIndex, sIndex) | currency:'USD':'symbol':'1.4-4'
-                                                }} / KM</span>
+                                            <div class="bg-gray-800 px-3 py-1 rounded-lg border border-gray-700 flex flex-col items-center">
+                                                <span class="text-s font-black text-primary">SUMA: {{
+                                                    calculateSectorTotal(vIndex, sIndex) | currency:'USD':'symbol':'1.4-4'
+                                                    }} / KM</span>
+                                                <span class="text-[10px] font-bold text-gray-400 uppercase leading-none mt-0.5 tracking-tighter">Base Global + Ajustes</span>
+                                            </div>
                                         </div>
                                         <button type="button" pButton icon="pi pi-times"
                                             class="p-button-rounded p-button-text p-button-danger p-button-sm"
@@ -313,10 +329,10 @@
                                             </tbody>
                                             <tfoot>
                                                 <tr>
-                                                    <td colspan="3" class="p-2 text-center">
+                                                    <td colspan="3" class="p-2 text-center bg-white/50">
                                                         <button type="button" pButton icon="pi pi-plus"
                                                             label="Añadir Componente"
-                                                            class="p-button-text p-button-warning p-button-xs !font-black !text-[12px]"
+                                                            class="p-button-text p-button-warning p-button-xs !font-black !text-[12px] !bg-[#2b2b2b] !px-4 !rounded-full !shadow-md"
                                                             (click)="addRateRowToSector(vIndex, sIndex)"></button>
                                                     </td>
                                                 </tr>

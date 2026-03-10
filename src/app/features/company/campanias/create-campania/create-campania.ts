@@ -179,27 +179,29 @@ export class CreateCampania implements OnInit {
   addVehicleGroup() {
     const group = this.fb.group({
       categoria_vehiculo: ['sedan', Validators.required],
-      globalRates: this.fb.array([]), // Tarifas pre-cargadas para Sector Global
+      globalRates: this.fb.array([]), // Tarifas seleccionables para Sector Global
       sectorGroups: this.fb.array([])  // Grupos adicionales por sectores específicos
     });
 
-    // Pre-cargar TODOS los tipos de brandeo en la sección GLOBAL
-    const globalRates = group.get('globalRates') as FormArray;
-    this.brandingPartsCatalog.forEach(part => {
-      globalRates.push(this.fb.group({
-        tipo_brandeo: [part.value],
-        label: [part.label],
-        valor: [0, [Validators.required, Validators.min(0)]]
-      }));
-    });
-
     this.rateGroups.push(group);
+    this.addGlobalRateRow(this.rateGroups.length - 1);
   }
 
   removeVehicleGroup(index: number) { this.rateGroups.removeAt(index); }
 
   getGlobalRates(vehicleIndex: number) {
     return this.rateGroups.at(vehicleIndex).get('globalRates') as FormArray;
+  }
+
+  addGlobalRateRow(vehicleIndex: number) {
+    this.getGlobalRates(vehicleIndex).push(this.fb.group({
+      tipo_brandeo: [1, Validators.required],
+      valor: [0, [Validators.required, Validators.min(0.0001)]]
+    }));
+  }
+
+  removeGlobalRateRow(vehicleIndex: number, rateIndex: number) {
+    this.getGlobalRates(vehicleIndex).removeAt(rateIndex);
   }
 
   getSectorGroups(vehicleIndex: number) {
@@ -240,7 +242,26 @@ export class CreateCampania implements OnInit {
   }
 
   calculateSectorTotal(vehicleIndex: number, sectorGroupIndex: number): number {
-    return this.getRatesFromSectorGroup(vehicleIndex, sectorGroupIndex).value.reduce((sum: number, r: any) => sum + (r.valor || 0), 0);
+    const globalRates = this.getGlobalRates(vehicleIndex).value;
+    const sectorRates = this.getRatesFromSectorGroup(vehicleIndex, sectorGroupIndex).value;
+    
+    // Mapa para consolidar: Tipo Brandeo -> Valor
+    const consolidatedRates = new Map<number, number>();
+
+    // 1. Cargar bases globales
+    globalRates.forEach((r: any) => {
+      consolidatedRates.set(r.tipo_brandeo, r.valor || 0);
+    });
+
+    // 2. Sobreescribir con específicos del sector
+    sectorRates.forEach((r: any) => {
+      consolidatedRates.set(r.tipo_brandeo, r.valor || 0);
+    });
+
+    // 3. Sumar total consolidado
+    let total = 0;
+    consolidatedRates.forEach(valor => total += valor);
+    return total;
   }
 
   onSubmit() {
