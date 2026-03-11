@@ -109,12 +109,11 @@ export class CreateCampania implements OnInit {
       presupuesto_restante: [null],
       ciclo_pago: ['mensual', [Validators.required, Validators.maxLength(20)]],
       activa: [true],
-      limite_vehiculos_automatico: [true],
       limite_vehiculos: [null],
       requisitos: [''],
       sectores: this.fb.array([]),
       horarios: this.fb.array([]),
-      rateGroups: this.fb.array([]), // Grupos por Vehículo
+      tarifasConfig: this.fb.array([]), // Flat Rules System
       km_minimo_conductor: [null, [Validators.required, Validators.min(0)]],
     }, { validators: [dateRangeValidator] });
 
@@ -122,17 +121,14 @@ export class CreateCampania implements OnInit {
       this.campaniaForm.patchValue({ presupuesto_restante: val }, { emitEvent: false });
     });
 
-    this.sectores.valueChanges.subscribe(() => this.updateSectoresOptions());
-
     this.addSector();
     this.addHorario();
-    this.addVehicleGroup(); // Cargar el primer vehículo por defecto
-    this.updateSectoresOptions();
+    this.addTarifaRule(); // Cargar la primera regla por defecto
   }
 
   get sectores() { return this.campaniaForm.get('sectores') as FormArray; }
   get horarios() { return this.campaniaForm.get('horarios') as FormArray; }
-  get rateGroups() { return this.campaniaForm.get('rateGroups') as FormArray; }
+  get tarifasConfig() { return this.campaniaForm.get('tarifasConfig') as FormArray; }
 
   updateSectoresOptions() {
     this.sectoresOptions = this.sectores.controls.map((s, i) => {
@@ -174,93 +170,112 @@ export class CreateCampania implements OnInit {
   addHorario() { this.horarios.push(this.fb.group({ dia: ['Lunes', Validators.required], hora_inicio: [null, Validators.required], hora_fin: [null, Validators.required] })); }
   removeHorario(index: number) { this.horarios.removeAt(index); }
 
-  // --- Nueva Lógica de Grupos de Vehículo ---
+  duplicateLastHorario() {
+    const length = this.horarios.length;
+    if (length > 0) {
+      const last = this.horarios.at(length - 1).getRawValue();
+      this.horarios.push(this.fb.group({
+        dia: [last.dia, Validators.required],
+        hora_inicio: [last.hora_inicio, Validators.required],
+        hora_fin: [last.hora_fin, Validators.required]
+      }));
+    } else {
+      this.addHorario();
+    }
+  }
 
-  addVehicleGroup() {
-    const group = this.fb.group({
+  // --- Sistema de Reglas de Tarifas ---
+
+  addTarifaRule() {
+    this.tarifasConfig.push(this.fb.group({
+      sector_id: [null], // null = TODOS
+      horario_index: [null], // null = TODOS
       categoria_vehiculo: ['sedan', Validators.required],
-      globalRates: this.fb.array([]), // Tarifas seleccionables para Sector Global
-      sectorGroups: this.fb.array([])  // Grupos adicionales por sectores específicos
-    });
-
-    this.rateGroups.push(group);
-    this.addGlobalRateRow(this.rateGroups.length - 1);
-  }
-
-  removeVehicleGroup(index: number) { this.rateGroups.removeAt(index); }
-
-  getGlobalRates(vehicleIndex: number) {
-    return this.rateGroups.at(vehicleIndex).get('globalRates') as FormArray;
-  }
-
-  addGlobalRateRow(vehicleIndex: number) {
-    this.getGlobalRates(vehicleIndex).push(this.fb.group({
       tipo_brandeo: [1, Validators.required],
       valor: [0, [Validators.required, Validators.min(0.0001)]]
     }));
   }
 
-  removeGlobalRateRow(vehicleIndex: number, rateIndex: number) {
-    this.getGlobalRates(vehicleIndex).removeAt(rateIndex);
+  removeTarifaRule(index: number) {
+    this.tarifasConfig.removeAt(index);
   }
 
-  getSectorGroups(vehicleIndex: number) {
-    return this.rateGroups.at(vehicleIndex).get('sectorGroups') as FormArray;
+  duplicateLastRule() {
+    const length = this.tarifasConfig.length;
+    if (length > 0) {
+      const lastRule = this.tarifasConfig.at(length - 1).getRawValue();
+      this.tarifasConfig.push(this.fb.group({
+        sector_id: [lastRule.sector_id],
+        horario_index: [lastRule.horario_index],
+        categoria_vehiculo: [lastRule.categoria_vehiculo, Validators.required],
+        tipo_brandeo: [lastRule.tipo_brandeo, Validators.required],
+        valor: [lastRule.valor, [Validators.required, Validators.min(0.0001)]]
+      }));
+    } else {
+      this.addTarifaRule();
+    }
   }
 
-  addSectorGroupToVehicle(vehicleIndex: number) {
-    const group = this.fb.group({
-      sector_index: [null, Validators.required],
-      rates: this.fb.array([])
-    });
-    this.getSectorGroups(vehicleIndex).push(group);
-    this.addRateRowToSector(vehicleIndex, this.getSectorGroups(vehicleIndex).length - 1);
+  getSectoresOptionsWithAll() {
+    const options = this.sectores.controls.map((s, i) => {
+      const sectorId = s.get('id')?.value;
+      const sectorMock = this.mockSectores.find(ms => ms.id === sectorId);
+      return { label: sectorMock?.nombre || `Sector ${i + 1}`, value: sectorId };
+    }).filter(opt => opt.value !== null);
+
+    return [{ label: '🌎 TODOS LOS SECTORES', value: null }, ...options];
   }
 
-  removeSectorGroupFromVehicle(vehicleIndex: number, sectorGroupIndex: number) {
-    this.getSectorGroups(vehicleIndex).removeAt(sectorGroupIndex);
-  }
-
-  getRatesFromSectorGroup(vehicleIndex: number, sectorGroupIndex: number) {
-    return this.getSectorGroups(vehicleIndex).at(sectorGroupIndex).get('rates') as FormArray;
-  }
-
-  addRateRowToSector(vehicleIndex: number, sectorGroupIndex: number) {
-    this.getRatesFromSectorGroup(vehicleIndex, sectorGroupIndex).push(this.fb.group({
-      tipo_brandeo: [1, Validators.required],
-      valor: [0, [Validators.required, Validators.min(0.0001)]]
-    }));
-  }
-
-  removeRateRowFromSector(vehicleIndex: number, sectorGroupIndex: number, rateIndex: number) {
-    this.getRatesFromSectorGroup(vehicleIndex, sectorGroupIndex).removeAt(rateIndex);
-  }
-
-  // Cálculos de Totales
-  calculateGlobalTotal(vehicleIndex: number): number {
-    return this.getGlobalRates(vehicleIndex).value.reduce((sum: number, r: any) => sum + (r.valor || 0), 0);
-  }
-
-  calculateSectorTotal(vehicleIndex: number, sectorGroupIndex: number): number {
-    const globalRates = this.getGlobalRates(vehicleIndex).value;
-    const sectorRates = this.getRatesFromSectorGroup(vehicleIndex, sectorGroupIndex).value;
-    
-    // Mapa para consolidar: Tipo Brandeo -> Valor
-    const consolidatedRates = new Map<number, number>();
-
-    // 1. Cargar bases globales
-    globalRates.forEach((r: any) => {
-      consolidatedRates.set(r.tipo_brandeo, r.valor || 0);
+  getHorariosOptionsWithAll() {
+    const options = this.horarios.controls.map((h, i) => {
+      const dia = h.get('dia')?.value;
+      const inicio = h.get('hora_inicio')?.value;
+      const fin = h.get('hora_fin')?.value;
+      return { label: `${dia} (${inicio}h - ${fin}h)`, value: i };
     });
 
-    // 2. Sobreescribir con específicos del sector
-    sectorRates.forEach((r: any) => {
-      consolidatedRates.set(r.tipo_brandeo, r.valor || 0);
-    });
+    return [{ label: '⏰ TODOS LOS HORARIOS', value: null }, ...options];
+  }
 
-    // 3. Sumar total consolidado
+  getSectoresOnly() {
+    return this.sectores.controls.map((s, i) => {
+      const sectorId = s.get('id')?.value;
+      const sectorMock = this.mockSectores.find(ms => ms.id === sectorId);
+      return { label: sectorMock?.nombre || `Sector ${i + 1}`, value: sectorId };
+    }).filter(opt => opt.value !== null);
+  }
+
+  getHorariosOnly() {
+    return this.horarios.controls.map((h, i) => {
+      const dia = h.get('dia')?.value;
+      const inicio = h.get('hora_inicio')?.value;
+      const fin = h.get('hora_fin')?.value;
+      return { label: `${dia} (${inicio}h - ${fin}h)`, value: i };
+    });
+  }
+
+  // --- Simulador de Resultados ---
+
+  getEffectiveRate(sectorId: number | null, horarioIdx: number | null, categoria: string): number {
     let total = 0;
-    consolidatedRates.forEach(valor => total += valor);
+    
+    // Iteramos por cada tipo de brandeo disponible
+    this.brandingPartsCatalog.forEach(part => {
+      const rules = this.tarifasConfig.value as any[];
+      
+      // Buscamos la regla más específica para este componente
+      // Prioridad: 1. Sector+Horario, 2. Sector+TODOS, 3. TODOS+Horario, 4. TODOS+TODOS
+      const rule = rules
+        .filter(r => r.tipo_brandeo === part.value && r.categoria_vehiculo === categoria)
+        .sort((a, b) => {
+          const scoreA = (a.sector_id !== null ? 2 : 0) + (a.horario_index !== null ? 1 : 0);
+          const scoreB = (b.sector_id !== null ? 2 : 0) + (b.horario_index !== null ? 1 : 0);
+          return scoreB - scoreA;
+        })[0];
+
+      if (rule) total += rule.valor;
+    });
+
     return total;
   }
 
@@ -274,30 +289,15 @@ export class CreateCampania implements OnInit {
     const formValues = this.campaniaForm.getRawValue();
     const flattenedTarifas: Tarifa[] = [];
 
-    formValues.rateGroups.forEach((vGroup: any) => {
-      // 1. Añadir Tarifas Globales
-      vGroup.globalRates.forEach((gr: any) => {
-        if (gr.valor > 0) {
-          flattenedTarifas.push({
-            categoria_vehiculo: vGroup.categoria_vehiculo,
-            sector: null, // Global
-            tipo_brandeo: gr.tipo_brandeo,
-            valor: gr.valor
-          });
-        }
-      });
-
-      // 2. Añadir Tarifas por Sectores
-      vGroup.sectorGroups.forEach((sGroup: any) => {
-        sGroup.rates.forEach((r: any) => {
-          flattenedTarifas.push({
-            categoria_vehiculo: vGroup.categoria_vehiculo,
-            sector: sGroup.sector_index,
-            tipo_brandeo: r.tipo_brandeo,
-            valor: r.valor
-          });
+    formValues.tarifasConfig.forEach((rule: any) => {
+        flattenedTarifas.push({
+          categoria_vehiculo: rule.categoria_vehiculo,
+          sector: rule.sector_id,
+          tipo_brandeo: rule.tipo_brandeo,
+          valor: rule.valor
+          // Aquí el backend deberá manejar el horario_index si es necesario, 
+          // o podemos extender la interfaz Tarifa
         });
-      });
     });
 
     const payload: CampaniaCreacion = {
@@ -311,7 +311,7 @@ export class CreateCampania implements OnInit {
       presupuesto_total: formValues.presupuesto_total,
       presupuesto_restante: formValues.presupuesto_restante,
       km_minimo_conductor: formValues.km_minimo_conductor,
-      limite_vehiculos: formValues.limite_vehiculos_automatico ? 0 : formValues.limite_vehiculos,
+      limite_vehiculos: formValues.limite_vehiculos,
       ciclo_pago: formValues.ciclo_pago,
       activa: formValues.activa,
       tarifas: flattenedTarifas
