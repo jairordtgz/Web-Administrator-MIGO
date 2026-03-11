@@ -89,6 +89,27 @@ export class CreateCampania implements OnInit {
     { id: 4, nombre: 'Parques y Recreación', descripcion: 'Zonas verdes y de esparcimiento.' }
   ];
 
+  mockMarcas = [
+    { id: 1, nombre: 'Toyota' },
+    { id: 2, nombre: 'Honda' },
+    { id: 3, nombre: 'Nissan' },
+    { id: 4, nombre: 'Hyundai' },
+    { id: 5, nombre: 'Kia' },
+    { id: 6, nombre: 'Chevrolet' },
+    { id: 7, nombre: 'Ford' },
+    { id: 8, nombre: 'Volkswagen' }
+  ];
+
+  mockModelos = [
+    { id: 1, marca_id: 1, nombre: 'Corolla' },
+    { id: 2, marca_id: 1, nombre: 'Yaris' },
+    { id: 3, marca_id: 1, nombre: 'Hilux' },
+    { id: 4, marca_id: 2, nombre: 'Civic' },
+    { id: 5, marca_id: 2, nombre: 'CR-V' },
+    { id: 6, marca_id: 3, nombre: 'Sentra' },
+    { id: 7, marca_id: 3, nombre: 'Versa' }
+  ];
+
   sectoresOptions: any[] = [];
   displaySectorPreview: boolean = false;
   selectedSectorForPreview: any = null;
@@ -113,6 +134,7 @@ export class CreateCampania implements OnInit {
       requisitos: [''],
       sectores: this.fb.array([]),
       horarios: this.fb.array([]),
+      categoriasAdmisibles: this.fb.array([]),
       tarifasConfig: this.fb.array([]), // Flat Rules System
       km_minimo_conductor: [null, [Validators.required, Validators.min(0)]],
     }, { validators: [dateRangeValidator] });
@@ -123,12 +145,18 @@ export class CreateCampania implements OnInit {
 
     this.addSector();
     this.addHorario();
+    this.addCategoriaAdmisible();
     this.addTarifaRule(); // Cargar la primera regla por defecto
   }
 
   get sectores() { return this.campaniaForm.get('sectores') as FormArray; }
   get horarios() { return this.campaniaForm.get('horarios') as FormArray; }
   get tarifasConfig() { return this.campaniaForm.get('tarifasConfig') as FormArray; }
+  get categoriasAdmisibles() { return this.campaniaForm.get('categoriasAdmisibles') as FormArray; }
+
+  getVehiculos(catIndex: number) {
+    return this.categoriasAdmisibles.at(catIndex).get('vehiculos') as FormArray;
+  }
 
   updateSectoresOptions() {
     this.sectoresOptions = this.sectores.controls.map((s, i) => {
@@ -182,6 +210,42 @@ export class CreateCampania implements OnInit {
     } else {
       this.addHorario();
     }
+  }
+
+  addCategoriaAdmisible() {
+    this.categoriasAdmisibles.push(this.fb.group({
+      categoria: ['sedan', Validators.required],
+      vehiculos: this.fb.array([this.createVehiculoGroup()])
+    }));
+  }
+
+  createVehiculoGroup() {
+    return this.fb.group({
+      marca: [null, Validators.required],
+      modelo: [null, Validators.required],
+      anio_minimo: [2015, [Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear() + 1)]]
+    });
+  }
+
+  addVehiculoToCategoria(catIndex: number) {
+    this.getVehiculos(catIndex).push(this.createVehiculoGroup());
+  }
+
+  removeVehiculoFromCategoria(catIndex: number, vehIndex: number) {
+    this.getVehiculos(catIndex).removeAt(vehIndex);
+    if (this.getVehiculos(catIndex).length === 0) {
+      this.categoriasAdmisibles.removeAt(catIndex);
+    }
+  }
+
+  removeCategoria(index: number) {
+    this.categoriasAdmisibles.removeAt(index);
+  }
+
+  getModelosByMarca(marcaNombre: string) {
+    const marca = this.mockMarcas.find(m => m.nombre === marcaNombre);
+    if (!marca) return [];
+    return this.mockModelos.filter(m => m.marca_id === marca.id);
   }
 
   // --- Sistema de Reglas de Tarifas ---
@@ -300,6 +364,19 @@ export class CreateCampania implements OnInit {
         });
     });
 
+    const flattenedVehiculos: any[] = [];
+    formValues.categoriasAdmisibles.forEach((catGroup: any) => {
+      catGroup.vehiculos.forEach((v: any) => {
+        flattenedVehiculos.push({
+          marca: v.marca,
+          modelo: v.modelo,
+          categoria: catGroup.categoria,
+          anio_minimo: v.anio_minimo,
+          activo: true
+        });
+      });
+    });
+
     const payload: CampaniaCreacion = {
       empresa_id: 1, // Stub
       nombre: formValues.nombre,
@@ -314,7 +391,8 @@ export class CreateCampania implements OnInit {
       limite_vehiculos: formValues.limite_vehiculos,
       ciclo_pago: formValues.ciclo_pago,
       activa: formValues.activa,
-      tarifas: flattenedTarifas
+      tarifas: flattenedTarifas,
+      vehiculos_admisibles: flattenedVehiculos
     };
 
     console.log('Payload Final:', payload);

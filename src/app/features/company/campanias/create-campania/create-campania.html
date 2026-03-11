@@ -134,19 +134,17 @@
 
         <!-- HORARIOS -->
         <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden h-full flex flex-col">
-                            <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
-                                <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
-                                    <i class="pi pi-clock text-primary"></i> 3. Horarios
-                                </h3>
-                                <div class="flex gap-2">
-                                    <button type="button" pButton icon="pi pi-copy" label="Duplicar"
-                                        class="p-button-text !text-white p-button-sm !font-black !bg-white/10 !px-4 !rounded-full !shadow-md hover:!bg-white/20" 
-                                        (click)="duplicateLastHorario()"></button>
-                                    <button type="button" pButton icon="pi pi-plus" label="Añadir"
-                                        class="p-button-text p-button-warning p-button-sm !font-black !bg-white/10 !px-4 !rounded-full !shadow-md hover:!bg-white/20" 
-                                        (click)="addHorario()"></button>
-                                </div>
-                            </div>            <div class="p-6">
+            <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
+                <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
+                    <i class="pi pi-clock text-primary"></i> 3. Horarios
+                </h3>
+                <div class="flex gap-2">
+                    <button type="button" pButton icon="pi pi-plus" label="Añadir"
+                        class="p-button-text p-button-warning p-button-sm !font-black !bg-white/10 !px-4 !rounded-full !shadow-md hover:!bg-white/20"
+                        (click)="addHorario()"></button>
+                </div>
+            </div>
+            <div class="p-6">
                 <div formArrayName="horarios" class="space-y-4 overflow-y-auto pr-2">
                     @for (horario of horarios.controls; track $index) {
                     <div [formGroupName]="$index"
@@ -184,12 +182,105 @@
             </div>
         </div>
 
-
-        <!-- SECCIÓN 4: CONFIGURADOR DE REGLAS DE TARIFAS -->
+        <!-- SECCIÓN: VEHÍCULOS ADMISIBLES -->
         <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
             <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
                 <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
-                    <i class="pi pi-sliders-h text-primary"></i> 4. Configuración de Reglas de Tarifas
+                    <i class="pi pi-car text-primary"></i> 4. Vehículos Admisibles
+                </h3>
+                <div class="flex gap-2">
+                    <button type="button" pButton icon="pi pi-plus" label="Añadir Categoría"
+                        class="p-button-text p-button-warning p-button-sm !font-black !bg-white/10 !px-4 !rounded-full !shadow-md hover:!bg-white/20"
+                        (click)="addCategoriaAdmisible()"></button>
+                </div>
+            </div>
+
+            <div class="p-8 space-y-8" formArrayName="categoriasAdmisibles">
+                @for (catGroup of categoriasAdmisibles.controls; track $index; let catIdx = $index) {
+                <div [formGroupName]="catIdx" class="">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                        <div class="flex items-center gap-4 w-full md:w-auto">
+                            <span
+                                class="bg-[#2b2b2b] text-white w-8 h-8 rounded-full flex items-center justify-center font-black text-xs">{{catIdx
+                                + 1}}</span>
+                            <div class="flex flex-col gap-1 flex-1 md:flex-initial">
+                                <label class="text-[12px] font-bold text-gray-400 uppercase ml-1">Seleccionar
+                                    Categoría:</label>
+                                <p-select [options]="categoriasVehiculo" formControlName="categoria" optionLabel="label"
+                                    optionValue="value" class="!w-64 !rounded-xl" styleClass="!w-full !py-1"
+                                    appendTo="body"></p-select>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 w-full md:w-auto justify-end">
+                            <button type="button" pButton icon="pi pi-plus" label="Añadir Vehículo"
+                                class="p-button-sm p-button-outlined p-button-secondary !rounded-full !font-bold"
+                                (click)="addVehiculoToCategoria(catIdx)"></button>
+                            <button type="button" pButton icon="pi pi-trash"
+                                class="p-button-sm p-button-text p-button-danger !rounded-full"
+                                (click)="removeCategoria(catIdx)"></button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-100">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-red-100 !bg-[#2b2b2b]">
+                                    <th class="p-3">Marca</th>
+                                    <th class="p-3">Modelo</th>
+                                    <th class="p-3 w-[120px]">Año Mínimo</th>
+                                    <th class="p-3 w-[40px]"></th>
+                                </tr>
+                            </thead>
+                            <tbody formArrayName="vehiculos">
+                                @for (vehiculo of getVehiculos(catIdx).controls; track $index; let vehIdx = $index) {
+                                <tr [formGroupName]="vehIdx"
+                                    class="border-b border-gray-50 last:border-0 hover:bg-gray-50/30 transition-colors">
+                                    <td class="p-2">
+                                        <p-select [options]="mockMarcas" formControlName="marca" optionLabel="nombre"
+                                            optionValue="nombre" class="w-full !rounded-xl"
+                                            styleClass="!w-full !py-1 !text-xs" appendTo="body" [filter]="true"
+                                            filterBy="nombre" placeholder="Marca"></p-select>
+                                    </td>
+                                    <td class="p-2">
+                                        <p-select [options]="getModelosByMarca(vehiculo.get('marca')?.value)"
+                                            formControlName="modelo" optionLabel="nombre" optionValue="nombre"
+                                            class="w-full !rounded-xl" styleClass="!w-full !py-1 !text-xs"
+                                            appendTo="body" [filter]="true" filterBy="nombre"
+                                            placeholder="Modelo"></p-select>
+                                    </td>
+                                    <td class="p-2">
+                                        <p-inputNumber formControlName="anio_minimo" [useGrouping]="false"
+                                            inputStyleClass="w-full !py-2 !rounded-xl !text-center !font-black !text-xs"></p-inputNumber>
+                                    </td>
+                                    <td class="p-2 text-center">
+                                        <button type="button" pButton icon="pi pi-times"
+                                            class="p-button-rounded p-button-text p-button-danger p-button-sm"
+                                            (click)="removeVehiculoFromCategoria(catIdx, vehIdx)"></button>
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                }
+
+                @if (categoriasAdmisibles.length === 0) {
+                <div class="text-center p-12 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+                    <p class="text-gray-500 font-bold uppercase text-xs">No hay categorías configuradas. Pulsa "Añadir
+                        Categoría" para empezar.</p>
+                </div>
+                }
+            </div>
+        </div>
+
+
+        <!-- SECCIÓN 5: CONFIGURADOR DE REGLAS DE TARIFAS -->
+        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
+                <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
+                    <i class="pi pi-sliders-h text-primary"></i> 5. Configuración de Reglas de Tarifas
                 </h3>
                 <button type="button" pButton icon="pi pi-plus" label="Añadir Regla"
                     class="p-button-warning !rounded-full !font-black !px-6 shadow-sm"
@@ -205,65 +296,69 @@
                 </div>
 
 
-                <div class="overflow-x-auto">
-                    <table class="w-full rounded-3xl text-left border-collapse">
-                        <thead class="rounded-3xl">
+                <div class="overflow-x-auto rounded-3xl border border-gray-100">
+                    <table class="w-full text-left border-separate border-spacing-0">
+                        <thead>
                             <tr
-                                class="text-[14px] rounded-3xl font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">
-                                <th class="p-4">Sector</th>
+                                class="text-[14px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">
+                                <th class="p-4 first:rounded-tl-3xl">Sector</th>
                                 <th class="p-4">Horario</th>
                                 <th class="p-4">Vehículo</th>
                                 <th class="p-4">Componente</th>
                                 <th class="p-4 w-[150px]">Tarifa ($)</th>
-                                <th class="p-4 w-[50px]"></th>
+                                <th class="p-4 w-[50px] last:rounded-tr-3xl"></th>
                             </tr>
                         </thead>
                         <tbody formArrayName="tarifasConfig">
-                                                        @for (rule of tarifasConfig.controls; track $index) {
-                                                        <tr [formGroupName]="$index" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                                                            <td class="p-2">
-                                                                <p-select [options]="getSectoresOptionsWithAll()" formControlName="sector_id" 
-                                                                    class="w-full !rounded-xl" styleClass="!w-full !py-1 !text-xs" appendTo="body"></p-select>
-                                                            </td>
-                                                            <td class="p-2">
-                                                                <p-select [options]="getHorariosOptionsWithAll()" formControlName="horario_index" 
-                                                                    class="w-full !rounded-xl" styleClass="!w-full !py-1 !text-xs" appendTo="body"></p-select>
-                                                            </td>
-                                                            <td class="p-2">
-                                                                <p-select [options]="categoriasVehiculo" formControlName="categoria_vehiculo" 
-                                                                    optionLabel="label" optionValue="value"
-                                                                    class="w-full !rounded-xl" styleClass="!w-full !py-1 !text-xs" appendTo="body"></p-select>
-                                                            </td>
-                                                            <td class="p-2">
-                                                                <p-select [options]="brandingPartsCatalog" formControlName="tipo_brandeo" 
-                                                                    optionLabel="label" optionValue="value"
-                                                                    class="w-full !rounded-xl" styleClass="!w-full !py-1 !text-xs" appendTo="body"></p-select>
-                                                            </td>
-                                                            <td class="p-2">
-                                                                <p-inputNumber formControlName="valor" mode="currency" currency="USD" [minFractionDigits]="4"
-                                                                    inputStyleClass="w-full !py-2 !rounded-xl !text-center !font-black !text-xs"></p-inputNumber>
-                                                            </td>
-                                                            <td class="p-2 text-center">
-                                                                <button type="button" pButton icon="pi pi-trash" 
-                                                                    class="p-button-rounded p-button-text p-button-danger p-button-sm"
-                                                                    (click)="removeTarifaRule($index)"></button>
-                                                            </td>
-                                                        </tr>
-                                                        }
-                                                    </tbody>
-                                                    @if (tarifasConfig.length > 0) {
-                                                        <tfoot>
-                                                            <tr>
-                                                                <td colspan="6" class="p-4 bg-gray-50/50 text-center">
-                                                                    <button type="button" pButton icon="pi pi-plus" label="Crear nueva regla "
-                                                                        class="p-button-text !text-primary p-button-sm !font-black !bg-[#2b2b2b] !px-6 !rounded-full !shadow-md hover:scale-105 transition-transform"
-                                                                        (click)="duplicateLastRule()"></button>
-                                                                </td>
-                                                            </tr>
-                                                        </tfoot>
-                                                    }
-                                                </table>
-                                            </div>
+                            @for (rule of tarifasConfig.controls; track $index) {
+                            <tr [formGroupName]="$index"
+                                class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                                <td class="p-2">
+                                    <p-select [options]="getSectoresOptionsWithAll()" formControlName="sector_id"
+                                        class="w-full !rounded-xl" styleClass="!w-full !py-1 !text-xs"
+                                        appendTo="body"></p-select>
+                                </td>
+                                <td class="p-2">
+                                    <p-select [options]="getHorariosOptionsWithAll()" formControlName="horario_index"
+                                        class="w-full !rounded-xl" styleClass="!w-full !py-1 !text-xs"
+                                        appendTo="body"></p-select>
+                                </td>
+                                <td class="p-2">
+                                    <p-select [options]="categoriasVehiculo" formControlName="categoria_vehiculo"
+                                        optionLabel="label" optionValue="value" class="w-full !rounded-xl"
+                                        styleClass="!w-full !py-1 !text-xs" appendTo="body"></p-select>
+                                </td>
+                                <td class="p-2">
+                                    <p-select [options]="brandingPartsCatalog" formControlName="tipo_brandeo"
+                                        optionLabel="label" optionValue="value" class="w-full !rounded-xl"
+                                        styleClass="!w-full !py-1 !text-xs" appendTo="body"></p-select>
+                                </td>
+                                <td class="p-2">
+                                    <p-inputNumber formControlName="valor" mode="currency" currency="USD"
+                                        [minFractionDigits]="4"
+                                        inputStyleClass="w-full !py-2 !rounded-xl !text-center !font-black !text-xs"></p-inputNumber>
+                                </td>
+                                <td class="p-2 text-center">
+                                    <button type="button" pButton icon="pi pi-trash"
+                                        class="p-button-rounded p-button-text p-button-danger p-button-sm"
+                                        (click)="removeTarifaRule($index)"></button>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                        @if (tarifasConfig.length > 0) {
+                        <tfoot>
+                            <tr>
+                                <td colspan="6" class="p-4 bg-gray-50/50 text-center">
+                                    <button type="button" pButton icon="pi pi-plus" label="Crear nueva regla "
+                                        class="p-button-text !text-primary p-button-sm !font-black !bg-[#2b2b2b] !px-6 !rounded-full !shadow-md hover:scale-105 transition-transform"
+                                        (click)="duplicateLastRule()"></button>
+                                </td>
+                            </tr>
+                        </tfoot>
+                        }
+                    </table>
+                </div>
 
                 @if (tarifasConfig.length === 0) {
                 <div class="text-center p-12 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200 mt-6">
@@ -274,11 +369,11 @@
             </div>
         </div>
 
-        <!-- SECCIÓN 5: SIMULADOR DE TARIFAS RESULTANTES -->
+        <!-- SECCIÓN 6: SIMULADOR DE TARIFAS RESULTANTES -->
         <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
             <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
                 <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
-                    <i class="pi pi-eye text-primary"></i> 5. Vista Previa de Tarifas Efectivas
+                    <i class="pi pi-eye text-primary"></i> 6. Vista Previa de Tarifas Efectivas
                 </h3>
                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest hidden md:block">Resumen por
                     Combinación</p>
@@ -364,7 +459,7 @@
         <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100">
             <h5 class="font-black text-gray-700 uppercase tracking-widest text-xs mb-3">Descripción:</h5>
             <p class="text-gray-600 leading-relaxed">{{selectedSectorForPreview?.descripcion || 'Sin descripción
-                disponible.'}}</p>
+                `disponible.'}}</p>
         </div>
 
         <div class="flex justify-end gap-3 mt-4">

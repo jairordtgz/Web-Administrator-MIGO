@@ -25,6 +25,7 @@ export interface CampaniaCreacion {
     activa?: boolean;
     tipo_brandeo_id?: number | null;
     tarifas?: Tarifa[];
+    vehiculos_admisibles?: CatalogoVehiculo[];
 }
 
 export interface CampaniaList {
