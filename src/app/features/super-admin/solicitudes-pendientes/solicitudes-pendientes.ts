@@ -35,18 +35,38 @@ export class SolicitudesPendientes implements OnInit {
   loading: boolean = false;
   totalRecords: number = 0;
   rows: number = 10;
+  first: number = 0;
   filtroEstado: string = 'todas';
+  filtroBusqueda: string = '';
 
   ngOnInit() {
     this.loadSolicitudes();
   }
 
-  loadSolicitudes() {
+  onLazyLoad(event?: any) {
+    this.first = event.first;
+    this.rows = event.rows;
+    this.loadSolicitudes(event);
+  }
+
+  onSearch(event: Event) {
+    this.filtroBusqueda = (event.target as HTMLInputElement).value;
+    this.first = 0; // Reiniciar a la primera página al buscar
+    this.loadSolicitudes();
+  }
+
+  loadSolicitudes(event?: any) {
     this.loading = true;
-    this.companiesService.getSolicitudesEmpresa().subscribe({
+
+    const page = event ? Math.floor(this.first / this.rows) + 1 : 1;
+    const rows = event ? event.rows : this.rows;
+    const searchValue = this.filtroBusqueda || '';
+    const estado = this.filtroEstado === 'todas' ? '' : this.filtroEstado;
+
+    this.companiesService.getSolicitudesEmpresa(page, rows, searchValue, estado).subscribe({
       next: (res) => {
-        this.solicitudes = res;
-        this.totalRecords = res.length;
+        this.solicitudes = res.results;
+        this.totalRecords = res.count;
         this.loading = false;
         this.cdr.detectChanges();
       },

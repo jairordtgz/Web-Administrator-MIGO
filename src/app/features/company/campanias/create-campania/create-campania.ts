@@ -110,6 +110,17 @@ export class CreateCampania implements OnInit {
     { id: 7, marca_id: 3, nombre: 'Versa' }
   ];
 
+  fullVehiclesCatalog: any[] = [
+    { categoria: 'sedan', marca: 'Toyota', modelo: 'Corolla' },
+    { categoria: 'sedan', marca: 'Toyota', modelo: 'Yaris' },
+    { categoria: 'sedan', marca: 'Honda', modelo: 'Civic' },
+    { categoria: 'sedan', marca: 'Nissan', modelo: 'Sentra' },
+    { categoria: 'suv', marca: 'Toyota', modelo: 'RAV4' },
+    { categoria: 'suv', marca: 'Honda', modelo: 'CR-V' },
+    { categoria: 'camioneta', marca: 'Toyota', modelo: 'Hilux' },
+    { categoria: 'camioneta', marca: 'Ford', modelo: 'Ranger' },
+  ];
+
   sectoresOptions: any[] = [];
   displaySectorPreview: boolean = false;
   selectedSectorForPreview: any = null;
@@ -134,7 +145,7 @@ export class CreateCampania implements OnInit {
       requisitos: [''],
       sectores: this.fb.array([]),
       horarios: this.fb.array([]),
-      categoriasAdmisibles: this.fb.array([]),
+      vehiculosAdmisibles: this.fb.array([]),
       tarifasConfig: this.fb.array([]), // Flat Rules System
       km_minimo_conductor: [null, [Validators.required, Validators.min(0)]],
     }, { validators: [dateRangeValidator] });
@@ -145,18 +156,71 @@ export class CreateCampania implements OnInit {
 
     this.addSector();
     this.addHorario();
-    this.addCategoriaAdmisible();
+    this.initVehiculosCatalog();
     this.addTarifaRule(); // Cargar la primera regla por defecto
   }
 
   get sectores() { return this.campaniaForm.get('sectores') as FormArray; }
   get horarios() { return this.campaniaForm.get('horarios') as FormArray; }
   get tarifasConfig() { return this.campaniaForm.get('tarifasConfig') as FormArray; }
-  get categoriasAdmisibles() { return this.campaniaForm.get('categoriasAdmisibles') as FormArray; }
+  get vehiculosAdmisibles() { return this.campaniaForm.get('vehiculosAdmisibles') as FormArray; }
 
-  getVehiculos(catIndex: number) {
-    return this.categoriasAdmisibles.at(catIndex).get('vehiculos') as FormArray;
+  initVehiculosCatalog() {
+    this.fullVehiclesCatalog.forEach(v => {
+      this.vehiculosAdmisibles.push(this.fb.group({
+        categoria: [v.categoria],
+        marca: [v.marca],
+        modelo: [v.modelo],
+        seleccionado: [false],
+        anio_minimo: [2015, [Validators.required, Validators.min(1900)]]
+      }));
+    });
   }
+
+  shouldShowCategory(index: number): boolean {
+    if (index === 0) return true;
+    return this.vehiculosAdmisibles.at(index).get('categoria')?.value !== 
+           this.vehiculosAdmisibles.at(index - 1).get('categoria')?.value;
+  }
+
+  shouldShowMarca(index: number): boolean {
+    if (index === 0) return true;
+    const current = this.vehiculosAdmisibles.at(index).value;
+    const previous = this.vehiculosAdmisibles.at(index - 1).value;
+    return current.marca !== previous.marca || current.categoria !== previous.categoria;
+  }
+
+  toggleAllForMarca(index: number) {
+    const target = this.vehiculosAdmisibles.at(index).value;
+    const targetCat = target.categoria;
+    const targetMarca = target.marca;
+
+    const group = this.vehiculosAdmisibles.controls.filter(c => {
+      const val = c.value;
+      return val.categoria === targetCat && val.marca === targetMarca;
+    });
+
+    const allSelected = group.every(c => c.get('seleccionado')?.value);
+    const newValue = !allSelected;
+
+    group.forEach(c => c.get('seleccionado')?.setValue(newValue));
+  }
+
+  toggleAllForCategory(index: number) {
+    const target = this.vehiculosAdmisibles.at(index).value;
+    const targetCat = target.categoria;
+
+    const group = this.vehiculosAdmisibles.controls.filter(c => {
+      return c.value.categoria === targetCat;
+    });
+
+    const allSelected = group.every(c => c.get('seleccionado')?.value);
+    const newValue = !allSelected;
+
+    group.forEach(c => c.get('seleccionado')?.setValue(newValue));
+  }
+
+ 
 
   updateSectoresOptions() {
     this.sectoresOptions = this.sectores.controls.map((s, i) => {
@@ -188,7 +252,6 @@ export class CreateCampania implements OnInit {
   }
 
   goToCreateSectors() {
-    // Por ahora solo una alerta o navegación simulada
     this.messageService.add({ severity: 'info', summary: 'Navegación', detail: 'Redirigiendo a creación de sectores...' });
     setTimeout(() => {
         this.router.navigate(['/company/administrar-sectores']);
@@ -211,44 +274,6 @@ export class CreateCampania implements OnInit {
       this.addHorario();
     }
   }
-
-  addCategoriaAdmisible() {
-    this.categoriasAdmisibles.push(this.fb.group({
-      categoria: ['sedan', Validators.required],
-      vehiculos: this.fb.array([this.createVehiculoGroup()])
-    }));
-  }
-
-  createVehiculoGroup() {
-    return this.fb.group({
-      marca: [null, Validators.required],
-      modelo: [null, Validators.required],
-      anio_minimo: [2015, [Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear() + 1)]]
-    });
-  }
-
-  addVehiculoToCategoria(catIndex: number) {
-    this.getVehiculos(catIndex).push(this.createVehiculoGroup());
-  }
-
-  removeVehiculoFromCategoria(catIndex: number, vehIndex: number) {
-    this.getVehiculos(catIndex).removeAt(vehIndex);
-    if (this.getVehiculos(catIndex).length === 0) {
-      this.categoriasAdmisibles.removeAt(catIndex);
-    }
-  }
-
-  removeCategoria(index: number) {
-    this.categoriasAdmisibles.removeAt(index);
-  }
-
-  getModelosByMarca(marcaNombre: string) {
-    const marca = this.mockMarcas.find(m => m.nombre === marcaNombre);
-    if (!marca) return [];
-    return this.mockModelos.filter(m => m.marca_id === marca.id);
-  }
-
-  // --- Sistema de Reglas de Tarifas ---
 
   addTarifaRule() {
     this.tarifasConfig.push(this.fb.group({
@@ -318,17 +343,10 @@ export class CreateCampania implements OnInit {
     });
   }
 
-  // --- Simulador de Resultados ---
-
   getEffectiveRate(sectorId: number | null, horarioIdx: number | null, categoria: string): number {
     let total = 0;
-    
-    // Iteramos por cada tipo de brandeo disponible
     this.brandingPartsCatalog.forEach(part => {
       const rules = this.tarifasConfig.value as any[];
-      
-      // Buscamos la regla más específica para este componente
-      // Prioridad: 1. Sector+Horario, 2. Sector+TODOS, 3. TODOS+Horario, 4. TODOS+TODOS
       const rule = rules
         .filter(r => r.tipo_brandeo === part.value && r.categoria_vehiculo === categoria)
         .sort((a, b) => {
@@ -336,10 +354,8 @@ export class CreateCampania implements OnInit {
           const scoreB = (b.sector_id !== null ? 2 : 0) + (b.horario_index !== null ? 1 : 0);
           return scoreB - scoreA;
         })[0];
-
       if (rule) total += rule.valor;
     });
-
     return total;
   }
 
@@ -359,26 +375,21 @@ export class CreateCampania implements OnInit {
           sector: rule.sector_id,
           tipo_brandeo: rule.tipo_brandeo,
           valor: rule.valor
-          // Aquí el backend deberá manejar el horario_index si es necesario, 
-          // o podemos extender la interfaz Tarifa
         });
     });
 
-    const flattenedVehiculos: any[] = [];
-    formValues.categoriasAdmisibles.forEach((catGroup: any) => {
-      catGroup.vehiculos.forEach((v: any) => {
-        flattenedVehiculos.push({
-          marca: v.marca,
-          modelo: v.modelo,
-          categoria: catGroup.categoria,
-          anio_minimo: v.anio_minimo,
-          activo: true
-        });
-      });
-    });
+    const selectedVehiculos = formValues.vehiculosAdmisibles
+      .filter((v: any) => v.seleccionado)
+      .map((v: any) => ({
+        marca: v.marca,
+        modelo: v.modelo,
+        categoria: v.categoria,
+        anio_minimo: v.anio_minimo,
+        activo: true
+      }));
 
     const payload: CampaniaCreacion = {
-      empresa_id: 1, // Stub
+      empresa_id: 1, 
       nombre: formValues.nombre,
       responsable_nombre: formValues.responsable_nombre,
       responsable_email: formValues.responsable_email,
@@ -392,7 +403,7 @@ export class CreateCampania implements OnInit {
       ciclo_pago: formValues.ciclo_pago,
       activa: formValues.activa,
       tarifas: flattenedTarifas,
-      vehiculos_admisibles: flattenedVehiculos
+      vehiculos_admisibles: selectedVehiculos
     };
 
     console.log('Payload Final:', payload);

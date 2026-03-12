@@ -1,472 +1,709 @@
 <div class="px-6 pt-4 pb-12 min-h-full relative font-sans bg-[#f8f9fa]">
-    <p-toast></p-toast>
+  <p-toast></p-toast>
 
-    <!-- Header Section -->
-    <div
-        class="bg-white p-8 shadow-sm mb-6 flex flex-col md:flex-row justify-between items-center rounded-2xl border-b-4 border-primary top-0 z-10">
-        <div>
-            <h1 class="text-3xl font-black text-[#2b2b2b] uppercase tracking-tighter">CREAR NUEVA CAMPAÑA</h1>
-            <p class="text-sm text-gray-500 font-medium mt-1">Configuración avanzada de tarifas por componente y sector
-            </p>
+  <!-- Header Section -->
+  <div
+    class="bg-white p-8 shadow-sm mb-6 flex flex-col md:flex-row justify-between items-center rounded-2xl border-b-4 border-primary top-0 z-10"
+  >
+    <div>
+      <h1 class="text-3xl font-black text-[#2b2b2b] uppercase tracking-tighter">
+        CREAR NUEVA CAMPAÑA
+      </h1>
+      <p class="text-sm text-gray-500 font-medium mt-1">
+        Configuración avanzada de tarifas por componente y sector
+      </p>
+    </div>
+    <div class="flex gap-4 mt-4 md:mt-0">
+      <button
+        pButton
+        label="CANCELAR"
+        icon="pi pi-times"
+        class="p-button-outlined p-button-secondary !rounded-full !font-bold !border-gray-300"
+        (click)="cancelar()"
+      ></button>
+      <button
+        pButton
+        label="PUBLICAR CAMPAÑA"
+        icon="pi pi-rocket"
+        class="p-button-warning !rounded-full !font-bold !px-8 shadow-lg transform hover:scale-105 transition-all"
+        (click)="onSubmit()"
+      ></button>
+    </div>
+  </div>
+
+  <form
+    [formGroup]="campaniaForm"
+    (ngSubmit)="onSubmit()"
+    class="flex flex-col gap-10 max-w-7xl mx-auto pb-10"
+  >
+    <!-- SECCIÓN 1: DATOS BÁSICOS -->
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+      <div class="bg-[#2b2b2b] p-5">
+        <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
+          <i class="pi pi-info-circle text-primary"></i> 1. Información General
+        </h3>
+      </div>
+      <div class="p-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="flex flex-col gap-2">
+            <label class="font-bold text-gray-700 ml-1 text-xs uppercase"
+              >Nombre de la Campaña:</label
+            >
+            <input
+              pInputText
+              formControlName="nombre"
+              placeholder="Ej: Verano 2026"
+              class="w-full !rounded-xl !py-3"
+            />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="font-bold text-gray-700 ml-1 text-xs uppercase"
+              >Responsable (Nombre):</label
+            >
+            <input
+              pInputText
+              formControlName="responsable_nombre"
+              placeholder="Nombre completo"
+              class="w-full !rounded-xl !py-3"
+            />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="font-bold text-gray-700 ml-1 text-xs uppercase"
+              >Responsable (Email):</label
+            >
+            <input
+              pInputText
+              formControlName="responsable_email"
+              placeholder="correo@empresa.com"
+              class="w-full !rounded-xl !py-3"
+            />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="font-bold text-gray-700 ml-1 text-xs uppercase"
+              >Presupuesto Inicial ($):</label
+            >
+            <p-inputNumber
+              formControlName="presupuesto_total"
+              mode="currency"
+              currency="USD"
+              locale="en-US"
+              styleClass="w-full"
+              inputStyleClass="w-full !rounded-xl !py-3"
+              [minFractionDigits]="2"
+            ></p-inputNumber>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Ciclo de Pago:</label>
+            <p-select
+              [options]="ciclosPago"
+              formControlName="ciclo_pago"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full !rounded-xl"
+              styleClass="!w-full !py-1"
+              appendTo="body"
+            ></p-select>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Límite Vehículos:</label>
+            <p-inputNumber
+              formControlName="limite_vehiculos"
+              placeholder="Ej: 100"
+              styleClass="w-full"
+              inputStyleClass="w-full !rounded-xl !py-3"
+            ></p-inputNumber>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Fecha Inicio:</label>
+            <p-datepicker
+              formControlName="fecha_inicio"
+              placeholder="Inicio"
+              styleClass="w-full"
+              inputStyleClass="w-full !rounded-xl !py-3"
+              appendTo="body"
+            ></p-datepicker>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Fecha Fin:</label>
+            <p-datepicker
+              formControlName="fecha_fin"
+              placeholder="Fin"
+              styleClass="w-full"
+              inputStyleClass="w-full !rounded-xl !py-3"
+              appendTo="body"
+            ></p-datepicker>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="font-bold text-gray-700 ml-1 text-xs uppercase"
+              >Fecha Límite Registro:</label
+            >
+            <p-datepicker
+              formControlName="fecha_limite_registro"
+              placeholder="Opcional"
+              styleClass="w-full"
+              inputStyleClass="w-full !rounded-xl !py-3"
+              appendTo="body"
+            ></p-datepicker>
+          </div>
         </div>
-        <div class="flex gap-4 mt-4 md:mt-0">
-            <button pButton label="CANCELAR" icon="pi pi-times"
-                class="p-button-outlined p-button-secondary !rounded-full !font-bold !border-gray-300"
-                (click)="cancelar()"></button>
-            <button pButton label="PUBLICAR CAMPAÑA" icon="pi pi-rocket"
-                class="p-button-warning !rounded-full !font-bold !px-8 shadow-lg transform hover:scale-105 transition-all"
-                (click)="onSubmit()"></button>
-        </div>
+      </div>
     </div>
 
-    <form [formGroup]="campaniaForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-10 max-w-7xl mx-auto pb-10">
+    <!-- SECCIÓN 2: SECTORES Y HORARIOS -->
 
-        <!-- SECCIÓN 1: DATOS BÁSICOS -->
-        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-            <div class="bg-[#2b2b2b] p-5">
-                <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
-                    <i class="pi pi-info-circle text-primary"></i> 1. Información General
-                </h3>
-            </div>
-            <div class="p-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="flex flex-col gap-2">
-                        <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Nombre de la Campaña:</label>
-                        <input pInputText formControlName="nombre" placeholder="Ej: Verano 2026"
-                            class="w-full !rounded-xl !py-3" />
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Responsable (Nombre):</label>
-                        <input pInputText formControlName="responsable_nombre" placeholder="Nombre completo"
-                            class="w-full !rounded-xl !py-3" />
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Responsable (Email):</label>
-                        <input pInputText formControlName="responsable_email" placeholder="correo@empresa.com"
-                            class="w-full !rounded-xl !py-3" />
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Presupuesto Inicial ($):</label>
-                        <p-inputNumber formControlName="presupuesto_total" mode="currency" currency="USD" locale="en-US"
-                            styleClass="w-full" inputStyleClass="w-full !rounded-xl !py-3"
-                            [minFractionDigits]="2"></p-inputNumber>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Ciclo de Pago:</label>
-                        <p-select [options]="ciclosPago" formControlName="ciclo_pago" optionLabel="label"
-                            optionValue="value" class="w-full !rounded-xl" styleClass="!w-full !py-1"
-                            appendTo="body"></p-select>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Límite Vehículos:</label>
-                        <p-inputNumber formControlName="limite_vehiculos" placeholder="Ej: 100" styleClass="w-full"
-                            inputStyleClass="w-full !rounded-xl !py-3"></p-inputNumber>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Fecha Inicio:</label>
-                        <p-datepicker formControlName="fecha_inicio" placeholder="Inicio" styleClass="w-full"
-                            inputStyleClass="w-full !rounded-xl !py-3" appendTo="body"></p-datepicker>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Fecha Fin:</label>
-                        <p-datepicker formControlName="fecha_fin" placeholder="Fin" styleClass="w-full"
-                            inputStyleClass="w-full !rounded-xl !py-3" appendTo="body"></p-datepicker>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Fecha Límite Registro:</label>
-                        <p-datepicker formControlName="fecha_limite_registro" placeholder="Opcional" styleClass="w-full"
-                            inputStyleClass="w-full !rounded-xl !py-3" appendTo="body"></p-datepicker>
-                    </div>
-                </div>
-            </div>
+    <!-- SECTORES -->
+    <div
+      class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden h-full flex flex-col"
+    >
+      <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
+        <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
+          <i class="pi pi-map-marker text-primary"></i> 2. Sectores
+        </h3>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            pButton
+            icon="pi pi-plus"
+            label="Añadir"
+            class="p-button-text p-button-warning p-button-sm !font-black !bg-gray-800 !px-4 !rounded-full !shadow-md"
+            (click)="addSector()"
+          ></button>
+          <button
+            type="button"
+            pButton
+            icon="pi pi-external-link"
+            label="CREAR"
+            class="p-button-text !text-white p-button-sm !font-black !bg-gray-800 !px-4 !rounded-full !shadow-md"
+            (click)="goToCreateSectors()"
+          ></button>
         </div>
-
-        <!-- SECCIÓN 2: SECTORES Y HORARIOS -->
-
-        <!-- SECTORES -->
-        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden h-full flex flex-col">
-            <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
-                <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
-                    <i class="pi pi-map-marker text-primary"></i> 2. Sectores
-                </h3>
-                <div class="flex gap-2">
-                    <button type="button" pButton icon="pi pi-plus" label="Añadir"
-                        class="p-button-text p-button-warning p-button-sm !font-black !bg-gray-800 !px-4 !rounded-full !shadow-md"
-                        (click)="addSector()"></button>
-                    <button type="button" pButton icon="pi pi-external-link" label="CREAR"
-                        class="p-button-text !text-white p-button-sm !font-black !bg-gray-800 !px-4 !rounded-full !shadow-md"
-                        (click)="goToCreateSectors()"></button>
+      </div>
+      <div class="p-6">
+        <div formArrayName="sectores" class="space-y-4 overflow-y-auto pr-2">
+          @if (sectores.length == 0) {
+            <p class="p-2 text-gray-500">No hay sectores disponibles, crea uno para empezar</p>
+          }
+          @for (sector of sectores.controls; track $index) {
+            <div [formGroupName]="$index" class="flex gap-3 items-start">
+              <div class="flex-1">
+                <div class="flex justify-between gap-3 mb-1">
+                  <label class="text-xs font-bold text-gray-400 uppercase ml-1"
+                    >Seleccionar Sector:</label
+                  >
+                  <button
+                    type="button"
+                    pButton
+                    label="Previsualizar"
+                    icon="pi pi-eye"
+                    class="p-button-link !p-0 !text-[12px] !font-bold !text-gray-500"
+                    (click)="showSectorPreview($index)"
+                  ></button>
                 </div>
+
+                <p-select
+                  [options]="mockSectores"
+                  formControlName="id"
+                  optionLabel="nombre"
+                  optionValue="id"
+                  placeholder="Escoger sector"
+                  class="w-full !rounded-xl"
+                  styleClass="!w-full !py-1"
+                  appendTo="body"
+                ></p-select>
+                <div class="flex justify-end mt-1"></div>
+              </div>
+              <button
+                type="button"
+                pButton
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-text p-button-danger mt-5"
+                (click)="removeSector($index)"
+              ></button>
             </div>
-            <div class="p-6">
-                <div formArrayName="sectores" class="space-y-4 overflow-y-auto pr-2">
-                    @if (sectores.length == 0) {
-                    <p class="p-2 text-gray-500">No hay sectores disponibles, crea uno para empezar</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- HORARIOS -->
+    <div
+      class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden h-full flex flex-col"
+    >
+      <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
+        <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
+          <i class="pi pi-clock text-primary"></i> 3. Horarios
+        </h3>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            pButton
+            icon="pi pi-plus"
+            label="Añadir"
+            class="p-button-text p-button-warning p-button-sm !font-black !bg-white/10 !px-4 !rounded-full !shadow-md hover:!bg-white/20"
+            (click)="addHorario()"
+          ></button>
+        </div>
+      </div>
+      <div class="p-6">
+        <div formArrayName="horarios" class="space-y-4 overflow-y-auto pr-2">
+          @for (horario of horarios.controls; track $index) {
+            <div
+              [formGroupName]="$index"
+              class="flex gap-3 items-center border-b border-gray-100 pb-4 last:border-0 last:pb-0"
+            >
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3 flex-1">
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-bold text-gray-400 uppercase ml-1">Día:</label>
+                  <p-select
+                    [options]="diasSemana"
+                    formControlName="dia"
+                    optionLabel="label"
+                    optionValue="value"
+                    class="w-full !rounded-lg"
+                    styleClass="!w-full !py-1"
+                    appendTo="body"
+                  ></p-select>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-bold text-gray-400 uppercase ml-1">Inicio (H):</label>
+                  <p-inputNumber
+                    formControlName="hora_inicio"
+                    placeholder="0"
+                    [showButtons]="true"
+                    [min]="0"
+                    [max]="23"
+                    buttonLayout="horizontal"
+                    spinnerMode="horizontal"
+                    incrementButtonIcon="pi pi-plus"
+                    decrementButtonIcon="pi pi-minus"
+                    inputStyleClass="!py-2 !text-center !w-12 !rounded-lg"
+                    styleClass="!w-full flex justify-center"
+                  ></p-inputNumber>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-bold text-gray-400 uppercase ml-1">Fin (H):</label>
+                  <p-inputNumber
+                    formControlName="hora_fin"
+                    placeholder="23"
+                    [showButtons]="true"
+                    [min]="0"
+                    [max]="23"
+                    buttonLayout="horizontal"
+                    spinnerMode="horizontal"
+                    incrementButtonIcon="pi pi-plus"
+                    decrementButtonIcon="pi pi-minus"
+                    inputStyleClass="!py-2 !text-center !w-12 !rounded-lg"
+                    styleClass="!w-full flex justify-center"
+                  ></p-inputNumber>
+                </div>
+              </div>
+              <button
+                type="button"
+                pButton
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-text p-button-danger mt-4"
+                (click)="removeHorario($index)"
+              ></button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN: VEHÍCULOS ADMISIBLES -->
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+      <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
+        <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
+          <i class="pi pi-car text-primary"></i> 4. Vehículos Admisibles
+        </h3>
+        <div class="relative w-72">
+          <i
+            class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"
+          ></i>
+          <input
+            type="text"
+            pInputText
+            placeholder="Filtrar catálogo..."
+            #catalogSearch
+            class="w-full !rounded-full !py-2 !pl-10 !text-xs !bg-white/10 !border-white/20 !text-white"
+          />
+        </div>
+      </div>
+
+      <div class="p-0 overflow-x-auto">
+        <table class="w-full text-left border-collapse table-fixed">
+          <thead>
+            <tr
+              class="text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 bg-gray-50/50"
+            >
+              <th class="p-4 w-[120px]">Categoría</th>
+              <th class="p-4 w-[120px]">Marca</th>
+              <th class="p-4 w-[80px] text-center">Admitir</th>
+              <th class="p-4 w-[180px]">Modelo</th>
+              <th class="p-4 w-[120px] text-center">Año Mínimo</th>
+            </tr>
+          </thead>
+          <tbody formArrayName="vehiculosAdmisibles">
+            @for (vGroup of vehiculosAdmisibles.controls; track $index) {
+              @if (
+                !catalogSearch.value ||
+                vGroup
+                  .get('marca')
+                  ?.value.toLowerCase()
+                  .includes(catalogSearch.value.toLowerCase()) ||
+                vGroup
+                  .get('modelo')
+                  ?.value.toLowerCase()
+                  .includes(catalogSearch.value.toLowerCase()) ||
+                vGroup
+                  .get('categoria')
+                  ?.value.toLowerCase()
+                  .includes(catalogSearch.value.toLowerCase())
+              ) {
+                <tr
+                  [formGroupName]="$index"
+                  class="border-b border-gray-100 hover:bg-gray-50/50 transition-colors"
+                  [class.border-t-4]="shouldShowCategory($index) && $index > 0"
+                  [class.border-t-2]="
+                    shouldShowMarca($index) && !shouldShowCategory($index) && $index > 0
+                  "
+                  [class.border-t-primary/30]="shouldShowCategory($index) && $index > 0"
+                >
+                  <!-- Columna Categoría -->
+                  <td class="p-4 border-r-2 border-gray-200 bg-gray-50/30">
+                    @if (shouldShowCategory($index)) {
+                      <div class="flex items-center justify-between gap-2">
+                        <span
+                          class="text-xss font-medium text-gray-800 uppercase bg-primary/20 px-3 py-1 rounded-full truncate"
+                        >
+                          {{ vGroup.get('categoria')?.value }}
+                        </span>
+                        <button
+                          type="button"
+                          pButton
+                          label="TODOS"
+                          class="p-button-sm !bg-[#2b2b2b] !border-none !text-white !font-black !text-xs !rounded-md !px-2 !py-1.5 shadow-sm hover:!bg-gray-800 hover:!text-white transition-all"
+                          (click)="toggleAllForCategory($index)"
+                        ></button>
+                      </div>
                     }
-                    @for (sector of sectores.controls; track $index) {
-                    <div [formGroupName]="$index" class="flex gap-3 items-start ">
+                  </td>
 
-                        <div class="flex-1">
-                            <div class="flex justify-between gap-3 mb-1">
-                                <label class="text-[12px] font-bold text-gray-400 uppercase ml-1">Seleccionar
-                                    Sector:</label>
-                                <button type="button" pButton label="Previsualizar" icon="pi pi-eye"
-                                    class="p-button-link !p-0 !text-[12px] !font-bold !text-gray-500"
-                                    (click)="showSectorPreview($index)"></button>
-                            </div>
-
-
-                            <p-select [options]="mockSectores" formControlName="id" optionLabel="nombre"
-                                optionValue="id" placeholder="Escoger sector" class="w-full !rounded-xl"
-                                styleClass="!w-full !py-1" appendTo="body"></p-select>
-                            <div class="flex justify-end mt-1">
-
-                            </div>
-                        </div>
-                        <button type="button" pButton icon="pi pi-trash"
-                            class="p-button-rounded p-button-text p-button-danger mt-5"
-                            (click)="removeSector($index)"></button>
-                    </div>
+                  <!-- Columna Marca -->
+                  <td class="p-4 border-r-2 border-gray-200 bg-white">
+                    @if (shouldShowMarca($index)) {
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="text-s font-medium text-gray-700 uppercase">
+                          {{ vGroup.get('marca')?.value }}
+                        </span>
+                        <button
+                          type="button"
+                          pButton
+                          label="TODOS"
+                          class="p-button-sm !bg-[#2b2b2b] !border-none !text-white !font-black !text-xs !rounded-md !px-3 !py-1.5 shadow-md hover:!bg-primary hover:!text-gray-900 transition-all"
+                          (click)="toggleAllForMarca($index)"
+                        ></button>
+                      </div>
                     }
-                </div>
-            </div>
-        </div>
+                  </td>
 
-        <!-- HORARIOS -->
-        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden h-full flex flex-col">
-            <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
-                <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
-                    <i class="pi pi-clock text-primary"></i> 3. Horarios
-                </h3>
-                <div class="flex gap-2">
-                    <button type="button" pButton icon="pi pi-plus" label="Añadir"
-                        class="p-button-text p-button-warning p-button-sm !font-black !bg-white/10 !px-4 !rounded-full !shadow-md hover:!bg-white/20"
-                        (click)="addHorario()"></button>
-                </div>
-            </div>
-            <div class="p-6">
-                <div formArrayName="horarios" class="space-y-4 overflow-y-auto pr-2">
-                    @for (horario of horarios.controls; track $index) {
-                    <div [formGroupName]="$index"
-                        class="flex gap-3 items-center border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 flex-1">
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[12px] font-bold text-gray-400 uppercase ml-1">Día:</label>
-                                <p-select [options]="diasSemana" formControlName="dia" optionLabel="label"
-                                    optionValue="value" class="w-full !rounded-lg" styleClass="!w-full !py-1"
-                                    appendTo="body"></p-select>
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[12px] font-bold text-gray-400 uppercase ml-1">Inicio (H):</label>
-                                <p-inputNumber formControlName="hora_inicio" placeholder="0" [showButtons]="true"
-                                    [min]="0" [max]="23" buttonLayout="horizontal" spinnerMode="horizontal"
-                                    incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"
-                                    inputStyleClass="!py-2 !text-center !w-12 !rounded-lg"
-                                    styleClass="!w-full flex justify-center"></p-inputNumber>
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[12px] font-bold text-gray-400 uppercase ml-1">Fin (H):</label>
-                                <p-inputNumber formControlName="hora_fin" placeholder="23" [showButtons]="true"
-                                    [min]="0" [max]="23" buttonLayout="horizontal" spinnerMode="horizontal"
-                                    incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"
-                                    inputStyleClass="!py-2 !text-center !w-12 !rounded-lg"
-                                    styleClass="!w-full flex justify-center"></p-inputNumber>
-                            </div>
-                        </div>
-                        <button type="button" pButton icon="pi pi-trash"
-                            class="p-button-rounded p-button-text p-button-danger mt-4"
-                            (click)="removeHorario($index)"></button>
-                    </div>
-                    }
-                </div>
-            </div>
-        </div>
+                  <!-- Columna Checkbox -->
+                  <td class="p-4 text-center border-r border-gray-100">
+                    <p-checkbox formControlName="seleccionado" [binary]="true"></p-checkbox>
+                  </td>
 
-        <!-- SECCIÓN: VEHÍCULOS ADMISIBLES -->
-        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-            <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
-                <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
-                    <i class="pi pi-car text-primary"></i> 4. Vehículos Admisibles
-                </h3>
-                <div class="flex gap-2">
-                    <button type="button" pButton icon="pi pi-plus" label="Añadir Categoría"
-                        class="p-button-text p-button-warning p-button-sm !font-black !bg-white/10 !px-4 !rounded-full !shadow-md hover:!bg-white/20"
-                        (click)="addCategoriaAdmisible()"></button>
-                </div>
-            </div>
+                  <!-- Columna Modelo -->
+                  <td class="p-4 border-r border-gray-100">
+                    <span class="text-s font-medium text-gray-700">{{
+                      vGroup.get('modelo')?.value
+                    }}</span>
+                  </td>
 
-            <div class="p-8 space-y-8" formArrayName="categoriasAdmisibles">
-                @for (catGroup of categoriasAdmisibles.controls; track $index; let catIdx = $index) {
-                <div [formGroupName]="catIdx" class="">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                        <div class="flex items-center gap-4 w-full md:w-auto">
-                            <span
-                                class="bg-[#2b2b2b] text-white w-8 h-8 rounded-full flex items-center justify-center font-black text-xs">{{catIdx
-                                + 1}}</span>
-                            <div class="flex flex-col gap-1 flex-1 md:flex-initial">
-                                <label class="text-[12px] font-bold text-gray-400 uppercase ml-1">Seleccionar
-                                    Categoría:</label>
-                                <p-select [options]="categoriasVehiculo" formControlName="categoria" optionLabel="label"
-                                    optionValue="value" class="!w-64 !rounded-xl" styleClass="!w-full !py-1"
-                                    appendTo="body"></p-select>
-                            </div>
-                        </div>
-                        <div class="flex gap-2 w-full md:w-auto justify-end">
-                            <button type="button" pButton icon="pi pi-plus" label="Añadir Vehículo"
-                                class="p-button-sm p-button-outlined p-button-secondary !rounded-full !font-bold"
-                                (click)="addVehiculoToCategoria(catIdx)"></button>
-                            <button type="button" pButton icon="pi pi-trash"
-                                class="p-button-sm p-button-text p-button-danger !rounded-full"
-                                (click)="removeCategoria(catIdx)"></button>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-100">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr
-                                    class="text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-red-100 !bg-[#2b2b2b]">
-                                    <th class="p-3">Marca</th>
-                                    <th class="p-3">Modelo</th>
-                                    <th class="p-3 w-[120px]">Año Mínimo</th>
-                                    <th class="p-3 w-[40px]"></th>
-                                </tr>
-                            </thead>
-                            <tbody formArrayName="vehiculos">
-                                @for (vehiculo of getVehiculos(catIdx).controls; track $index; let vehIdx = $index) {
-                                <tr [formGroupName]="vehIdx"
-                                    class="border-b border-gray-50 last:border-0 hover:bg-gray-50/30 transition-colors">
-                                    <td class="p-2">
-                                        <p-select [options]="mockMarcas" formControlName="marca" optionLabel="nombre"
-                                            optionValue="nombre" class="w-full !rounded-xl"
-                                            styleClass="!w-full !py-1 !text-xs" appendTo="body" [filter]="true"
-                                            filterBy="nombre" placeholder="Marca"></p-select>
-                                    </td>
-                                    <td class="p-2">
-                                        <p-select [options]="getModelosByMarca(vehiculo.get('marca')?.value)"
-                                            formControlName="modelo" optionLabel="nombre" optionValue="nombre"
-                                            class="w-full !rounded-xl" styleClass="!w-full !py-1 !text-xs"
-                                            appendTo="body" [filter]="true" filterBy="nombre"
-                                            placeholder="Modelo"></p-select>
-                                    </td>
-                                    <td class="p-2">
-                                        <p-inputNumber formControlName="anio_minimo" [useGrouping]="false"
-                                            inputStyleClass="w-full !py-2 !rounded-xl !text-center !font-black !text-xs"></p-inputNumber>
-                                    </td>
-                                    <td class="p-2 text-center">
-                                        <button type="button" pButton icon="pi pi-times"
-                                            class="p-button-rounded p-button-text p-button-danger p-button-sm"
-                                            (click)="removeVehiculoFromCategoria(catIdx, vehIdx)"></button>
-                                    </td>
-                                </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                }
-
-                @if (categoriasAdmisibles.length === 0) {
-                <div class="text-center p-12 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
-                    <p class="text-gray-500 font-bold uppercase text-xs">No hay categorías configuradas. Pulsa "Añadir
-                        Categoría" para empezar.</p>
-                </div>
-                }
-            </div>
-        </div>
-
-
-        <!-- SECCIÓN 5: CONFIGURADOR DE REGLAS DE TARIFAS -->
-        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-            <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
-                <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
-                    <i class="pi pi-sliders-h text-primary"></i> 5. Configuración de Reglas de Tarifas
-                </h3>
-                <button type="button" pButton icon="pi pi-plus" label="Añadir Regla"
-                    class="p-button-warning !rounded-full !font-black !px-6 shadow-sm"
-                    (click)="addTarifaRule()"></button>
-            </div>
-
-            <div class="p-8">
-
-
-                <div class="bg-gray-800 p-4 rounded-xl text-white text-s max-w-m  mb-6">
-                    <i class="pi pi-info-circle text-primary mb-2 block"></i>
-                    Las reglas más específicas (ej: un sector concreto) sobreescriben a las generales (TODOS).
-                </div>
-
-
-                <div class="overflow-x-auto rounded-3xl border border-gray-100">
-                    <table class="w-full text-left border-separate border-spacing-0">
-                        <thead>
-                            <tr
-                                class="text-[14px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">
-                                <th class="p-4 first:rounded-tl-3xl">Sector</th>
-                                <th class="p-4">Horario</th>
-                                <th class="p-4">Vehículo</th>
-                                <th class="p-4">Componente</th>
-                                <th class="p-4 w-[150px]">Tarifa ($)</th>
-                                <th class="p-4 w-[50px] last:rounded-tr-3xl"></th>
-                            </tr>
-                        </thead>
-                        <tbody formArrayName="tarifasConfig">
-                            @for (rule of tarifasConfig.controls; track $index) {
-                            <tr [formGroupName]="$index"
-                                class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                                <td class="p-2">
-                                    <p-select [options]="getSectoresOptionsWithAll()" formControlName="sector_id"
-                                        class="w-full !rounded-xl" styleClass="!w-full !py-1 !text-xs"
-                                        appendTo="body"></p-select>
-                                </td>
-                                <td class="p-2">
-                                    <p-select [options]="getHorariosOptionsWithAll()" formControlName="horario_index"
-                                        class="w-full !rounded-xl" styleClass="!w-full !py-1 !text-xs"
-                                        appendTo="body"></p-select>
-                                </td>
-                                <td class="p-2">
-                                    <p-select [options]="categoriasVehiculo" formControlName="categoria_vehiculo"
-                                        optionLabel="label" optionValue="value" class="w-full !rounded-xl"
-                                        styleClass="!w-full !py-1 !text-xs" appendTo="body"></p-select>
-                                </td>
-                                <td class="p-2">
-                                    <p-select [options]="brandingPartsCatalog" formControlName="tipo_brandeo"
-                                        optionLabel="label" optionValue="value" class="w-full !rounded-xl"
-                                        styleClass="!w-full !py-1 !text-xs" appendTo="body"></p-select>
-                                </td>
-                                <td class="p-2">
-                                    <p-inputNumber formControlName="valor" mode="currency" currency="USD"
-                                        [minFractionDigits]="4"
-                                        inputStyleClass="w-full !py-2 !rounded-xl !text-center !font-black !text-xs"></p-inputNumber>
-                                </td>
-                                <td class="p-2 text-center">
-                                    <button type="button" pButton icon="pi pi-trash"
-                                        class="p-button-rounded p-button-text p-button-danger p-button-sm"
-                                        (click)="removeTarifaRule($index)"></button>
-                                </td>
-                            </tr>
-                            }
-                        </tbody>
-                        @if (tarifasConfig.length > 0) {
-                        <tfoot>
-                            <tr>
-                                <td colspan="6" class="p-4 bg-gray-50/50 text-center">
-                                    <button type="button" pButton icon="pi pi-plus" label="Crear nueva regla "
-                                        class="p-button-text !text-primary p-button-sm !font-black !bg-[#2b2b2b] !px-6 !rounded-full !shadow-md hover:scale-105 transition-transform"
-                                        (click)="duplicateLastRule()"></button>
-                                </td>
-                            </tr>
-                        </tfoot>
-                        }
-                    </table>
-                </div>
-
-                @if (tarifasConfig.length === 0) {
-                <div class="text-center p-12 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200 mt-6">
-                    <p class="text-gray-500 font-bold uppercase text-xs">No hay reglas definidas. Pulsa "Añadir Regla"
-                        para empezar.</p>
-                </div>
-                }
-            </div>
-        </div>
-
-        <!-- SECCIÓN 6: SIMULADOR DE TARIFAS RESULTANTES -->
-        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-            <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
-                <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
-                    <i class="pi pi-eye text-primary"></i> 6. Vista Previa de Tarifas Efectivas
-                </h3>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest hidden md:block">Resumen por
-                    Combinación</p>
-            </div>
-
-            <div class="p-0 overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr
-                            class="bg-gray-50 text-[14px] font-black text-gray-500 uppercase tracking-widest border-b border-gray-100">
-                            <th class="p-5">Sector</th>
-                            <th class="p-5">Horario</th>
-                            @for (cat of categoriasVehiculo; track cat.value) {
-                            <th class="p-5 text-center border-l border-gray-100 bg-gray-50/50">{{cat.label}}</th>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Iteramos solo por los sectores activos, sin el global -->
-                        @for (sOpt of getSectoresOnly(); track sOpt.value) {
-                        <!-- Iteramos solo por los horarios registrados -->
-                        @for (hOpt of getHorariosOnly(); track hOpt.value) {
-                        <tr class="border-b border-gray-50 hover:bg-yellow-50/10 transition-colors">
-                            <td class="p-5 font-black text-gray-700 text-s uppercase">{{sOpt.label}}</td>
-                            <td class="p-5 text-sm font-medium text-gray-500">
-                                {{ hOpt.label }}
-                            </td>
-                            @for (cat of categoriasVehiculo; track cat.value) {
-                            <td class="p-5 text-center border-l border-gray-50">
-                                <div class="flex flex-col">
-                                    <span
-                                        class="text-primary font-black text-lg bg-gray-800 px-3 py-1 rounded-xl shadow-sm inline-block mx-auto min-w-[100px]">
-                                        {{ getEffectiveRate(sOpt.value, hOpt.value, cat.value) |
-                                        currency:'USD':'symbol':'1.3-3' }}
-                                    </span>
-                                    <span
-                                        class="text-[9px] text-gray-400 font-bold uppercase mt-1 tracking-widest">Tarifa
-                                        / KM</span>
-                                </div>
-                            </td>
-                            }
-                        </tr>
-                        }
-                        }
-                    </tbody>
-                </table>
-            </div>
-            @if (sectores.length === 0) {
-            <div class="text-center p-12 text-gray-400 uppercase font-black text-xs tracking-widest">
-                Añade al menos un sector para ver la vista previa.
-            </div>
+                  <!-- Columna Año -->
+                  <td class="p-2 text-center">
+                    <p-inputNumber
+                      formControlName="anio_minimo"
+                      [useGrouping]="false"
+                      [disabled]="!vGroup.get('seleccionado')?.value"
+                      inputStyleClass="!w-20 !py-1 !rounded-lg !text-center !font-black !text-xs !bg-gray-50 disabled:!opacity-30"
+                    ></p-inputNumber>
+                  </td>
+                </tr>
+              }
             }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 5: CONFIGURADOR DE REGLAS DE TARIFAS -->
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+      <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
+        <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
+          <i class="pi pi-sliders-h text-primary"></i> 5. Configuración de Reglas de Tarifas
+        </h3>
+        <button
+          type="button"
+          pButton
+          icon="pi pi-plus"
+          label="Añadir Regla"
+          class="p-button-warning !rounded-full !font-black !px-6 shadow-sm"
+          (click)="addTarifaRule()"
+        ></button>
+      </div>
+
+      <div class="p-8">
+        <div class="bg-gray-800 p-4 rounded-xl text-white text-xs max-w-m mb-6">
+          <i class="pi pi-info-circle text-primary mb-2 block"></i>
+          Las reglas más específicas (ej: un sector concreto) sobreescriben a las generales (TODOS).
         </div>
 
-        <!-- FINAL SUBMIT -->
-        <div class="flex flex-col items-center gap-6 mt-10 pb-20">
-            <button pButton type="submit" label="PUBLICAR CAMPAÑA Y NOTIFICAR" icon="pi pi-check-circle"
-                class="p-button-success !rounded-full !font-black !px-20 !py-6 shadow-2xl transform hover:scale-110 transition-all text-2xl tracking-tighter"></button>
+        <div class="overflow-x-auto rounded-3xl border border-gray-100">
+          <table class="w-full text-left border-separate border-spacing-0">
+            <thead>
+              <tr
+                class="text-[14px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100"
+              >
+                <th class="p-4 first:rounded-tl-3xl">Sector</th>
+                <th class="p-4">Horario</th>
+                <th class="p-4">Vehículo</th>
+                <th class="p-4">Componente</th>
+                <th class="p-4 w-[150px]">Tarifa ($)</th>
+                <th class="p-4 w-[50px] last:rounded-tr-3xl"></th>
+              </tr>
+            </thead>
+            <tbody formArrayName="tarifasConfig">
+              @for (rule of tarifasConfig.controls; track $index) {
+                <tr
+                  [formGroupName]="$index"
+                  class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
+                >
+                  <td class="p-2">
+                    <p-select
+                      [options]="getSectoresOptionsWithAll()"
+                      formControlName="sector_id"
+                      class="w-full !rounded-xl"
+                      styleClass="!w-full !py-1 !text-xs"
+                      appendTo="body"
+                    ></p-select>
+                  </td>
+                  <td class="p-2">
+                    <p-select
+                      [options]="getHorariosOptionsWithAll()"
+                      formControlName="horario_index"
+                      class="w-full !rounded-xl"
+                      styleClass="!w-full !py-1 !text-xs"
+                      appendTo="body"
+                    ></p-select>
+                  </td>
+                  <td class="p-2">
+                    <p-select
+                      [options]="categoriasVehiculo"
+                      formControlName="categoria_vehiculo"
+                      optionLabel="label"
+                      optionValue="value"
+                      class="w-full !rounded-xl"
+                      styleClass="!w-full !py-1 !text-xs"
+                      appendTo="body"
+                    ></p-select>
+                  </td>
+                  <td class="p-2">
+                    <p-select
+                      [options]="brandingPartsCatalog"
+                      formControlName="tipo_brandeo"
+                      optionLabel="label"
+                      optionValue="value"
+                      class="w-full !rounded-xl"
+                      styleClass="!w-full !py-1 !text-xs"
+                      appendTo="body"
+                    ></p-select>
+                  </td>
+                  <td class="p-2">
+                    <p-inputNumber
+                      formControlName="valor"
+                      mode="currency"
+                      currency="USD"
+                      [minFractionDigits]="4"
+                      inputStyleClass="w-full !py-2 !rounded-xl !text-center !font-black !text-xs"
+                    ></p-inputNumber>
+                  </td>
+                  <td class="p-2 text-center">
+                    <button
+                      type="button"
+                      pButton
+                      icon="pi pi-trash"
+                      class="p-button-rounded p-button-text p-button-danger p-button-sm"
+                      (click)="removeTarifaRule($index)"
+                    ></button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+            @if (tarifasConfig.length > 0) {
+              <tfoot>
+                <tr>
+                  <td colspan="6" class="p-4 bg-gray-50/50 text-center">
+                    <button
+                      type="button"
+                      pButton
+                      icon="pi pi-plus"
+                      label="Crear nueva regla "
+                      class="p-button-text !text-primary p-button-sm !font-black !bg-[#2b2b2b] !px-6 !rounded-full !shadow-md hover:scale-105 transition-transform"
+                      (click)="duplicateLastRule()"
+                    ></button>
+                  </td>
+                </tr>
+              </tfoot>
+            }
+          </table>
         </div>
-    </form>
+
+        @if (tarifasConfig.length === 0) {
+          <div
+            class="text-center p-12 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200 mt-6"
+          >
+            <p class="text-gray-500 font-bold uppercase text-xs">
+              No hay reglas definidas. Pulsa "Añadir Regla" para empezar.
+            </p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- SECCIÓN 6: SIMULADOR DE TARIFAS RESULTANTES -->
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+      <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
+        <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
+          <i class="pi pi-eye text-primary"></i> 6. Vista Previa de Tarifas Efectivas
+        </h3>
+        <p class="text-xs text-gray-400 font-bold uppercase tracking-widest hidden md:block">
+          Resumen por Combinación
+        </p>
+      </div>
+
+      <div class="p-0 overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr
+              class="bg-gray-50 text-[14px] font-black text-gray-500 uppercase tracking-widest border-b border-gray-100"
+            >
+              <th class="p-5">Sector</th>
+              <th class="p-5">Horario</th>
+              @for (cat of categoriasVehiculo; track cat.value) {
+                <th class="p-5 text-center border-l border-gray-100 bg-gray-50/50">
+                  {{ cat.label }}
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Iteramos solo por los sectores activos, sin el global -->
+            @for (sOpt of getSectoresOnly(); track sOpt.value) {
+              <!-- Iteramos solo por los horarios registrados -->
+              @for (hOpt of getHorariosOnly(); track hOpt.value) {
+                <tr class="border-b border-gray-50 hover:bg-yellow-50/10 transition-colors">
+                  <td class="p-5 font-black text-gray-700 text-xs uppercase">{{ sOpt.label }}</td>
+                  <td class="p-5 text-sm font-medium text-gray-500">
+                    {{ hOpt.label }}
+                  </td>
+                  @for (cat of categoriasVehiculo; track cat.value) {
+                    <td class="p-5 text-center border-l border-gray-50">
+                      <div class="flex flex-col">
+                        <span
+                          class="text-primary font-black text-lg bg-gray-800 px-3 py-1 rounded-xl shadow-sm inline-block mx-auto min-w-[100px]"
+                        >
+                          {{
+                            getEffectiveRate(sOpt.value, hOpt.value, cat.value)
+                              | currency: 'USD' : 'symbol' : '1.3-3'
+                          }}
+                        </span>
+                        <span class="text-xs text-gray-400 font-bold uppercase mt-1 tracking-widest"
+                          >Tarifa / KM</span
+                        >
+                      </div>
+                    </td>
+                  }
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (sectores.length === 0) {
+        <div class="text-center p-12 text-gray-400 uppercase font-black text-xs tracking-widest">
+          Añade al menos un sector para ver la vista previa.
+        </div>
+      }
+    </div>
+
+    <!-- FINAL SUBMIT -->
+    <div class="flex flex-col items-center gap-6 mt-10 pb-20">
+      <button
+        pButton
+        type="submit"
+        label="PUBLICAR CAMPAÑA Y NOTIFICAR"
+        icon="pi pi-check-circle"
+        class="p-button-success !rounded-full !font-black !px-20 !py-6 shadow-2xl transform hover:scale-110 transition-all text-2xl tracking-tighter"
+      ></button>
+    </div>
+  </form>
 </div>
 
-<p-dialog header="Visualizando sector {{selectedSectorForPreview?.nombre}}" [(visible)]="displaySectorPreview"
-    [modal]="true" [style]="{ width: '70vw' }" [breakpoints]="{ '960px': '90vw' }" appendTo="body"
-    maskStyleClass="backdrop-blur-sm">
-    <div class="flex flex-col gap-6 p-4">
+<p-dialog
+  header="Visualizando sector {{ selectedSectorForPreview?.nombre }}"
+  [(visible)]="displaySectorPreview"
+  [modal]="true"
+  [style]="{ width: '70vw' }"
+  [breakpoints]="{ '960px': '90vw' }"
+  appendTo="body"
+  maskStyleClass="backdrop-blur-sm"
+>
+  <div class="flex flex-col gap-6 p-4">
+    <div
+      class="bg-gray-100 rounded-3xl h-[400px] flex items-center justify-center relative overflow-hidden border-2 border-dashed border-gray-300"
+    >
+      <div class="text-center z-10 p-10">
+        <i class="pi pi-map text-6xl text-gray-400 mb-4 block"></i>
+        <h4 class="text-xl font-black text-gray-500 uppercase">Mapa del Sector</h4>
+        <p class="text-gray-400 mt-2 font-medium">Lógica de Google Maps con polígonos aquí</p>
         <div
-            class="bg-gray-100 rounded-3xl h-[400px] flex items-center justify-center relative overflow-hidden border-2 border-dashed border-gray-300">
-            <div class="text-center z-10 p-10">
-                <i class="pi pi-map text-6xl text-gray-400 mb-4 block"></i>
-                <h4 class="text-xl font-black text-gray-500 uppercase">Mapa del Sector</h4>
-                <p class="text-gray-400 mt-2 font-medium">Lógica de Google Maps con polígonos aquí</p>
-                <div class="mt-4 inline-block bg-primary px-4 py-2 rounded-full font-black text-xs uppercase shadow-sm">
-                    POLÍGONO: SECTOR_{{selectedSectorForPreview?.id}}
-                </div>
-            </div>
-            <!-- Simulación de mapa con un gradiente -->
-            <div
-                class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary via-transparent to-transparent">
-            </div>
+          class="mt-4 inline-block bg-primary px-4 py-2 rounded-full font-black text-xs uppercase shadow-sm"
+        >
+          POLÍGONO: SECTOR_{{ selectedSectorForPreview?.id }}
         </div>
-
-        <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-            <h5 class="font-black text-gray-700 uppercase tracking-widest text-xs mb-3">Descripción:</h5>
-            <p class="text-gray-600 leading-relaxed">{{selectedSectorForPreview?.descripcion || 'Sin descripción
-                `disponible.'}}</p>
-        </div>
-
-        <div class="flex justify-end gap-3 mt-4">
-            <button pButton label="CERRAR" icon="pi pi-times" class="p-button-outlined p-button-secondary !rounded-full"
-                (click)="displaySectorPreview = false"></button>
-            <button pButton label="EDITAR GEOCERCA" icon="pi pi-pencil" class="p-button-warning !rounded-full shadow-md"
-                (click)="goToCreateSectors()"></button>
-        </div>
+      </div>
+      <!-- Simulación de mapa con un gradiente -->
+      <div
+        class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary via-transparent to-transparent"
+      ></div>
     </div>
+
+    <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+      <h5 class="font-black text-gray-700 uppercase tracking-widest text-xs mb-3">Descripción:</h5>
+      <p class="text-gray-600 leading-relaxed">
+        {{
+          selectedSectorForPreview?.descripcion ||
+            'Sin descripción
+                `disponible.'
+        }}
+      </p>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-4">
+      <button
+        pButton
+        label="CERRAR"
+        icon="pi pi-times"
+        class="p-button-outlined p-button-secondary !rounded-full"
+        (click)="displaySectorPreview = false"
+      ></button>
+      <button
+        pButton
+        label="EDITAR GEOCERCA"
+        icon="pi pi-pencil"
+        class="p-button-warning !rounded-full shadow-md"
+        (click)="goToCreateSectors()"
+      ></button>
+    </div>
+  </div>
 </p-dialog>
