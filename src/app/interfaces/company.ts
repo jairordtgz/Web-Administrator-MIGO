@@ -47,4 +47,6 @@ export interface RegisterCompanyDTO extends
 
 export type Empresa = Company;
 
+export type SolicitudEmpresaResponse = PaginatedResponse<SolicitudEmpresa>;
+
 export type CompanyResponse = PaginatedResponse<Company>;

@@ -1,112 +1,180 @@
 <div class="px-6 pt-4 pb-6 min-h-full relative font-sans">
-    <p-toast></p-toast>
+  <p-toast></p-toast>
 
-    <div class="bg-white p-6 shadow-sm mb-6 flex flex-col md:flex-row justify-between items-center rounded-sm">
-        <div>
-            <h1 class="text-3xl font-bold text-[#2b2b2b] uppercase tracking-wide">EMPRESAS REGISTRADOS</h1>
-            <p class="text-sm text-gray-500 font-medium mt-1">Bienvenid@, Karla Vera</p>
+  <div
+    class="bg-white p-6 shadow-sm mb-6 flex flex-col md:flex-row justify-between items-center rounded-sm"
+  >
+    <div>
+      <h1 class="text-3xl font-bold text-[#2b2b2b] uppercase tracking-wide">
+        EMPRESAS REGISTRADOS
+      </h1>
+      <p class="text-sm text-gray-500 font-medium mt-1">Bienvenid@, Karla Vera</p>
+    </div>
+
+    <div class="relative w-full md:w-[400px] mt-4 md:mt-0">
+      <input
+        pInputText
+        type="text"
+        (input)="onSearch($event)"
+        placeholder="Buscar empresa, RUC, correo..."
+        class="w-full !rounded-full !bg-[#f0f2f5] !text-gray-700 !border-none py-3 pl-6 pr-12 focus:!ring-2 focus:!ring-gray-300 transition-all outline-none"
+      />
+      <i
+        class="pi pi-search text-gray-500 absolute right-6 top-1/2 -translate-y-1/2 text-xl font-bold"
+      ></i>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] border border-gray-100">
+    <p-table
+      #dt
+      [value]="empresas"
+      [size]="'large'"
+      [lazy]="true"
+      (onLazyLoad)="onLazyLoad($event)"
+      [paginator]="true"
+      [rows]="rows"
+      [first]="first"
+      [totalRecords]="totalRecords"
+      [loading]="loading"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+      [rowsPerPageOptions]="[5, 10, 25, 50]"
+      [globalFilterFields]="['nombres', 'ruc', 'correo', 'tipo']"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+            Nombres
+          </th>
+          <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+            RUC
+          </th>
+          <th
+            pSortableColumn="fecha"
+            class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none"
+          >
+            <div class="flex items-center gap-2">
+              Fecha de Ingreso
+              <p-sortIcon field="fecha" />
+            </div>
+          </th>
+          <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+            Correo
+          </th>
+          <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+            Tipo
+          </th>
+          <th
+            class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none !text-center"
+          >
+            Opciones
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-empresa>
+        <tr class="border-b border-gray-100 hover:bg-yellow-50/50 transition-colors">
+          @if (loading) {
+            <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
+            <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
+            <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
+            <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
+            <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
+            <td class="p-4 text-center">
+              <div class="flex justify-center items-center gap-2">
+                <p-skeleton width="60px" height="20px" borderRadius="9999px" />
+                <p-skeleton width="60px" height="20px" borderRadius="9999px" />
+                <p-skeleton width="60px" height="20px" borderRadius="9999px" />
+              </div>
+            </td>
+          } @else {
+            <td class="p-4 font-bold text-gray-800">{{ empresa.nombres }}</td>
+            <td class="p-4 text-gray-600 font-medium">{{ empresa.ruc }}</td>
+            <td class="p-4 text-gray-600">{{ empresa.fecha }}</td>
+            <td class="p-4 text-gray-600">{{ empresa.correo }}</td>
+            <td class="p-4 text-gray-600 font-medium">
+              <span
+                [ngClass]="{
+                  'text-blue-600': empresa.tipo === 'marca',
+                  'text-purple-600': empresa.tipo === 'publicista',
+                }"
+              >
+                {{ empresa.tipo | titlecase }}
+              </span>
+            </td>
+            <td class="p-4 text-center">
+              <div class="flex justify-center items-center gap-2">
+                <p-tag
+                  value="Habilitar"
+                  class="cursor-pointer hover:scale-105 transition-transform"
+                  [style]="{
+                    background: '#22c55e',
+                    color: 'white',
+                    padding: '4px 12px',
+                    'border-radius': '9999px',
+                    'font-weight': '600',
+                    'font-size': '11px',
+                  }"
+                ></p-tag>
+                <p-tag
+                  value="Deshabilitar"
+                  class="cursor-pointer hover:scale-105 transition-transform"
+                  [style]="{
+                    background: '#3b82f6',
+                    color: 'white',
+                    padding: '4px 12px',
+                    'border-radius': '9999px',
+                    'font-weight': '600',
+                    'font-size': '11px',
+                  }"
+                ></p-tag>
+                <p-tag
+                  value="Eliminar"
+                  class="cursor-pointer hover:scale-105 transition-transform"
+                  [style]="{
+                    background: '#ef4444',
+                    color: 'white',
+                    padding: '4px 12px',
+                    'border-radius': '9999px',
+                    'font-weight': '600',
+                    'font-size': '11px',
+                  }"
+                ></p-tag>
+              </div>
+            </td>
+          }
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="paginatorright">
+        <div class="flex gap-2">
+          <button
+            pButton
+            label="Exportar Excel"
+            icon="pi pi-file-excel"
+            class="p-button-outlined p-button-secondary p-button-sm !rounded-lg !font-bold !border-gray-300"
+            (click)="exportExcel()"
+          ></button>
+          <button
+            pButton
+            label="Exportar PDF"
+            icon="pi pi-file-pdf"
+            class="p-button-outlined p-button-secondary p-button-sm !rounded-lg !font-bold !border-gray-300"
+            (click)="exportPdf()"
+          ></button>
         </div>
+      </ng-template>
+    </p-table>
+  </div>
 
-        <div class="relative w-full md:w-[400px] mt-4 md:mt-0">
-            <input pInputText type="text" (input)="onSearch($event)" placeholder="Buscar empresa, RUC, correo..."
-                class="w-full !rounded-full !bg-[#f0f2f5] !text-gray-700 !border-none py-3 pl-6 pr-12 focus:!ring-2 focus:!ring-gray-300 transition-all outline-none" />
-            <i class="pi pi-search text-gray-500 absolute right-6 top-1/2 -translate-y-1/2 text-xl font-bold"></i>
-        </div>
-    </div>
-
-
-    <div class="bg-white rounded-xl shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] border border-gray-100">
-        <p-table #dt [value]="empresas" 
-            [size]="'large'"
-            [lazy]="true" 
-            (onLazyLoad)="onLazyLoad($event)"
-            [paginator]="true" 
-            [rows]="rows" 
-            [first]="first"
-            [totalRecords]="totalRecords"
-            [loading]="loading"
-            [showCurrentPageReport]="true"
-            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
-            [rowsPerPageOptions]="[5, 10, 25, 50]"
-            [globalFilterFields]="['nombres', 'ruc', 'correo', 'tipo']" styleClass="p-datatable-sm">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
-                        Nombres
-                    </th>
-                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
-                        RUC</th>
-                    <th pSortableColumn="fecha" class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
-                        <div class="flex items-center gap-2">
-                            Fecha de Ingreso
-                            <p-sortIcon field="fecha" />
-                        </div>
-                    </th>
-                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
-                        Correo
-                    </th>
-                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
-                        Tipo</th>
-                    <th
-                        class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none !text-center">
-                        Opciones</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-empresa>
-                <tr class="border-b border-gray-100 hover:bg-yellow-50/50 transition-colors">
-                    @if (loading) {
-                        <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
-                        <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
-                        <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
-                        <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
-                        <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
-                        <td class="p-4 text-center">
-                            <div class="flex justify-center items-center gap-2">
-                                <p-skeleton width="60px" height="20px" borderRadius="9999px" />
-                                <p-skeleton width="60px" height="20px" borderRadius="9999px" />
-                                <p-skeleton width="60px" height="20px" borderRadius="9999px" />
-                            </div>
-                        </td>
-                    } @else {
-                        <td class="p-4 font-bold text-gray-800">{{ empresa.nombres }}</td>
-                        <td class="p-4 text-gray-600 font-medium">{{ empresa.ruc }}</td>
-                        <td class="p-4 text-gray-600">{{ empresa.fecha }}</td>
-                        <td class="p-4 text-gray-600">{{ empresa.correo }}</td>
-                        <td class="p-4 text-gray-600 font-medium">
-                            <span
-                                [ngClass]="{'text-blue-600': empresa.tipo === 'marca', 'text-purple-600': empresa.tipo === 'publicista'}">
-                                {{ empresa.tipo | titlecase }}
-                            </span>
-                        </td>
-                        <td class="p-4 text-center">
-                            <div class="flex justify-center items-center gap-2">
-                                <p-tag value="Habilitar" class="cursor-pointer hover:scale-105 transition-transform"
-                                    [style]="{'background': '#22c55e', 'color': 'white', 'padding': '4px 12px', 'border-radius': '9999px', 'font-weight': '600', 'font-size': '11px'}"></p-tag>
-                                <p-tag value="Deshabilitar" class="cursor-pointer hover:scale-105 transition-transform"
-                                    [style]="{'background': '#3b82f6', 'color': 'white', 'padding': '4px 12px', 'border-radius': '9999px', 'font-weight': '600', 'font-size': '11px'}"></p-tag>
-                                <p-tag value="Eliminar" class="cursor-pointer hover:scale-105 transition-transform"
-                                    [style]="{'background': '#ef4444', 'color': 'white', 'padding': '4px 12px', 'border-radius': '9999px', 'font-weight': '600', 'font-size': '11px'}"></p-tag>
-                            </div>
-                        </td>
-                    }
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="paginatorright">
-                <div class="flex gap-2">
-                    <button pButton label="Exportar Excel" icon="pi pi-file-excel"
-                        class="p-button-outlined p-button-secondary p-button-sm !rounded-lg !font-bold !border-gray-300"
-                        (click)="exportExcel()"></button>
-                    <button pButton label="Exportar PDF" icon="pi pi-file-pdf"
-                        class="p-button-outlined p-button-secondary p-button-sm !rounded-lg !font-bold !border-gray-300"
-                        (click)="exportPdf()"></button>
-                </div>
-            </ng-template>
-        </p-table>
-    </div>
-
-    <div class="mt-8 mb-4 text-right">
-        <button pButton label="Registrar Nueva Empresa" icon="pi pi-plus"
-            class="p-button-warning p-button-rounded !font-bold !px-6 shadow-sm" type="button"
-            (click)="irARegistro()"></button>
-    </div>
+  <div class="mt-8 mb-4 text-right">
+    <button
+      pButton
+      label="Registrar Nueva Empresa"
+      icon="pi pi-plus"
+      class="p-button-warning p-button-rounded !font-bold !px-6 shadow-sm"
+      type="button"
+      (click)="irARegistro()"
+    ></button>
+  </div>
 </div>

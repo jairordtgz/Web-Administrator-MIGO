@@ -1,10 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, map } from 'rxjs';
-import { RegisterCompanyDTO, Company, CompanyResponse, SolicitudEmpresa } from '../interfaces/company';
+import {
+  RegisterCompanyDTO,
+  Company,
+  CompanyResponse,
+  SolicitudEmpresa,
+  SolicitudEmpresaResponse,
+} from '../interfaces/company';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CompaniesService {
   private apiUrl = 'http://127.0.0.1:8000/api/admin/usuario/empresa/';
@@ -20,12 +26,24 @@ export class CompaniesService {
     return this.http.post(this.solicitudUrl, payload);
   }
 
-  getSolicitudesEmpresa(search?: string): Observable<SolicitudEmpresa[]> {
-    let url = this.solicitudUrl;
+  getSolicitudesEmpresa(
+    page: number = 1,
+    pageSize: number = 10,
+    search?: string,
+    estado?: string,
+  ): Observable<SolicitudEmpresaResponse> {
+
+    let url = `${this.solicitudUrl}?page=${page}&page_size=${pageSize}`;
+
     if (search) {
-      url += `?search=${encodeURIComponent(search)}`;
+      url += `&search=${encodeURIComponent(search)}`;
     }
-    return this.http.get<SolicitudEmpresa[]>(url);
+
+    if (estado && estado !== 'todas') {
+      url += `&estado=${encodeURIComponent(estado)}`;
+    }
+
+    return this.http.get<SolicitudEmpresaResponse>(url);
   }
 
   aprobarSolicitud(id: number): Observable<any> {
@@ -36,9 +54,14 @@ export class CompaniesService {
     return this.http.post(`${this.solicitudUrl}${id}/rechazar/`, {});
   }
 
-  getEmpresas(page: number = 1, pageSize: number = 10, search?: string, ordering?: string): Observable<{ total: number, results: any[] }> {
+  getEmpresas(
+    page: number = 1,
+    pageSize: number = 10,
+    search?: string,
+    ordering?: string,
+  ): Observable<{ total: number; results: any[] }> {
     let url = `${this.apiUrl}?page=${page}&page_size=${pageSize}`;
-    
+
     if (search) {
       url += `&search=${encodeURIComponent(search)}`;
     }
@@ -54,13 +77,15 @@ export class CompaniesService {
           results: respuestaBackend.results.map((empresa: Company) => ({
             nombres: empresa.nombre,
             ruc: empresa.ruc,
-            fecha: empresa.fecha_creacion ? new Date(empresa.fecha_creacion).toLocaleDateString('es-ES') : new Date().toLocaleDateString('es-ES'),
+            fecha: empresa.fecha_creacion
+              ? new Date(empresa.fecha_creacion).toLocaleDateString('es-ES')
+              : new Date().toLocaleDateString('es-ES'),
             correo: empresa.email || empresa.username,
             tipo: empresa.tipo_empresa || 'marca',
-            estado: empresa.habilitada ? 'activo' : 'inactivo'
-          }))
+            estado: empresa.habilitada ? 'activo' : 'inactivo',
+          })),
         };
-      })
+      }),
     );
   }
 }

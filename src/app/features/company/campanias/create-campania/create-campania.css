@@ -1,0 +1,90 @@
+/* Inputs styling matching the project */
+:host ::ng-deep .p-inputtext, 
+:host ::ng-deep .p-inputnumber-input,
+:host ::ng-deep .p-select,
+:host ::ng-deep .p-datepicker-input,
+:host ::ng-deep .p-textarea {
+    border-radius: 0.75rem !important;
+    background-color: #f3f4f6 !important; /* gray-100 */
+    border: 1px solid #e5e7eb !important; /* gray-200 */
+    transition: all 0.2s ease;
+}
+
+:host ::ng-deep .p-inputtext:focus, 
+:host ::ng-deep .p-inputnumber-input:focus,
+:host ::ng-deep .p-select:focus,
+:host ::ng-deep .p-datepicker-input:focus,
+:host ::ng-deep .p-textarea:focus {
+    border-color: #ffed00 !important;
+    box-shadow: 0 0 0 2px rgba(255, 237, 0, 0.2) !important;
+    background-color: white !important;
+}
+
+/* Section Container Styling */
+.rounded-3xl {
+    border-radius: 1.5rem !important;
+}
+
+/* Custom Table for Rates Matrix */
+table {
+    border-spacing: 0;
+}
+
+thead th {
+    background-color: #2b2b2b !important;
+    color: white !important;
+}
+
+tbody tr:last-child {
+    border-bottom: none;
+}
+
+.bg-primary {
+    background-color: #ffed00 !important;
+}
+
+.border-primary {
+    border-color: #ffed00 !important;
+}
+
+.text-primary {
+    color: #ffed00 !important;
+}
+
+/* Custom scrollbar for form arrays */
+.overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Sticky Header adjustment */
+.sticky {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* Advanced Rate Table specific */
+.rate-total-badge {
+    background: #ffed00;
+    color: #000;
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    font-weight: 900;
+}
+
+/* Section Header Titles */
+.bg-gray-800 {
+    background-color: #2b2b2b !important;
+}
