@@ -48,12 +48,12 @@
                                     <div class="h-full bg-green-500 rounded-full" 
                                          [style.width.%]="campania.presupuesto_total > 0 ? (campania.presupuesto_restante / campania.presupuesto_total) * 100 : 0"></div>
                                 </div>
-                                <span class="text-[10px] text-gray-400 mt-1">Restante: ${{ campania.presupuesto_restante }}</span>
+                                <span class="text-xs text-gray-400 mt-1">Restante: ${{ campania.presupuesto_restante }}</span>
                             </div>
                         </td>
                         <td class="!py-4 !px-6 text-center">
                             <p-tag [value]="campania.estado | uppercase" [severity]="getStatusSeverity(campania.estado)" 
-                                   class="!text-[10px] !font-black"></p-tag>
+                                   class="!text-xs !font-black"></p-tag>
                         </td>
                         <td class="!py-4 !px-6 text-center">
                             <div class="flex justify-center gap-2">
@@ -96,19 +96,19 @@
                     <h4 class="text-xs font-black text-gray-400 uppercase tracking-wider mb-4">Información General</h4>
                     <ul class="space-y-3">
                         <li class="flex flex-col">
-                            <span class="text-[10px] text-gray-400 font-bold uppercase">Presupuesto Total</span>
+                            <span class="text-xs text-gray-400 font-bold uppercase">Presupuesto Total</span>
                             <span class="text-lg font-black text-primary">${{ selectedCampania.presupuesto_total }}</span>
                         </li>
                         <li class="flex flex-col">
-                            <span class="text-[10px] text-gray-400 font-bold uppercase">Ciclo de Pago</span>
+                            <span class="text-xs text-gray-400 font-bold uppercase">Ciclo de Pago</span>
                             <span class="text-sm font-bold text-gray-700 capitalize">{{ selectedCampania.ciclo_pago }}</span>
                         </li>
                         <li class="flex flex-col">
-                            <span class="text-[10px] text-gray-400 font-bold uppercase">KM Mínimo / Conductor</span>
+                            <span class="text-xs text-gray-400 font-bold uppercase">KM Mínimo / Conductor</span>
                             <span class="text-sm font-bold text-gray-700">{{ selectedCampania.km_minimo_conductor }} KM</span>
                         </li>
                         <li class="flex flex-col">
-                            <span class="text-[10px] text-gray-400 font-bold uppercase">Límite Vehículos</span>
+                            <span class="text-xs text-gray-400 font-bold uppercase">Límite Vehículos</span>
                             <span class="text-sm font-bold text-gray-700">{{ selectedCampania.limite_vehiculos_permitidos || 'Sin límite' }}</span>
                         </li>
                     </ul>
@@ -150,7 +150,7 @@
                                 </div>
                                 <div class="flex flex-col">
                                     <span class="text-xs font-bold text-gray-700">{{ horario.dia_semana }}</span>
-                                    <span class="text-[10px] text-gray-400">{{ horario.hora_inicio }} - {{ horario.hora_fin }}</span>
+                                    <span class="text-xs text-gray-400">{{ horario.hora_inicio }} - {{ horario.hora_fin }}</span>
                                 </div>
                             </div>
                         }
@@ -166,22 +166,22 @@
                     <p-table [value]="selectedCampania.tarifas || []" styleClass="p-datatable-sm border border-gray-100 rounded-lg overflow-hidden">
                         <ng-template pTemplate="header">
                             <tr class="!bg-gray-50">
-                                <th class="!text-[10px] uppercase font-black text-gray-400">Sector / Horario</th>
-                                <th class="!text-[10px] uppercase font-black text-gray-400 text-center">Categoría</th>
-                                <th class="!text-[10px] uppercase font-black text-gray-400 text-center">Brandeo</th>
-                                <th class="!text-[10px] uppercase font-black text-gray-400 text-right">Valor</th>
+                                <th class="!text-xs uppercase font-black text-gray-400">Sector / Horario</th>
+                                <th class="!text-xs uppercase font-black text-gray-400 text-center">Categoría</th>
+                                <th class="!text-xs uppercase font-black text-gray-400 text-center">Brandeo</th>
+                                <th class="!text-xs uppercase font-black text-gray-400 text-right">Valor</th>
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="body" let-tarifa>
                             <tr>
                                 <td>
-                                    <span class="text-[11px] font-bold text-gray-700 block">{{ tarifa.sector_nombre }}</span>
-                                    <span class="text-[9px] text-gray-400">{{ tarifa.horario_detalle }}</span>
+                                    <span class="text-xs font-bold text-gray-700 block">{{ tarifa.sector_nombre }}</span>
+                                    <span class="text-xs text-gray-400">{{ tarifa.horario_detalle }}</span>
                                 </td>
                                 <td class="text-center">
-                                    <p-tag [value]="tarifa.categoria_veh_nombre || tarifa.categoria_vehiculo_nombre" severity="secondary" class="!text-[9px]"></p-tag>
+                                    <p-tag [value]="tarifa.categoria_veh_nombre || tarifa.categoria_vehiculo_nombre" severity="secondary" class="!text-xs"></p-tag>
                                 </td>
-                                <td class="text-center text-[10px] font-medium text-gray-600">
+                                <td class="text-center text-xs font-medium text-gray-600">
                                     {{ tarifa.tipo_brandeo_nombre }}
                                 </td>
                                 <td class="text-right font-black text-green-600 text-sm">
