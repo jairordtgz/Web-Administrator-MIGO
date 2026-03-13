@@ -165,6 +165,13 @@ export class CreateCampania implements OnInit {
   get tarifasConfig() { return this.campaniaForm.get('tarifasConfig') as FormArray; }
   get vehiculosAdmisibles() { return this.campaniaForm.get('vehiculosAdmisibles') as FormArray; }
 
+  getPresupuestoPorVehiculo(): number {
+    const total = this.campaniaForm.get('presupuesto_total')?.value || 0;
+    const limite = this.campaniaForm.get('limite_vehiculos')?.value || 0;
+    if (limite <= 0) return 0;
+    return total / limite;
+  }
+
   initVehiculosCatalog() {
     const sortedCatalog = [...this.fullVehiclesCatalog].sort((a, b) => {
       const catCompare = a.categoria.localeCompare(b.categoria);
