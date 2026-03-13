@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -42,6 +42,7 @@ export class AdministrarSectores implements OnInit, AfterViewInit {
   private router = inject(Router);
   private googleMapsService = inject(GoogleMapsService);
   private sectorService = inject(SectorService);
+  private cdr = inject(ChangeDetectorRef);
 
   sectorForm: FormGroup;
   displayDrawingGuide: boolean = false;
@@ -135,6 +136,7 @@ export class AdministrarSectores implements OnInit, AfterViewInit {
     }
 
     this.sectorForm.patchValue({ coordenadas_cerco: coordenadas });
+    this.cdr.detectChanges();
   }
 
   saveSector() {
