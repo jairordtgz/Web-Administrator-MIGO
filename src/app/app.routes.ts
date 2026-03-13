@@ -70,6 +70,7 @@ export const routes: Routes = [
         component: AdminLayout,
         children: [
             { path: 'empresas', loadComponent: () => import('./features/publicist/list-companies/list-companies').then(m => m.ListCompanies) },
+            { path: 'empresas/registrar', loadComponent: () => import('./features/publicist/register-company/register-company').then(m => m.RegisterCompanyPublicist) },
             { path: '', redirectTo: 'empresas', pathMatch: 'full' }
         ]
     },

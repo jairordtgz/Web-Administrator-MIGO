@@ -1,50 +1,79 @@
 <div class="px-6 pt-4 pb-6 min-h-full relative font-sans">
     <p-toast></p-toast>
 
-    <div class="bg-white p-6 shadow-sm mb-6 flex flex-col md:flex-row justify-between items-center rounded-sm">
+    <div
+        class="bg-white p-6 shadow-sm mb-6 flex flex-col md:flex-row justify-between items-center rounded-sm"
+    >
         <div>
             <h1 class="text-3xl font-bold text-[#2b2b2b] uppercase tracking-wide">MIS EMPRESAS</h1>
-            <p class="text-sm text-gray-500 font-medium mt-1">Listado de empresas asignadas a su cargo</p>
+            <p class="text-sm text-gray-500 font-medium mt-1">
+                Listado de empresas asignadas a su cargo
+            </p>
         </div>
 
         <div class="relative w-full md:w-[400px] mt-4 md:mt-0">
-            <input pInputText type="text" (input)="onSearch($event)" placeholder="Buscar empresa, RUC, correo..."
-                class="w-full !rounded-full !bg-[#f0f2f5] !text-gray-700 !border-none py-3 pl-6 pr-12 focus:!ring-2 focus:!ring-gray-300 transition-all outline-none" />
-            <i class="pi pi-search text-gray-500 absolute right-6 top-1/2 -translate-y-1/2 text-xl font-bold"></i>
+            <input
+                pInputText
+                type="text"
+                (input)="onSearch($event)"
+                placeholder="Buscar empresa, RUC, correo..."
+                class="w-full !rounded-full !bg-[#f0f2f5] !text-gray-700 !border-none py-3 pl-6 pr-12 focus:!ring-2 focus:!ring-gray-300 transition-all outline-none"
+            />
+            <i
+                class="pi pi-search text-gray-500 absolute right-6 top-1/2 -translate-y-1/2 text-xl font-bold"
+            ></i>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] border border-gray-100">
-        <p-table #dt [value]="empresas()" 
-            [rows]="rows" 
-            [paginator]="true" 
+    <div
+        class="bg-white rounded-xl shadow-[0_4px_20px_-5px_rgba(0,0,0,0.08)] border border-gray-100"
+    >
+        <p-table
+            #dt
+            [value]="empresas()"
+            [rows]="rows"
+            [paginator]="true"
             [loading]="loading()"
-            [globalFilterFields]="['nombre', 'ruc', 'email']" 
+            [globalFilterFields]="['nombre', 'ruc', 'email']"
             styleClass="p-datatable-sm"
             [showCurrentPageReport]="true"
-            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
-            
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        >
             <ng-template pTemplate="header">
                 <tr>
-                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+                    <th
+                        class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none"
+                    >
                         Nombre de la Empresa
                     </th>
-                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+                    <th
+                        class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none"
+                    >
                         RUC
                     </th>
-                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+                    <th
+                        class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none"
+                    >
                         Correo
                     </th>
-                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+                    <th
+                        class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none"
+                    >
                         Dirección
                     </th>
-                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+                    <th
+                        class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none"
+                    >
                         Representante
                     </th>
-                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none">
+                    <th
+                        class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none"
+                    >
                         Teléfono
                     </th>
-                    <th class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none text-center">
+                    <th
+                        class="!bg-[#2b2b2b] !text-white p-4 font-semibold tracking-wide text-sm border-none text-center"
+                    >
                         Estado
                     </th>
                 </tr>
@@ -59,20 +88,34 @@
                         <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
                         <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
                         <td class="p-4"><p-skeleton width="100%" height="1.5rem" /></td>
-                        <td class="p-4 text-center"><p-skeleton width="60px" height="20px" borderRadius="9999px" /></td>
+                        <td class="p-4 text-center">
+                            <p-skeleton width="60px" height="20px" borderRadius="9999px" />
+                        </td>
                     } @else {
                         <td class="p-4 font-bold text-gray-800">{{ empresa.nombre }}</td>
                         <td class="p-4 text-gray-600 font-medium">{{ empresa.ruc }}</td>
                         <td class="p-4 text-gray-600">{{ empresa.email }}</td>
-                        <td class="p-4 text-gray-600 text-sm max-w-[200px] truncate" [title]="empresa.direccion">
+                        <td
+                            class="p-4 text-gray-600 text-sm max-w-[200px] truncate"
+                            [title]="empresa.direccion"
+                        >
                             {{ empresa.direccion }}
                         </td>
-                        <td class="p-4 text-gray-600 font-medium">{{ empresa.nombre_representante }}</td>
+                        <td class="p-4 text-gray-600 font-medium">
+                            {{ empresa.nombre_representante }}
+                        </td>
                         <td class="p-4 text-gray-600">{{ empresa.contacto_representante }}</td>
                         <td class="p-4 text-center">
-                            <p-tag [value]="empresa.habilitada ? 'Activo' : 'Inactivo'" 
+                            <p-tag
+                                [value]="empresa.habilitada ? 'Activo' : 'Inactivo'"
                                 [severity]="empresa.habilitada ? 'success' : 'warn'"
-                                [style]="{'padding': '4px 12px', 'border-radius': '9999px', 'font-weight': '600', 'font-size': '11px'}">
+                                [style]="{
+                                    padding: '4px 12px',
+                                    'border-radius': '9999px',
+                                    'font-weight': '600',
+                                    'font-size': '11px',
+                                }"
+                            >
                             </p-tag>
                         </td>
                     }
@@ -87,5 +130,16 @@
                 </tr>
             </ng-template>
         </p-table>
+    </div>
+
+    <div class="mt-8 mb-4 text-right">
+        <button
+            pButton
+            label="Registrar Nueva Empresa"
+            icon="pi pi-plus"
+            class="p-button-warning p-button-rounded !font-bold !px-6 shadow-sm"
+            type="button"
+            (click)="irARegistro()"
+        ></button>
     </div>
 </div>

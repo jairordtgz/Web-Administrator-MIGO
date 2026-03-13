@@ -13,4 +13,9 @@ export class PublicistService {
   getMisEmpresas(): Observable<PublicistCompany[]> {
     return this.http.get<PublicistCompany[]>(this.apiUrl);
   }
+  
+  crearEmpresaPublicista(data: any): Observable<any> {
+    return this.http.post('http://127.0.0.1:8000/api/admin/usuario/publicista/crear-empresa', data);
+  }
+
 }

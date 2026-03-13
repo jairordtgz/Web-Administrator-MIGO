@@ -78,6 +78,8 @@ export class AdminLayout implements OnInit {
   setPublicistMenu() {
     this.menuItems = [
       { label: 'Empresas', icon: 'pi pi-building', route: '/publicist/empresas' },
+      { label: 'Campañas', icon: 'pi pi-megaphone', route: '/publicist/campanias' },
+      
     ];
   }
 

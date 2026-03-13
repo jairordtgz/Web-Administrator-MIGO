@@ -9,12 +9,15 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { PublicistService } from '../../../services/publicist.service';
 import { PublicistCompany } from '../../../interfaces/publicista';
+import { ButtonModule } from 'primeng/button';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-list-companies',
   standalone: true,
   imports: [
     CommonModule, 
+    ButtonModule,
     FormsModule, 
     TableModule, 
     InputTextModule, 
@@ -30,6 +33,8 @@ export class ListCompanies  {
   @ViewChild('dt') dt!: Table;
   private publicistService = inject(PublicistService);
   private messageService = inject(MessageService);
+  private router = inject(Router);
+  
 
   empresas = signal<PublicistCompany[]>([]);
   loading = signal(true);  
@@ -37,6 +42,10 @@ export class ListCompanies  {
 
   ngOnInit() {
     this.loadCompanies();
+  }
+
+  irARegistro(){  
+    this.router.navigate(['/publicist/empresas/registrar']);
   }
 
   loadCompanies() {
