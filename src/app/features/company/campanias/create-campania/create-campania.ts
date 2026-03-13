@@ -166,14 +166,22 @@ export class CreateCampania implements OnInit {
   get vehiculosAdmisibles() { return this.campaniaForm.get('vehiculosAdmisibles') as FormArray; }
 
   initVehiculosCatalog() {
-    this.fullVehiclesCatalog.forEach(v => {
-      this.vehiculosAdmisibles.push(this.fb.group({
-        categoria: [v.categoria],
-        marca: [v.marca],
-        modelo: [v.modelo],
-        seleccionado: [false],
-        anio_minimo: [2015, [Validators.required, Validators.min(1900)]]
-      }));
+    const sortedCatalog = [...this.fullVehiclesCatalog].sort((a, b) => {
+      const catCompare = a.categoria.localeCompare(b.categoria);
+      if (catCompare !== 0) return catCompare;
+      return a.marca.localeCompare(b.marca);
+    });
+
+    sortedCatalog.forEach((v) => {
+      this.vehiculosAdmisibles.push(
+        this.fb.group({
+          categoria: [v.categoria],
+          marca: [v.marca],
+          modelo: [v.modelo],
+          seleccionado: [false],
+          anio_minimo: [2015, [Validators.required, Validators.min(1900)]],
+        })
+      );
     });
   }
 
