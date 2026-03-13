@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -16,6 +16,10 @@ import { DividerModule } from 'primeng/divider';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { DialogModule } from 'primeng/dialog';
 import { CampaniaCreacion, Tarifa } from '../../../../interfaces/campanas';
+import { SectorService } from '../../../../services/sector.service';
+import { GoogleMapsService } from '../../../../services/googlemaps.service';
+
+declare var google: any;
 
 export const dateRangeValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const inicio = control.get('fecha_inicio');
@@ -30,8 +34,8 @@ export const dateRangeValidator: ValidatorFn = (control: AbstractControl): Valid
   selector: 'app-create-campania',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, 
-    InputNumberModule, SelectModule, CheckboxModule, DatePickerModule, 
+    CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule,
+    InputNumberModule, SelectModule, CheckboxModule, DatePickerModule,
     TextareaModule, ToastModule, CardModule, DividerModule, ToggleButtonModule,
     DialogModule
   ],
@@ -43,6 +47,12 @@ export class CreateCampania implements OnInit {
   private fb = inject(FormBuilder);
   private messageService = inject(MessageService);
   private router = inject(Router);
+  private sectorService = inject(SectorService);
+  private googleMapsService = inject(GoogleMapsService);
+
+  @ViewChild('previewMapContainer', { static: false }) previewMapContainer!: ElementRef;
+  previewMap: any;
+  previewPolygon: any;
 
   campaniaForm!: FormGroup;
 
@@ -82,7 +92,7 @@ export class CreateCampania implements OnInit {
     { label: 'Moto', value: 'moto' }
   ];
 
-  mockSectores = [
+  sectoresDisponibles: any[] = [
     { id: 1, nombre: 'Centro Histórico', descripcion: 'Zona central con alta densidad.' },
     { id: 2, nombre: 'Zona Norte', descripcion: 'Área residencial y comercial.' },
     { id: 3, nombre: 'Sector Financiero', descripcion: 'Edificios de oficinas y bancos.' },
@@ -126,6 +136,17 @@ export class CreateCampania implements OnInit {
   selectedSectorForPreview: any = null;
 
   ngOnInit() {
+    const sectoresNuevos = this.sectorService.obtenerSectores();
+    if (sectoresNuevos && sectoresNuevos.length > 0) {
+      sectoresNuevos.forEach((nuevoSector, index) => {
+        this.sectoresDisponibles.push({
+          id: 'temp_' + index,
+          nombre: nuevoSector.nombre,
+          descripcion: 'Sector dibujado manualmente',
+          coordenadas_cerco: nuevoSector.coordenadas_cerco
+        });
+      });
+    }
     this.initForm();
   }
 
@@ -187,8 +208,8 @@ export class CreateCampania implements OnInit {
 
   shouldShowCategory(index: number): boolean {
     if (index === 0) return true;
-    return this.vehiculosAdmisibles.at(index).get('categoria')?.value !== 
-           this.vehiculosAdmisibles.at(index - 1).get('categoria')?.value;
+    return this.vehiculosAdmisibles.at(index).get('categoria')?.value !==
+      this.vehiculosAdmisibles.at(index - 1).get('categoria')?.value;
   }
 
   shouldShowMarca(index: number): boolean {
@@ -228,12 +249,12 @@ export class CreateCampania implements OnInit {
     group.forEach(c => c.get('seleccionado')?.setValue(newValue));
   }
 
- 
+
 
   updateSectoresOptions() {
     this.sectoresOptions = this.sectores.controls.map((s, i) => {
       const sectorId = s.get('id')?.value;
-      const sectorMock = this.mockSectores.find(ms => ms.id === sectorId);
+      const sectorMock = this.sectoresDisponibles.find(sd => sd.id === sectorId);
       return {
         label: sectorMock?.nombre || `Sector ${i + 1}`,
         value: sectorId
@@ -241,10 +262,10 @@ export class CreateCampania implements OnInit {
     });
   }
 
-  addSector() { 
-    this.sectores.push(this.fb.group({ 
-      id: [null, Validators.required] 
-    })); 
+  addSector() {
+    this.sectores.push(this.fb.group({
+      id: [null, Validators.required]
+    }));
   }
 
   removeSector(index: number) { this.sectores.removeAt(index); }
@@ -252,17 +273,50 @@ export class CreateCampania implements OnInit {
   showSectorPreview(index: number) {
     const sectorId = this.sectores.at(index).get('id')?.value;
     if (sectorId) {
-      this.selectedSectorForPreview = this.mockSectores.find(s => s.id === sectorId);
+      this.selectedSectorForPreview = this.sectoresDisponibles.find(sd => sd.id === sectorId);
       this.displaySectorPreview = true;
     } else {
       this.messageService.add({ severity: 'warn', summary: 'Atención', detail: 'Selecciona un sector para previsualizar.' });
     }
   }
 
+  async initPreviewMap() {
+    await this.googleMapsService.load();
+
+    if (!this.previewMapContainer) return;
+
+    const mapOptions = {
+      center: { lat: -2.1894, lng: -79.8891 },
+      zoom: 12,
+      mapTypeId: 'roadmap',
+      disableDefaultUI: true,
+      zoomControl: true,
+    };
+
+    this.previewMap = new google.maps.Map(this.previewMapContainer.nativeElement, mapOptions);
+    const coords = this.selectedSectorForPreview?.coordenadas_cerco;
+
+    if (coords && coords.length > 0) {
+      this.previewPolygon = new google.maps.Polygon({
+        paths: coords,
+        strokeColor: '#EAB308',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#FACC15',
+        fillOpacity: 0.35,
+      });
+
+      this.previewPolygon.setMap(this.previewMap);
+      const bounds = new google.maps.LatLngBounds();
+      coords.forEach((coord: any) => bounds.extend(coord));
+      this.previewMap.fitBounds(bounds);
+    }
+  }
+
   goToCreateSectors() {
     this.messageService.add({ severity: 'info', summary: 'Navegación', detail: 'Redirigiendo a creación de sectores...' });
     setTimeout(() => {
-        this.router.navigate(['/company/administrar-sectores']);
+      this.router.navigate(['/company/administrar-sectores']);
     }, 1000);
   }
 
@@ -316,8 +370,8 @@ export class CreateCampania implements OnInit {
   getSectoresOptionsWithAll() {
     const options = this.sectores.controls.map((s, i) => {
       const sectorId = s.get('id')?.value;
-      const sectorMock = this.mockSectores.find(ms => ms.id === sectorId);
-      return { label: sectorMock?.nombre || `Sector ${i + 1}`, value: sectorId };
+      const sector = this.sectoresDisponibles.find(sd => sd.id === sectorId);
+      return { label: sector?.nombre || `Sector ${i + 1}`, value: sectorId };
     }).filter(opt => opt.value !== null);
 
     return [{ label: '🌎 TODOS LOS SECTORES', value: null }, ...options];
@@ -337,8 +391,8 @@ export class CreateCampania implements OnInit {
   getSectoresOnly() {
     return this.sectores.controls.map((s, i) => {
       const sectorId = s.get('id')?.value;
-      const sectorMock = this.mockSectores.find(ms => ms.id === sectorId);
-      return { label: sectorMock?.nombre || `Sector ${i + 1}`, value: sectorId };
+      const sector = this.sectoresDisponibles.find(sd => sd.id === sectorId);
+      return { label: sector?.nombre || `Sector ${i + 1}`, value: sectorId };
     }).filter(opt => opt.value !== null);
   }
 
@@ -375,15 +429,23 @@ export class CreateCampania implements OnInit {
     }
 
     const formValues = this.campaniaForm.getRawValue();
-    const flattenedTarifas: Tarifa[] = [];
 
+    const payloadSectores = formValues.sectores.map((s: any) => {
+      const sectorEncontrado = this.sectoresDisponibles.find(sd => sd.id === s.id);
+      return {
+        nombre: sectorEncontrado?.nombre || 'Sector sin nombre',
+        coordenadas_cerco: sectorEncontrado?.coordenadas_cerco || []
+      };
+    });
+
+    const flattenedTarifas: Tarifa[] = [];
     formValues.tarifasConfig.forEach((rule: any) => {
-        flattenedTarifas.push({
-          categoria_vehiculo: rule.categoria_vehiculo,
-          sector: rule.sector_id,
-          tipo_brandeo: rule.tipo_brandeo,
-          valor: rule.valor
-        });
+      flattenedTarifas.push({
+        categoria_vehiculo: rule.categoria_vehiculo,
+        sector: rule.sector_id,
+        tipo_brandeo: rule.tipo_brandeo,
+        valor: rule.valor
+      });
     });
 
     const selectedVehiculos = formValues.vehiculosAdmisibles
@@ -397,7 +459,7 @@ export class CreateCampania implements OnInit {
       }));
 
     const payload: CampaniaCreacion = {
-      empresa_id: 1, 
+      empresa_id: 1,
       nombre: formValues.nombre,
       responsable_nombre: formValues.responsable_nombre,
       responsable_email: formValues.responsable_email,
@@ -410,6 +472,7 @@ export class CreateCampania implements OnInit {
       limite_vehiculos: formValues.limite_vehiculos,
       ciclo_pago: formValues.ciclo_pago,
       activa: formValues.activa,
+      //sectores: payloadSectores,
       tarifas: flattenedTarifas,
       vehiculos_admisibles: selectedVehiculos
     };
