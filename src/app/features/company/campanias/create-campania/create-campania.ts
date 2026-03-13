@@ -186,13 +186,6 @@ export class CreateCampania implements OnInit {
   get tarifasConfig() { return this.campaniaForm.get('tarifasConfig') as FormArray; }
   get vehiculosAdmisibles() { return this.campaniaForm.get('vehiculosAdmisibles') as FormArray; }
 
-  getPresupuestoPorVehiculo(): number {
-    const total = this.campaniaForm.get('presupuesto_total')?.value || 0;
-    const limite = this.campaniaForm.get('limite_vehiculos')?.value || 0;
-    if (limite <= 0) return 0;
-    return total / limite;
-  }
-
   initVehiculosCatalog() {
     const sortedCatalog = [...this.fullVehiclesCatalog].sort((a, b) => {
       const catCompare = a.categoria.localeCompare(b.categoria);
@@ -215,8 +208,8 @@ export class CreateCampania implements OnInit {
 
   shouldShowCategory(index: number): boolean {
     if (index === 0) return true;
-    return this.vehiculosAdmisibles.at(index).get('categoria')?.value !== 
-           this.vehiculosAdmisibles.at(index - 1).get('categoria')?.value;
+    return this.vehiculosAdmisibles.at(index).get('categoria')?.value !==
+      this.vehiculosAdmisibles.at(index - 1).get('categoria')?.value;
   }
 
   shouldShowMarca(index: number): boolean {
@@ -255,6 +248,7 @@ export class CreateCampania implements OnInit {
 
     group.forEach(c => c.get('seleccionado')?.setValue(newValue));
   }
+
 
 
   updateSectoresOptions() {
@@ -346,6 +340,7 @@ export class CreateCampania implements OnInit {
   addTarifaRule() {
     this.tarifasConfig.push(this.fb.group({
       sector_id: [null], // null = TODOS
+      horario_index: [null], // null = TODOS
       categoria_vehiculo: ['sedan', Validators.required],
       tipo_brandeo: [1, Validators.required],
       valor: [0, [Validators.required, Validators.min(0.0001)]]
@@ -362,6 +357,7 @@ export class CreateCampania implements OnInit {
       const lastRule = this.tarifasConfig.at(length - 1).getRawValue();
       this.tarifasConfig.push(this.fb.group({
         sector_id: [lastRule.sector_id],
+        horario_index: [lastRule.horario_index],
         categoria_vehiculo: [lastRule.categoria_vehiculo, Validators.required],
         tipo_brandeo: [lastRule.tipo_brandeo, Validators.required],
         valor: [lastRule.valor, [Validators.required, Validators.min(0.0001)]]
@@ -381,23 +377,43 @@ export class CreateCampania implements OnInit {
     return [{ label: '🌎 TODOS LOS SECTORES', value: null }, ...options];
   }
 
+  getHorariosOptionsWithAll() {
+    const options = this.horarios.controls.map((h, i) => {
+      const dia = h.get('dia')?.value;
+      const inicio = h.get('hora_inicio')?.value;
+      const fin = h.get('hora_fin')?.value;
+      return { label: `${dia} (${inicio}h - ${fin}h)`, value: i };
+    });
+
+    return [{ label: '⏰ TODOS LOS HORARIOS', value: null }, ...options];
+  }
+
   getSectoresOnly() {
     return this.sectores.controls.map((s, i) => {
       const sectorId = s.get('id')?.value;
-      const sectorMock = this.sectoresDisponibles.find(ms => ms.id === sectorId);
-      return { label: sectorMock?.nombre || `Sector ${i + 1}`, value: sectorId };
+      const sector = this.sectoresDisponibles.find(sd => sd.id === sectorId);
+      return { label: sector?.nombre || `Sector ${i + 1}`, value: sectorId };
     }).filter(opt => opt.value !== null);
   }
 
-  getEffectiveRate(sectorId: number | null, categoria: string): number {
+  getHorariosOnly() {
+    return this.horarios.controls.map((h, i) => {
+      const dia = h.get('dia')?.value;
+      const inicio = h.get('hora_inicio')?.value;
+      const fin = h.get('hora_fin')?.value;
+      return { label: `${dia} (${inicio}h - ${fin}h)`, value: i };
+    });
+  }
+
+  getEffectiveRate(sectorId: number | null, horarioIdx: number | null, categoria: string): number {
     let total = 0;
     this.brandingPartsCatalog.forEach(part => {
       const rules = this.tarifasConfig.value as any[];
       const rule = rules
         .filter(r => r.tipo_brandeo === part.value && r.categoria_vehiculo === categoria)
         .sort((a, b) => {
-          const scoreA = (a.sector_id !== null ? 2 : 0);
-          const scoreB = (b.sector_id !== null ? 2 : 0);
+          const scoreA = (a.sector_id !== null ? 2 : 0) + (a.horario_index !== null ? 1 : 0);
+          const scoreB = (b.sector_id !== null ? 2 : 0) + (b.horario_index !== null ? 1 : 0);
           return scoreB - scoreA;
         })[0];
       if (rule) total += rule.valor;
