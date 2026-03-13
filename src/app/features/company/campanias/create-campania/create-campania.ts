@@ -20,6 +20,7 @@ import { CampaniaCreacion, CatalogoVehiculo, Tarifa, TarifaCreacion, HorarioCrea
 import { SectorService } from '../../../../services/sector.service';
 import { GoogleMapsService } from '../../../../services/googlemaps.service';
 import { CampaniaService } from '../../../../services/campania.service';
+import { CampaignDraftService } from '../../../../services/campaign-draft.service';
 
 declare var google: any;
 
@@ -88,6 +89,7 @@ export class CreateCampania implements OnInit {
   private router = inject(Router);
   private sectorService = inject(SectorService);
   private googleMapsService = inject(GoogleMapsService);
+  private draftService = inject(CampaignDraftService);
 
 
 
@@ -169,36 +171,73 @@ export class CreateCampania implements OnInit {
   }
 
   initForm() {
+    const draft = this.draftService.getDraft();
+
     this.campaniaForm = this.fb.group({
-      nombre: ['', [Validators.required, Validators.maxLength(200)]],
-      // TODO: estos campos no se reciben en el back
-      responsable_nombre: ['', [Validators.maxLength(150)]],
-      // TODO: estos campos no se reciben en el back
-      responsable_email: ['', [Validators.email]],
-      fecha_inicio: [null, Validators.required],
-      fecha_fin: [null, Validators.required],
-      fecha_limite_registro: [null],
-      presupuesto_total: [null, [Validators.required, Validators.min(0.01)]],
-      ciclo_pago: ['mensual', [Validators.required, Validators.maxLength(20)]],
-      activa: [true],
-      limite_vehiculos: [null],
-      requisitos: [''],
+      nombre: [draft?.nombre || '', [Validators.required, Validators.maxLength(200)]],
+      responsable_nombre: [draft?.responsable_nombre || '', [Validators.maxLength(150)]],
+      responsable_email: [draft?.responsable_email || '', [Validators.email]],
+      fecha_inicio: [draft?.fecha_inicio ? new Date(draft.fecha_inicio) : null, Validators.required],
+      fecha_fin: [draft?.fecha_fin ? new Date(draft.fecha_fin) : null, Validators.required],
+      fecha_limite_registro: [draft?.fecha_limite_registro ? new Date(draft.fecha_limite_registro) : null],
+      presupuesto_total: [draft?.presupuesto_total || null, [Validators.required, Validators.min(0.01)]],
+      ciclo_pago: [draft?.ciclo_pago || 'mensual', [Validators.required, Validators.maxLength(20)]],
+      activa: [draft?.activa ?? true],
+      limite_vehiculos: [draft?.limite_vehiculos || null],
+      requisitos: [draft?.requisitos || ''],
       sectores: this.fb.array([], [duplicateSectorValidator]),
       horarios: this.fb.array([]),
       vehiculosAdmisibles: this.fb.array([]),
-      tarifasConfig: this.fb.array([], [duplicateTariffValidator]), // Flat Rules System
-      km_minimo_conductor: [null, [Validators.required, Validators.min(0)]],
+      tarifasConfig: this.fb.array([], [duplicateTariffValidator]),
+      km_minimo_conductor: [draft?.km_minimo_conductor || null, [Validators.required, Validators.min(0)]],
     }, { validators: [campaignDatesValidator] });
 
     this.campaniaForm.get('presupuesto_total')?.valueChanges.subscribe(val => {
       this.campaniaForm.patchValue({ presupuesto_restante: val }, { emitEvent: false });
     });
 
-    this.addSector();
-    this.addHorario();
+    if (draft) {
+      // Restaurar sectores
+      if (draft.sectores && draft.sectores.length > 0) {
+        draft.sectores.forEach((s: any) => {
+          this.sectores.push(this.fb.group({ id: [s.id, Validators.required] }));
+        });
+      }
+
+      // Restaurar horarios
+      if (draft.horarios && draft.horarios.length > 0) {
+        draft.horarios.forEach((h: any) => {
+          this.horarios.push(this.fb.group({
+            dia: [h.dia, Validators.required],
+            hora_inicio: [h.hora_inicio, Validators.required],
+            hora_fin: [h.hora_fin, Validators.required]
+          }));
+        });
+      }
+
+      // Restaurar tarifas
+      if (draft.tarifasConfig && draft.tarifasConfig.length > 0) {
+        draft.tarifasConfig.forEach((t: any) => {
+          this.tarifasConfig.push(this.fb.group({
+            sector_id: [t.sector_id],
+            horario_index: [t.horario_index],
+            categoria_vehiculo: [t.categoria_vehiculo, Validators.required],
+            tipo_brandeo: [t.tipo_brandeo, Validators.required],
+            valor: [t.valor, [Validators.required, Validators.min(0.0001)]]
+          }));
+        });
+      }
+
+      // Vehículos se cargan después en initVehiculosCatalog pero con el draft si es posible
+      // Aunque como se cargan de API, mejor los marcamos cuando lleguen.
+    } else {
+      this.addSector();
+      this.addHorario();
+      this.addTarifaRule();
+    }
+
     console.log('Iniciando form')
     this.initVehiculosCatalog();
-    this.addTarifaRule(); // Cargar la primera regla por defecto
   }
 
   get sectores() { return this.campaniaForm.get('sectores') as FormArray; }
@@ -228,25 +267,25 @@ export class CreateCampania implements OnInit {
   }
 
   procesarVehiculosAdmisibles() {
-    // this.vehiculosAdmisibles.clear();
-
+    const draft = this.draftService.getDraft();
     const sortedCatalog = [...this.fullVehiclesCatalog].sort((a, b) => {
       const catCompare = a.categoria.localeCompare(b.categoria);
       if (catCompare !== 0) return catCompare;
       return a.marca.localeCompare(b.marca);
     });
 
-
     sortedCatalog.forEach((v: CatalogoVehiculo) => {
       const actualId = v.id_catalogo ?? v.id ?? v.id_vehiculo;
+      const draftVeh = draft?.vehiculosAdmisibles?.find((dv: any) => dv.id === actualId);
+      
       this.vehiculosAdmisibles.push(
         this.fb.group({
           id: [actualId],
           categoria: [v.categoria],
           marca: [v.marca],
           modelo: [v.modelo],
-          seleccionado: [false],
-          anio_minimo: [2010, [Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear() + 1)]],
+          seleccionado: [draftVeh?.seleccionado ?? false],
+          anio_minimo: [draftVeh?.anio_minimo ?? 2010, [Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear() + 1)]],
         })
       );
     });
@@ -362,6 +401,10 @@ export class CreateCampania implements OnInit {
   }
 
   goToCreateSectors() {
+    // Guardamos el borrador del formulario antes de irnos
+    const draft = this.campaniaForm.getRawValue();
+    this.draftService.saveDraft(draft);
+
     this.messageService.add({ severity: 'info', summary: 'Navegación', detail: 'Redirigiendo a creación de sectores...' });
     setTimeout(() => {
       this.router.navigate(['/company/administrar-sectores']);
@@ -591,6 +634,7 @@ export class CreateCampania implements OnInit {
         this.campaniaService.createCampania(payload).subscribe({
           next: (res) => {
             this.messageService.add({ severity: 'success', summary: 'Publicado', detail: 'Campaña creada con éxito.' });
+            this.draftService.clearDraft();
             console.log('Respuesta del servidor:', res);
             // setTimeout(() => this.router.navigate(['/company/mis-campanias']), 1500);
           },
