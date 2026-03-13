@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -19,6 +19,7 @@ import { CampaniaList } from '../../../interfaces/campanas';
 })
 export class Campanias implements OnInit {
   private campaniaService = inject(CampaniaService);
+  private cdr = inject(ChangeDetectorRef);
   
   campanias: CampaniaList[] = [];
   loading: boolean = true;
@@ -33,14 +34,14 @@ export class Campanias implements OnInit {
     this.loading = true;
     this.campaniaService.getMisCampanias().subscribe({
       next: (data) => {
-        console.log(JSON.stringify(data)) ;
         this.campanias = data;
         this.loading = false;
-        console.log(this.campanias);
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error cargando campañas:', err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
