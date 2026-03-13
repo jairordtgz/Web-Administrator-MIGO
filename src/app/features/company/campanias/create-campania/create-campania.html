@@ -1,5 +1,6 @@
 <div class="px-6 pt-4 pb-12 min-h-full relative font-sans bg-[#f8f9fa]">
   <p-toast></p-toast>
+  <p-confirm-dialog></p-confirm-dialog>
 
   <!-- Header Section -->
   <div
@@ -48,7 +49,7 @@
           </div>
           <div class="flex flex-col gap-2">
             <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Presupuesto Inicial ($):</label>
-            <p-inputNumber formControlName="presupuesto_total" mode="currency" currency="USD" locale="en-US"
+            <p-inputNumber formControlName="presupuesto_total" mode="currency" currency="USD" locale="es-ES"
               styleClass="w-full" inputStyleClass="w-full !rounded-xl !py-3" [minFractionDigits]="2"></p-inputNumber>
           </div>
           <div class="flex flex-col gap-2">
@@ -69,12 +70,29 @@
           <div class="flex flex-col gap-2">
             <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Fecha Fin:</label>
             <p-datepicker formControlName="fecha_fin" placeholder="Fin" styleClass="w-full"
-              inputStyleClass="w-full !rounded-xl !py-3" appendTo="body"></p-datepicker>
+              inputStyleClass="w-full !rounded-xl !py-3" appendTo="body"
+              [class.ng-invalid]="campaniaForm.errors?.['dateRangeInvalid']"></p-datepicker>
+            @if (campaniaForm.errors?.['dateRangeInvalid']) {
+              <small class="text-red-500 font-bold ml-1">
+                <i class="pi pi-times-circle mr-1"></i> La fecha de fin debe ser posterior al inicio.
+              </small>
+            }
           </div>
           <div class="flex flex-col gap-2">
             <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Fecha Límite Registro:</label>
             <p-datepicker formControlName="fecha_limite_registro" placeholder="Opcional" styleClass="w-full"
-              inputStyleClass="w-full !rounded-xl !py-3" appendTo="body"></p-datepicker>
+              inputStyleClass="w-full !rounded-xl !py-3" appendTo="body"
+              [class.ng-invalid]="campaniaForm.errors?.['registrationAfterEnd']"></p-datepicker>
+            @if (campaniaForm.errors?.['registrationAfterEnd']) {
+              <small class="text-red-500 font-bold ml-1">
+                <i class="pi pi-times-circle mr-1"></i> El registro debe cerrar antes del fin de campaña.
+              </small>
+            }
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Km Mínimos Conductor:</label>
+            <p-inputNumber formControlName="km_minimo_conductor" placeholder="Ej: 500" styleClass="w-full"
+              inputStyleClass="w-full !rounded-xl !py-3" [min]="0"></p-inputNumber>
           </div>
         </div>
       </div>
@@ -96,30 +114,49 @@
         </div>
       </div>
       <div class="p-6">
-        <div formArrayName="sectores" class="space-y-4 overflow-y-auto pr-2">
-          @if (sectores.length == 0) {
-          <p class="p-2 text-gray-500">No hay sectores disponibles, crea uno para empezar</p>
-          }
-          @for (sector of sectores.controls; track $index) {
-          <div [formGroupName]="$index" class="flex gap-3 items-start">
-            <div class="flex-1">
-              <div class="flex justify-between gap-3 mb-1">
-                <label class="text-xs font-bold text-gray-400 uppercase ml-1">Seleccionar Sector:</label>
-                <button type="button" pButton label="Previsualizar" icon="pi pi-eye"
-                  class="p-button-link !p-0 !text-[12px] !font-bold !text-gray-500"
-                  (click)="showSectorPreview($index)"></button>
-              </div>
-
-              <p-select [options]="sectoresDisponibles" formControlName="id" optionLabel="nombre" optionValue="id"
-                placeholder="Escoger sector" class="w-full !rounded-xl" styleClass="!w-full !py-1"
-                appendTo="body"></p-select>
-              <div class="flex justify-end mt-1"></div>
-            </div>
-            <button type="button" pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger mt-5"
-              (click)="removeSector($index)"></button>
+        @if (sectoresDisponibles.length === 0) {
+          <div class="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 text-center">
+            <i class="pi pi-map text-4xl text-gray-300 mb-3"></i>
+            <p class="font-bold text-gray-500 uppercase text-xs tracking-widest mb-4">
+              No tienes sectores creados para esta campaña
+            </p>
+            <button type="button" pButton icon="pi pi-plus-circle" label="EMPIEZA A CREAR SECTORES"
+              class="p-button-warning !rounded-full !font-black !px-6 shadow-md" (click)="goToCreateSectors()"></button>
           </div>
+        } @else {
+          @if (sectores.errors?.['duplicateSector']) {
+            <div class="bg-red-50 border-l-4 border-red-400 p-3 mb-4 rounded-r-lg flex items-center gap-2">
+              <i class="pi pi-exclamation-circle text-red-500"></i>
+              <small class="text-red-700 font-bold uppercase text-[10px]">
+                Has seleccionado el mismo sector varias veces. Elimina los duplicados.
+              </small>
+            </div>
           }
-        </div>
+          <div formArrayName="sectores" class="space-y-4 overflow-y-auto pr-2">
+            @if (sectores.length == 0) {
+            <p class="p-2 text-gray-500">No hay sectores seleccionados para esta campaña</p>
+            }
+            @for (sector of sectores.controls; track $index) {
+            <div [formGroupName]="$index" class="flex gap-3 items-start">
+              <div class="flex-1">
+                <div class="flex justify-between gap-3 mb-1">
+                  <label class="text-xs font-bold text-gray-400 uppercase ml-1">Seleccionar Sector:</label>
+                  <button type="button" pButton label="Previsualizar" icon="pi pi-eye"
+                    class="p-button-link !p-0 !text-[12px] !font-bold !text-gray-500"
+                    (click)="showSectorPreview($index)"></button>
+                </div>
+
+                <p-select [options]="sectoresDisponibles" formControlName="id" optionLabel="nombre" optionValue="id"
+                  placeholder="Escoger sector" class="w-full !rounded-xl" styleClass="!w-full !py-1"
+                  appendTo="body"></p-select>
+                <div class="flex justify-end mt-1"></div>
+              </div>
+              <button type="button" pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger mt-5"
+                (click)="removeSector($index)"></button>
+            </div>
+            }
+          </div>
+        }
       </div>
     </div>
 
@@ -284,6 +321,17 @@
           <i class="pi pi-info-circle text-primary mb-2 block"></i>
           Las reglas más específicas (ej: un sector concreto) sobreescriben a las generales (TODOS).
         </div>
+
+        @if (tarifasConfig.errors?.['duplicateTariff']) {
+        <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded-r-xl">
+          <div class="flex items-center">
+            <i class="pi pi-exclamation-circle text-red-400 mr-2 text-lg"></i>
+            <p class="text-sm text-red-700 font-bold uppercase tracking-tight">
+              ERROR: Existen reglas duplicadas. No puedes definir dos tarifas para la misma combinación de Sector, Horario, Vehículo y Componente.
+            </p>
+          </div>
+        </div>
+        }
 
         <div class="overflow-x-auto rounded-3xl border border-gray-100">
           <table class="w-full text-left border-separate border-spacing-0">

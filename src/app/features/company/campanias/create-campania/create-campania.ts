@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { CommonModule, formatDate } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -10,24 +10,60 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { DialogModule } from 'primeng/dialog';
-import { CampaniaCreacion, Tarifa } from '../../../../interfaces/campanas';
+import { CampaniaCreacion, CatalogoVehiculo, Tarifa, TarifaCreacion, HorarioCreacion, SectorCreacion } from '../../../../interfaces/campanas';
 import { SectorService } from '../../../../services/sector.service';
 import { GoogleMapsService } from '../../../../services/googlemaps.service';
+import { CampaniaService } from '../../../../services/campania.service';
 
 declare var google: any;
 
-export const dateRangeValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-  const inicio = control.get('fecha_inicio');
-  const fin = control.get('fecha_fin');
-  if (inicio && fin && inicio.value && fin.value && new Date(inicio.value) > new Date(fin.value)) {
-    return { dateRangeInvalid: true };
+export const campaignDatesValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const inicio = control.get('fecha_inicio')?.value;
+  const fin = control.get('fecha_fin')?.value;
+  const registro = control.get('fecha_limite_registro')?.value;
+
+  const errors: any = {};
+
+  if (inicio && fin && new Date(inicio) > new Date(fin)) {
+    errors.dateRangeInvalid = true;
+  }
+
+  if (registro && fin && new Date(registro) > new Date(fin)) {
+    errors.registrationAfterEnd = true;
+  }
+
+  return Object.keys(errors).length > 0 ? errors : null;
+};
+
+export const duplicateTariffValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const formArray = control as FormArray;
+  const values = formArray.value as any[];
+  const seen = new Set<string>();
+
+  for (const v of values) {
+    const key = `${v.sector_id}-${v.horario_index}-${v.categoria_vehiculo}-${v.tipo_brandeo}`;
+    if (seen.has(key)) {
+      return { duplicateTariff: true };
+    }
+    seen.add(key);
   }
   return null;
+};
+
+export const duplicateSectorValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const formArray = control as FormArray;
+  const ids = formArray.controls
+    .map(c => c.get('id')?.value)
+    .filter(id => id !== null);
+
+  const hasDuplicate = ids.some((id, index) => ids.indexOf(id) !== index);
+  return hasDuplicate ? { duplicateSector: true } : null;
 };
 
 @Component({
@@ -37,18 +73,23 @@ export const dateRangeValidator: ValidatorFn = (control: AbstractControl): Valid
     CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule,
     InputNumberModule, SelectModule, CheckboxModule, DatePickerModule,
     TextareaModule, ToastModule, CardModule, DividerModule, ToggleButtonModule,
-    DialogModule
+    DialogModule, ConfirmDialogModule
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './create-campania.html',
   styleUrl: './create-campania.css'
 })
 export class CreateCampania implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+  private campaniaService = inject(CampaniaService);
   private fb = inject(FormBuilder);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
   private sectorService = inject(SectorService);
   private googleMapsService = inject(GoogleMapsService);
+
+
 
   @ViewChild('previewMapContainer', { static: false }) previewMapContainer!: ElementRef;
   previewMap: any;
@@ -72,17 +113,7 @@ export class CreateCampania implements OnInit {
     { label: 'Domingo', value: 'Domingo' }
   ];
 
-  brandingPartsCatalog = [
-    { label: '1 Puerta', value: 1 },
-    { label: '2 Puertas', value: 2 },
-    { label: '3 o 4 Puertas (SUV/Sedan)', value: 3 },
-    { label: 'Vidrio de Atrás', value: 5 },
-    { label: '1 Lado Cajón (Camión)', value: 6 },
-    { label: '2 Lados Cajón (Camión)', value: 7 },
-    { label: 'LED encima Auto', value: 8 },
-    { label: 'LED Vidrio Atrás', value: 9 },
-    { label: 'Tiempo (Minutos)', value: 10 }
-  ];
+  brandingPartsCatalog: any[] = [];
 
   categoriasVehiculo = [
     { label: 'Sedán', value: 'sedan' },
@@ -92,44 +123,12 @@ export class CreateCampania implements OnInit {
     { label: 'Moto', value: 'moto' }
   ];
 
-  sectoresDisponibles: any[] = [
-    { id: 1, nombre: 'Centro Histórico', descripcion: 'Zona central con alta densidad.' },
-    { id: 2, nombre: 'Zona Norte', descripcion: 'Área residencial y comercial.' },
-    { id: 3, nombre: 'Sector Financiero', descripcion: 'Edificios de oficinas y bancos.' },
-    { id: 4, nombre: 'Parques y Recreación', descripcion: 'Zonas verdes y de esparcimiento.' }
-  ];
+  sectoresDisponibles: any[] = [];
 
-  mockMarcas = [
-    { id: 1, nombre: 'Toyota' },
-    { id: 2, nombre: 'Honda' },
-    { id: 3, nombre: 'Nissan' },
-    { id: 4, nombre: 'Hyundai' },
-    { id: 5, nombre: 'Kia' },
-    { id: 6, nombre: 'Chevrolet' },
-    { id: 7, nombre: 'Ford' },
-    { id: 8, nombre: 'Volkswagen' }
-  ];
+  mockMarcas = [];
+  mockModelos = [];
 
-  mockModelos = [
-    { id: 1, marca_id: 1, nombre: 'Corolla' },
-    { id: 2, marca_id: 1, nombre: 'Yaris' },
-    { id: 3, marca_id: 1, nombre: 'Hilux' },
-    { id: 4, marca_id: 2, nombre: 'Civic' },
-    { id: 5, marca_id: 2, nombre: 'CR-V' },
-    { id: 6, marca_id: 3, nombre: 'Sentra' },
-    { id: 7, marca_id: 3, nombre: 'Versa' }
-  ];
-
-  fullVehiclesCatalog: any[] = [
-    { categoria: 'sedan', marca: 'Toyota', modelo: 'Corolla' },
-    { categoria: 'sedan', marca: 'Toyota', modelo: 'Yaris' },
-    { categoria: 'sedan', marca: 'Honda', modelo: 'Civic' },
-    { categoria: 'sedan', marca: 'Nissan', modelo: 'Sentra' },
-    { categoria: 'suv', marca: 'Toyota', modelo: 'RAV4' },
-    { categoria: 'suv', marca: 'Honda', modelo: 'CR-V' },
-    { categoria: 'camioneta', marca: 'Toyota', modelo: 'Hilux' },
-    { categoria: 'camioneta', marca: 'Ford', modelo: 'Ranger' },
-  ];
+  fullVehiclesCatalog: any[] = [];
 
   sectoresOptions: any[] = [];
   displaySectorPreview: boolean = false;
@@ -147,29 +146,49 @@ export class CreateCampania implements OnInit {
         });
       });
     }
+    this.initBrandeoCatalog();
     this.initForm();
+  }
+
+  initBrandeoCatalog() {
+    this.campaniaService.getBrandeo().subscribe({
+      next: (brandeos) => {
+        this.brandingPartsCatalog = brandeos.map(b => ({
+          label: `${b.nombre} (${b.tipo_material})`,
+          value: b.id_brandeo
+        }));
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo cargar el catálogo de brandeos'
+        });
+      }
+    });
   }
 
   initForm() {
     this.campaniaForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.maxLength(200)]],
+      // TODO: estos campos no se reciben en el back
       responsable_nombre: ['', [Validators.maxLength(150)]],
+      // TODO: estos campos no se reciben en el back
       responsable_email: ['', [Validators.email]],
       fecha_inicio: [null, Validators.required],
       fecha_fin: [null, Validators.required],
       fecha_limite_registro: [null],
       presupuesto_total: [null, [Validators.required, Validators.min(0.01)]],
-      presupuesto_restante: [null],
       ciclo_pago: ['mensual', [Validators.required, Validators.maxLength(20)]],
       activa: [true],
       limite_vehiculos: [null],
       requisitos: [''],
-      sectores: this.fb.array([]),
+      sectores: this.fb.array([], [duplicateSectorValidator]),
       horarios: this.fb.array([]),
       vehiculosAdmisibles: this.fb.array([]),
-      tarifasConfig: this.fb.array([]), // Flat Rules System
+      tarifasConfig: this.fb.array([], [duplicateTariffValidator]), // Flat Rules System
       km_minimo_conductor: [null, [Validators.required, Validators.min(0)]],
-    }, { validators: [dateRangeValidator] });
+    }, { validators: [campaignDatesValidator] });
 
     this.campaniaForm.get('presupuesto_total')?.valueChanges.subscribe(val => {
       this.campaniaForm.patchValue({ presupuesto_restante: val }, { emitEvent: false });
@@ -177,6 +196,7 @@ export class CreateCampania implements OnInit {
 
     this.addSector();
     this.addHorario();
+    console.log('Iniciando form')
     this.initVehiculosCatalog();
     this.addTarifaRule(); // Cargar la primera regla por defecto
   }
@@ -187,24 +207,52 @@ export class CreateCampania implements OnInit {
   get vehiculosAdmisibles() { return this.campaniaForm.get('vehiculosAdmisibles') as FormArray; }
 
   initVehiculosCatalog() {
+    this.campaniaService.getCatalogo().subscribe({
+      next: (catalogo) => {
+        console.log('Catálogo de vehículos recibido:', catalogo);
+        if (catalogo.length > 0) {
+          console.log('Muestra de un item del catálogo:', JSON.stringify(catalogo[0]));
+        }
+        this.fullVehiclesCatalog = catalogo;
+
+        this.procesarVehiculosAdmisibles();
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo cargar el catálogo de vehículos'
+        });
+      }
+    });
+  }
+
+  procesarVehiculosAdmisibles() {
+    // this.vehiculosAdmisibles.clear();
+
     const sortedCatalog = [...this.fullVehiclesCatalog].sort((a, b) => {
       const catCompare = a.categoria.localeCompare(b.categoria);
       if (catCompare !== 0) return catCompare;
       return a.marca.localeCompare(b.marca);
     });
 
-    sortedCatalog.forEach((v) => {
+
+    sortedCatalog.forEach((v: CatalogoVehiculo) => {
+      const actualId = v.id_catalogo ?? v.id ?? v.id_vehiculo;
       this.vehiculosAdmisibles.push(
         this.fb.group({
+          id: [actualId],
           categoria: [v.categoria],
           marca: [v.marca],
           modelo: [v.modelo],
           seleccionado: [false],
-          anio_minimo: [2015, [Validators.required, Validators.min(1900)]],
+          anio_minimo: [2010, [Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear() + 1)]],
         })
       );
     });
+    this.cdr.detectChanges();
   }
+
 
   shouldShowCategory(index: number): boolean {
     if (index === 0) return true;
@@ -405,24 +453,54 @@ export class CreateCampania implements OnInit {
     });
   }
 
-  getEffectiveRate(sectorId: number | null, horarioIdx: number | null, categoria: string): number {
+  getEffectiveRate(sectorId: any, horarioIdx: number | null, categoria: string): number {
     let total = 0;
+    const rules = this.tarifasConfig.getRawValue() as any[];
+
     this.brandingPartsCatalog.forEach(part => {
-      const rules = this.tarifasConfig.value as any[];
-      const rule = rules
-        .filter(r => r.tipo_brandeo === part.value && r.categoria_vehiculo === categoria)
+      const bestRule = rules
+        .filter(r =>
+          r.tipo_brandeo === part.value &&
+          r.categoria_vehiculo === categoria &&
+          (r.sector_id === null || r.sector_id === sectorId) &&
+          (r.horario_index === null || r.horario_index === horarioIdx)
+        )
         .sort((a, b) => {
           const scoreA = (a.sector_id !== null ? 2 : 0) + (a.horario_index !== null ? 1 : 0);
           const scoreB = (b.sector_id !== null ? 2 : 0) + (b.horario_index !== null ? 1 : 0);
           return scoreB - scoreA;
         })[0];
-      if (rule) total += rule.valor;
+
+      if (bestRule) total += bestRule.valor;
     });
     return total;
   }
 
   onSubmit() {
     if (this.campaniaForm.invalid) {
+      console.warn('Formulario inválido. Detalles de errores:');
+      Object.keys(this.campaniaForm.controls).forEach(key => {
+        const control = this.campaniaForm.get(key);
+        if (control?.invalid) {
+          console.log(`Campo [${key}] - Status: ${control.status} - Errores:`, control.errors);
+          if (control instanceof FormArray) {
+            control.controls.forEach((group, index) => {
+              if (group.invalid) {
+                console.log(`  -> Item [${index}] en FormArray [${key}] - Errores:`, group.errors);
+                if (group instanceof FormGroup) {
+                  Object.keys(group.controls).forEach(subKey => {
+                    const subControl = group.get(subKey);
+                    if (subControl?.invalid) {
+                      console.log(`     -> Subcampo [${subKey}] - Errores:`, subControl.errors);
+                    }
+                  });
+                }
+              }
+            });
+          }
+        }
+      });
+
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Por favor completa todos los campos requeridos.' });
       this.campaniaForm.markAllAsTouched();
       return;
@@ -438,54 +516,105 @@ export class CreateCampania implements OnInit {
       };
     });
 
-    const flattenedTarifas: Tarifa[] = [];
+    const payloadHorarios = formValues.horarios.map((h: any) => ({
+      dia_semana: h.dia,
+      hora_inicio: this.formatTime(h.hora_inicio ?? 0),
+      hora_fin: this.formatTime(h.hora_fin ?? 23)
+    }));
+
+    const flattenedTarifas: TarifaCreacion[] = [];
     formValues.tarifasConfig.forEach((rule: any) => {
-      flattenedTarifas.push({
-        categoria_vehiculo: rule.categoria_vehiculo,
-        sector: rule.sector_id,
-        tipo_brandeo: rule.tipo_brandeo,
-        valor: rule.valor
+      const sectorIndices: number[] = [];
+      if (rule.sector_id === null) {
+        payloadSectores.forEach((_: any, i: number) => sectorIndices.push(i));
+      } else {
+        const idx = formValues.sectores.findIndex((s: any) => s.id === rule.sector_id);
+        if (idx !== -1) sectorIndices.push(idx);
+      }
+
+      const horarioIndices: number[] = [];
+      if (rule.horario_index === null) {
+        payloadHorarios.forEach((_: any, i: number) => horarioIndices.push(i));
+      } else {
+        horarioIndices.push(rule.horario_index);
+      }
+
+      sectorIndices.forEach(sIdx => {
+        horarioIndices.forEach(hIdx => {
+          flattenedTarifas.push({
+            tipo_brandeo_id: rule.tipo_brandeo,
+            categoria_vehiculo: rule.categoria_vehiculo,
+            valor: rule.valor,
+            sector_index: sIdx,
+            horario_index: hIdx
+          });
+        });
       });
     });
 
-    const selectedVehiculos = formValues.vehiculosAdmisibles
+    const rawVehiculos = formValues.vehiculosAdmisibles;
+    const reglasVehiculos = rawVehiculos
       .filter((v: any) => v.seleccionado)
       .map((v: any) => ({
         marca: v.marca,
-        modelo: v.modelo,
         categoria: v.categoria,
-        anio_minimo: v.anio_minimo,
-        activo: true
+        anio_minimo: v.anio_minimo
       }));
 
     const payload: CampaniaCreacion = {
-      empresa_id: 1,
       nombre: formValues.nombre,
-      responsable_nombre: formValues.responsable_nombre,
-      responsable_email: formValues.responsable_email,
       fecha_inicio: this.formatDate(formValues.fecha_inicio),
       fecha_fin: this.formatDate(formValues.fecha_fin),
       fecha_limite_registro: formValues.fecha_limite_registro ? this.formatDate(formValues.fecha_limite_registro) : null,
       presupuesto_total: formValues.presupuesto_total,
-      presupuesto_restante: formValues.presupuesto_restante,
       km_minimo_conductor: formValues.km_minimo_conductor,
-      limite_vehiculos: formValues.limite_vehiculos,
+      limite_vehiculos_permitidos: formValues.limite_vehiculos || null,
+      limite_vehiculos_automatico: false, // Por ahora el flujo es manual
       ciclo_pago: formValues.ciclo_pago,
-      activa: formValues.activa,
-      //sectores: payloadSectores,
+      requisitos: formValues.requisitos || '',
+      sectores: payloadSectores,
+      horarios: payloadHorarios,
       tarifas: flattenedTarifas,
-      vehiculos_admisibles: selectedVehiculos
+      reglas_vehiculos: reglasVehiculos
     };
 
-    console.log('Payload Final:', payload);
-    this.messageService.add({ severity: 'success', summary: 'Publicado', detail: 'Campaña creada con éxito.' });
-    setTimeout(() => this.router.navigate(['/company/mis-campanias']), 2000);
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de que deseas publicar esta campaña? Los conductores empezarán a verla en breve.',
+      header: 'Confirmar Publicación',
+      icon: 'pi pi-exclamation-triangle',
+      rejectLabel: 'CANCELAR',
+      acceptLabel: 'SÍ, PUBLICAR',
+      acceptButtonStyleClass: 'p-button-warning !rounded-full',
+      rejectButtonStyleClass: 'p-button-text !text-gray-500',
+      accept: () => {
+        console.log('Payload Final:', JSON.parse(JSON.stringify(payload)));
+        this.campaniaService.createCampania(payload).subscribe({
+          next: (res) => {
+            this.messageService.add({ severity: 'success', summary: 'Publicado', detail: 'Campaña creada con éxito.' });
+            console.log('Respuesta del servidor:', res);
+            // setTimeout(() => this.router.navigate(['/company/mis-campanias']), 1500);
+          },
+          error: (err) => {
+            console.error('Error al crear campaña:', err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.error?.detail || 'No se pudo crear la campaña en el servidor.'
+            });
+          }
+        });
+      }
+    });
   }
 
   private formatDate(date: any): string {
-    if (!date) return '';
-    const d = new Date(date);
-    return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+    return date ? formatDate(date, 'yyyy-MM-dd', 'en-US') : '';
+  }
+
+  private formatTime(hour: number): string {
+    const d = new Date();
+    d.setHours(hour, 0, 0, 0);
+    return formatDate(d, 'HH:mm', 'en-US');
   }
 
   cancelar() { this.router.navigate(['/company/mis-campanias']); }
