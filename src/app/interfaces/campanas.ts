@@ -1,4 +1,5 @@
 import { Company } from './company';
+import { PaginatedResponse } from './pagination';
 
 export interface Tarifa {
     id?: number;
@@ -9,47 +10,104 @@ export interface Tarifa {
     valor: number;
 }
 
-export interface CampaniaCreacion {
-    empresa_id: number;
+export interface SectorCreacion {
     nombre: string;
-    responsable_nombre?: string | null;
-    responsable_email?: string | null;
+    coordenadas_cerco?: any;
+}
+
+export interface HorarioCreacion {
+    dia_semana: string;
+    hora_inicio: string;
+    hora_fin: string;
+}
+
+export interface TarifaCreacion {
+    tipo_brandeo_id: number;
+    categoria_vehiculo: string;
+    valor: number;
+    sector_index: number;
+    horario_index: number;
+}
+
+export interface ReglaVehiculo {
+    marca: string;
+    categoria: string;
+    anio_minimo?: number | null;
+}
+
+export interface CampaniaCreacion {
+    nombre: string;
     fecha_inicio: string;
     fecha_fin: string;
     fecha_limite_registro?: string | null;
     presupuesto_total: number;
-    presupuesto_restante: number;
     km_minimo_conductor: number;
-    limite_vehiculos: number;
-    ciclo_pago?: string;
-    activa?: boolean;
-    tipo_brandeo_id?: number | null;
-    tarifas?: Tarifa[];
-    vehiculos_admisibles?: CatalogoVehiculo[];
+    limite_vehiculos_permitidos: number | null;
+    limite_vehiculos_automatico: boolean;
+    ciclo_pago: string;
+    requisitos?: string;
+    sectores: SectorCreacion[];
+    tarifas: TarifaCreacion[];
+    horarios: HorarioCreacion[];
+    reglas_vehiculos?: ReglaVehiculo[];
 }
 
 export interface CampaniaList {
-    id?: number;
+    id: number;
     nombre: string;
     responsable_nombre?: string | null;
     responsable_email?: string | null;
     fecha_inicio: string;
     fecha_fin: string;
     fecha_limite_registro?: string | null;
-    presupuesto_total: number;
-    presupuesto_restante: number;
-    km_minimo_conductor: number;
-    limite_vehiculos: number;
+    presupuesto_total: string | number;
+    presupuesto_restante: string | number;
+    km_minimo_conductor: string | number;
+    requisitos?: string;
+    limite_vehiculos_permitidos?: number | null;
+    limite_vehiculos_automatico?: boolean;
     ciclo_pago?: "semanal" | "quincenal" | "mensual";
     activa?: boolean;
     estado?: string;
     fecha_creacion?: string;
-    tipo_brandeo?: number | null;
-    empresa: number;
+    empresa?: number;
+    sectores?: {
+        id: number;
+        nombre: string;
+        coordenadas_cerco: any[];
+    }[];
+    horarios?: {
+        id: number;
+        dia_semana: string;
+        hora_inicio: string;
+        hora_fin: string;
+    }[];
+    tarifas?: {
+        id: number;
+        sector: number;
+        sector_nombre: string;
+        horario: number;
+        horario_detalle: string;
+        categoria_vehiculo: string;
+        categoria_vehiculo_nombre?: string;
+        categoria_veh_nombre?: string;
+        tipo_brandeo: number;
+        tipo_brandeo_nombre: string;
+        valor: string | number;
+    }[];
+    vehiculos_permitidos?: {
+        id: number;
+        marca: string;
+        categoria: string;
+        categoria_nombre: string;
+        anio_minimo: number;
+    }[];
 }
 
 export interface CatalogoVehiculo {
     id?: number;
+    id_catalogo?: number;
+    id_vehiculo?: number;
     marca: string;
     modelo: string;
     categoria: "sedan" | "suv" | "camioneta" | "camion" | "moto";
@@ -57,11 +115,13 @@ export interface CatalogoVehiculo {
     activo?: boolean;
 }
 
+export type CatalogoVehiculoResponse = PaginatedResponse<CatalogoVehiculo>;
+
 export interface TipoBrandeo {
-    id?: number;
+    id_brandeo: number;
     nombre: string;
     tipo_material: string;
-    activo?: boolean;
+    activo: boolean;
 }
 
 // Keep legacy for existing code compatibility if any, or remove if unused

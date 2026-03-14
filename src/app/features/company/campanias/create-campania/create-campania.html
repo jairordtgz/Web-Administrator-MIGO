@@ -1,5 +1,6 @@
 <div class="px-6 pt-4 pb-12 min-h-full relative font-sans bg-[#f8f9fa]">
   <p-toast></p-toast>
+  <p-confirm-dialog></p-confirm-dialog>
 
   <!-- Header Section -->
   <div
@@ -48,7 +49,7 @@
           </div>
           <div class="flex flex-col gap-2">
             <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Presupuesto Inicial ($):</label>
-            <p-inputNumber formControlName="presupuesto_total" mode="currency" currency="USD" locale="en-US"
+            <p-inputNumber formControlName="presupuesto_total" mode="currency" currency="USD" locale="es-ES"
               styleClass="w-full" inputStyleClass="w-full !rounded-xl !py-3" [minFractionDigits]="2"></p-inputNumber>
           </div>
           <div class="flex flex-col gap-2">
@@ -69,32 +70,29 @@
           <div class="flex flex-col gap-2">
             <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Fecha Fin:</label>
             <p-datepicker formControlName="fecha_fin" placeholder="Fin" styleClass="w-full"
-              inputStyleClass="w-full !rounded-xl !py-3" appendTo="body"></p-datepicker>
+              inputStyleClass="w-full !rounded-xl !py-3" appendTo="body"
+              [class.ng-invalid]="campaniaForm.errors?.['dateRangeInvalid']"></p-datepicker>
+            @if (campaniaForm.errors?.['dateRangeInvalid']) {
+            <small class="text-red-500 font-bold ml-1">
+              <i class="pi pi-times-circle mr-1"></i> La fecha de fin debe ser posterior al inicio.
+            </small>
+            }
           </div>
           <div class="flex flex-col gap-2">
             <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Fecha Límite Registro:</label>
             <p-datepicker formControlName="fecha_limite_registro" placeholder="Opcional" styleClass="w-full"
-              inputStyleClass="w-full !rounded-xl !py-3" appendTo="body"></p-datepicker>
+              inputStyleClass="w-full !rounded-xl !py-3" appendTo="body"
+              [class.ng-invalid]="campaniaForm.errors?.['registrationAfterEnd']"></p-datepicker>
+            @if (campaniaForm.errors?.['registrationAfterEnd']) {
+            <small class="text-red-500 font-bold ml-1">
+              <i class="pi pi-times-circle mr-1"></i> El registro debe cerrar antes del fin de campaña.
+            </small>
+            }
           </div>
-        </div>
-
-        <!-- Resumen de Ganancia Estimada -->
-        <div class="mt-8 p-4 bg-primary/10 border-l-4 border-primary rounded-r-xl flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <i class="pi pi-wallet text-xl text-gray-800"></i>
-            <div>
-              <p class="text-xs font-black text-gray-800 uppercase tracking-widest">
-                Ganancia Máxima Estimada por Conductor
-              </p>
-              <p class="text-xs text-gray-500 font-medium">
-                Basado en el presupuesto total y el límite de vehículos configurado.
-              </p>
-            </div>
-          </div>
-          <div class="text-right">
-            <span class="text-2xl font-black text-gray-900">
-              {{ getPresupuestoPorVehiculo() | currency: 'USD' : 'symbol' : '1.2-2' }}
-            </span>
+          <div class="flex flex-col gap-2">
+            <label class="font-bold text-gray-700 ml-1 text-xs uppercase">Km Mínimos Conductor:</label>
+            <p-inputNumber formControlName="km_minimo_conductor" placeholder="Ej: 500" styleClass="w-full"
+              inputStyleClass="w-full !rounded-xl !py-3" [min]="0"></p-inputNumber>
           </div>
         </div>
       </div>
@@ -116,11 +114,28 @@
         </div>
       </div>
       <div class="p-6">
+        @if (sectoresDisponibles.length === 0) {
+        <div
+          class="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 text-center">
+          <i class="pi pi-map text-4xl text-gray-300 mb-3"></i>
+          <p class="font-bold text-gray-500 uppercase text-xs tracking-widest mb-4">
+            No tienes sectores creados para esta campaña
+          </p>
+          <button type="button" pButton icon="pi pi-plus-circle" label="EMPIEZA A CREAR SECTORES"
+            class="p-button-warning !rounded-full !font-black !px-6 shadow-md" (click)="goToCreateSectors()"></button>
+        </div>
+        } @else {
+        @if (sectores.errors?.['duplicateSector']) {
+        <div class="bg-red-50 border-l-4 border-red-400 p-3 mb-4 rounded-r-lg flex items-center gap-2">
+          <i class="pi pi-exclamation-circle text-red-500"></i>
+          <small class="text-red-700 font-bold uppercase text-[10px]">
+            Has seleccionado el mismo sector varias veces. Elimina los duplicados.
+          </small>
+        </div>
+        }
         <div formArrayName="sectores" class="space-y-4 overflow-y-auto pr-2">
           @if (sectores.length == 0) {
-          <p class="p-2 text-gray-500">
-            No hay sectores disponibles, crea uno para empezar
-          </p>
+          <p class="p-2 text-gray-500">No hay sectores seleccionados para esta campaña</p>
           }
           @for (sector of sectores.controls; track $index) {
           <div [formGroupName]="$index" class="flex gap-3 items-start">
@@ -142,6 +157,7 @@
           </div>
           }
         </div>
+        }
       </div>
     </div>
 
@@ -158,7 +174,7 @@
       </div>
       <div class="p-6">
         <div formArrayName="horarios" class="space-y-4 overflow-y-auto pr-2">
-          @for (horario of horarios.controls; track horario) {
+          @for (horario of horarios.controls; track $index) {
           <div [formGroupName]="$index"
             class="flex gap-3 items-center border-b border-gray-100 pb-4 last:border-0 last:pb-0">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 flex-1">
@@ -234,12 +250,8 @@
             ) {
             <tr [formGroupName]="$index" class="border-b border-gray-100 hover:bg-gray-50/50 transition-colors"
               [class.border-t-4]="shouldShowCategory($index) && $index > 0" [class.border-t-2]="
-                                        shouldShowMarca($index) &&
-                                        !shouldShowCategory($index) &&
-                                        $index > 0
-                                    " [class.border-t-primary/30]="
-                                        shouldShowCategory($index) && $index > 0
-                                    ">
+                    shouldShowMarca($index) && !shouldShowCategory($index) && $index > 0
+                  " [class.border-t-primary/30]="shouldShowCategory($index) && $index > 0">
               <!-- Columna Categoría -->
               <td class="p-4 border-r-2 border-gray-200 bg-gray-50/30">
                 @if (shouldShowCategory($index)) {
@@ -299,8 +311,7 @@
     <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
       <div class="bg-[#2b2b2b] p-5 flex justify-between items-center">
         <h3 class="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
-          <i class="pi pi-sliders-h text-primary"></i> 5. Configuración de Reglas de
-          Tarifas
+          <i class="pi pi-sliders-h text-primary"></i> 5. Configuración de Reglas de Tarifas
         </h3>
         <button type="button" pButton icon="pi pi-plus" label="Añadir Regla"
           class="p-button-warning !rounded-full !font-black !px-6 shadow-sm" (click)="addTarifaRule()"></button>
@@ -309,15 +320,27 @@
       <div class="p-8">
         <div class="bg-gray-800 p-4 rounded-xl text-white text-xs max-w-m mb-6">
           <i class="pi pi-info-circle text-primary mb-2 block"></i>
-          Las reglas más específicas (ej: un sector concreto) sobreescriben a las
-          generales (TODOS).
+          Las reglas más específicas (ej: un sector concreto) sobreescriben a las generales (TODOS).
         </div>
+
+        @if (tarifasConfig.errors?.['duplicateTariff']) {
+        <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded-r-xl">
+          <div class="flex items-center">
+            <i class="pi pi-exclamation-circle text-red-400 mr-2 text-lg"></i>
+            <p class="text-sm text-red-700 font-bold uppercase tracking-tight">
+              ERROR: Existen reglas duplicadas. No puedes definir dos tarifas para la misma combinación de Sector,
+              Horario, Vehículo y Componente.
+            </p>
+          </div>
+        </div>
+        }
 
         <div class="overflow-x-auto rounded-3xl border border-gray-100">
           <table class="w-full text-left border-separate border-spacing-0">
             <thead>
               <tr class="text-[14px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">
                 <th class="p-4 first:rounded-tl-3xl">Sector</th>
+                <th class="p-4">Horario</th>
                 <th class="p-4">Vehículo</th>
                 <th class="p-4">Componente</th>
                 <th class="p-4 w-[150px]">Tarifa ($)</th>
@@ -325,10 +348,14 @@
               </tr>
             </thead>
             <tbody formArrayName="tarifasConfig">
-              @for (rule of tarifasConfig.controls; track rule) {
+              @for (rule of tarifasConfig.controls; track $index) {
               <tr [formGroupName]="$index" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                 <td class="p-2">
                   <p-select [options]="getSectoresOptionsWithAll()" formControlName="sector_id"
+                    class="w-full !rounded-xl" styleClass="!w-full !py-1 !text-xs" appendTo="body"></p-select>
+                </td>
+                <td class="p-2">
+                  <p-select [options]="getHorariosOptionsWithAll()" formControlName="horario_index"
                     class="w-full !rounded-xl" styleClass="!w-full !py-1 !text-xs" appendTo="body"></p-select>
                 </td>
                 <td class="p-2">
@@ -394,6 +421,7 @@
             <tr
               class="bg-gray-50 text-[14px] font-black text-gray-500 uppercase tracking-widest border-b border-gray-100">
               <th class="p-5">Sector</th>
+              <th class="p-5">Horario</th>
               @for (cat of categoriasVehiculo; track cat.value) {
               <th class="p-5 text-center border-l border-gray-100 bg-gray-50/50">
                 {{ cat.label }}
@@ -404,9 +432,12 @@
           <tbody>
             <!-- Iteramos solo por los sectores activos, sin el global -->
             @for (sOpt of getSectoresOnly(); track sOpt.value) {
+            <!-- Iteramos solo por los horarios registrados -->
+            @for (hOpt of getHorariosOnly(); track hOpt.value) {
             <tr class="border-b border-gray-50 hover:bg-yellow-50/10 transition-colors">
-              <td class="p-5 font-black text-gray-700 text-xs uppercase">
-                {{ sOpt.label }}
+              <td class="p-5 font-black text-gray-700 text-xs uppercase">{{ sOpt.label }}</td>
+              <td class="p-5 text-sm font-medium text-gray-500">
+                {{ hOpt.label }}
               </td>
               @for (cat of categoriasVehiculo; track cat.value) {
               <td class="p-5 text-center border-l border-gray-50">
@@ -414,7 +445,7 @@
                   <span
                     class="text-primary font-black text-lg bg-gray-800 px-3 py-1 rounded-xl shadow-sm inline-block mx-auto min-w-[100px]">
                     {{
-                    getEffectiveRate(sOpt.value, cat.value)
+                    getEffectiveRate(sOpt.value, hOpt.value, cat.value)
                     | currency: 'USD' : 'symbol' : '1.3-3'
                     }}
                   </span>
@@ -423,6 +454,7 @@
               </td>
               }
             </tr>
+            }
             }
           </tbody>
         </table>

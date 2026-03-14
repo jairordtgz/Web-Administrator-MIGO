@@ -1,4 +1,4 @@
-<div class="px-6 pt-4 pb-6 min-h-full relative font-sans">
+<div class="px-6 pt-4 pb-6 min-h-full relative font-sans bg-gray-50/30">
     <div class="bg-white p-6 shadow-sm mb-6 flex flex-col md:flex-row justify-between items-center rounded-sm border-b-4 border-primary">
         <div>
             <h1 class="text-3xl font-black text-[#2b2b2b] uppercase tracking-tighter">MIS CAMPAÑAS</h1>
@@ -11,16 +11,191 @@
         </div>
     </div>
 
-    <!-- Empty State for Layout -->
-    <div class="bg-white p-12 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
-        <div class="bg-gray-50 p-6 rounded-full mb-6">
-            <i class="pi pi-megaphone text-6xl text-gray-200"></i>
+    @if (loading) {
+        <div class="flex justify-center items-center py-20">
+            <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
         </div>
-        <h3 class="text-xl font-bold text-gray-700 mb-2">No tienes campañas creadas aún</h3>
-        <p class="text-gray-500 max-w-md mx-auto mb-8">Comienza a publicitar tu marca creando tu primera campaña y seleccionando los mejores conductores de la ciudad.</p>
-        
-        <button pButton label="COMENZAR AHORA" icon="pi pi-rocket" 
-            class="p-button-warning !rounded-full !font-bold !px-12 !py-4 shadow-lg transform hover:scale-105 transition-all"
-            [routerLink]="['crear']"></button>
-    </div>
+    } @else if (campanias.length > 0) {
+        <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-100">
+            <p-table [value]="campanias" [responsiveLayout]="'stack'" [rows]="10" [paginator]="true" 
+                     styleClass="p-datatable-sm" [showCurrentPageReport]="true"
+                     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} campañas">
+                <ng-template pTemplate="header">
+                    <tr class="bg-gray-50">
+                        <th class="!py-4 !px-6 text-xs uppercase text-gray-400 font-bold">Campaña</th>
+                        <th class="!py-4 !px-6 text-xs uppercase text-gray-400 font-bold">Vigencia</th>
+                        <th class="!py-4 !px-6 text-xs uppercase text-gray-400 font-bold">Presupuesto</th>
+                        <th class="!py-4 !px-6 text-xs uppercase text-gray-400 font-bold text-center">Estado</th>
+                        <th class="!py-4 !px-6 text-xs uppercase text-gray-400 font-bold text-center">Acciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-campania>
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="!py-4 !px-6">
+                            <span class="font-bold text-gray-800 block">{{ campania.nombre }}</span>
+                            <span class="text-xs text-gray-400">ID: #{{ campania.id }}</span>
+                        </td>
+                        <td class="!py-4 !px-6 text-sm">
+                            <div class="flex flex-col">
+                                <span class="text-gray-600"><i class="pi pi-calendar-plus mr-2 text-xs"></i>{{ campania.fecha_inicio | date:'shortDate' }}</span>
+                                <span class="text-gray-400 text-xs mt-1"><i class="pi pi-calendar-minus mr-2"></i>{{ campania.fecha_fin | date:'shortDate' }}</span>
+                            </div>
+                        </td>
+                        <td class="!py-4 !px-6">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-gray-700">${{ campania.presupuesto_total }}</span>
+                                <div class="w-24 h-1.5 bg-gray-100 rounded-full mt-1 overflow-hidden">
+                                    <div class="h-full bg-green-500 rounded-full" 
+                                         [style.width.%]="campania.presupuesto_total > 0 ? (campania.presupuesto_restante / campania.presupuesto_total) * 100 : 0"></div>
+                                </div>
+                                <span class="text-xs text-gray-400 mt-1">Restante: ${{ campania.presupuesto_restante }}</span>
+                            </div>
+                        </td>
+                        <td class="!py-4 !px-6 text-center">
+                            <p-tag [value]="campania.estado | uppercase" [severity]="getStatusSeverity(campania.estado)" 
+                                   class="!text-xs !font-black"></p-tag>
+                        </td>
+                        <td class="!py-4 !px-6 text-center">
+                            <div class="flex justify-center gap-2">
+                                <button pButton icon="pi pi-eye" class="p-button-text p-button-secondary p-button-rounded !w-8 !h-8" 
+                                        pTooltip="Ver Detalle" (click)="verDetalle(campania)"></button>
+                                <button pButton icon="pi pi-pencil" class="p-button-text p-button-warning p-button-rounded !w-8 !h-8" 
+                                        pTooltip="Editar" [disabled]="campania.estado === 'terminada'"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    } @else {
+        <!-- Empty State -->
+        <div class="bg-white p-12 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
+            <div class="bg-gray-50 p-6 rounded-full mb-6">
+                <i class="pi pi-megaphone text-6xl text-gray-200"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-700 mb-2">No tienes campañas creadas aún</h3>
+            <p class="text-gray-500 max-w-md mx-auto mb-8">Comienza a publicitar tu marca creando tu primera campaña y seleccionando los mejores conductores de la ciudad.</p>
+            
+            <button pButton label="COMENZAR AHORA" icon="pi pi-rocket" 
+                class="p-button-warning !rounded-full !font-bold !px-12 !py-4 shadow-lg transform hover:scale-105 transition-all"
+                [routerLink]="['crear']"></button>
+        </div>
+    }
 </div>
+
+<!-- DETALLE DE CAMPAÑA -->
+<p-dialog [(visible)]="displayDetail" [header]="'DETALLE DE CAMPAÑA: ' + selectedCampania?.nombre" 
+          [modal]="true" [style]="{width: '90vw', maxWidth: '1000px'}" [draggable]="false" [resizable]="false"
+          class="campaign-detail-dialog">
+    
+    @if (selectedCampania) {
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+            <!-- Columna Izquierda: Info General -->
+            <div class="md:col-span-1 space-y-6">
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <h4 class="text-xs font-black text-gray-400 uppercase tracking-wider mb-4">Información General</h4>
+                    <ul class="space-y-3">
+                        <li class="flex flex-col">
+                            <span class="text-xs text-gray-400 font-bold uppercase">Presupuesto Total</span>
+                            <span class="text-lg font-black text-primary">${{ selectedCampania.presupuesto_total }}</span>
+                        </li>
+                        <li class="flex flex-col">
+                            <span class="text-xs text-gray-400 font-bold uppercase">Ciclo de Pago</span>
+                            <span class="text-sm font-bold text-gray-700 capitalize">{{ selectedCampania.ciclo_pago }}</span>
+                        </li>
+                        <li class="flex flex-col">
+                            <span class="text-xs text-gray-400 font-bold uppercase">KM Mínimo / Conductor</span>
+                            <span class="text-sm font-bold text-gray-700">{{ selectedCampania.km_minimo_conductor }} KM</span>
+                        </li>
+                        <li class="flex flex-col">
+                            <span class="text-xs text-gray-400 font-bold uppercase">Límite Vehículos</span>
+                            <span class="text-sm font-bold text-gray-700">{{ selectedCampania.limite_vehiculos_permitidos || 'Sin límite' }}</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <h4 class="text-xs font-black text-gray-400 uppercase tracking-wider mb-4">Sectores</h4>
+                    <div class="flex flex-wrap gap-2">
+                        @for (sector of selectedCampania.sectores; track sector.id) {
+                            <p-tag [value]="sector.nombre" severity="info" class="!bg-blue-50 !text-blue-600 !border-blue-100"></p-tag>
+                        }
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <h4 class="text-xs font-black text-gray-400 uppercase tracking-wider mb-4">Vehículos Permitidos</h4>
+                    <div class="grid grid-cols-1 gap-2">
+                        @for (veh of selectedCampania.vehiculos_permitidos; track veh.id) {
+                            <div class="text-xs bg-white p-2 rounded border border-gray-100 flex justify-between items-center">
+                                <span class="font-bold">{{ veh.marca }}</span>
+                                <span class="text-gray-400 italic">{{ veh.categoria_nombre }} ({{ veh.anio_minimo }}+)</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Tarifas y Horarios -->
+            <div class="md:col-span-2 space-y-6">
+                <div>
+                    <h4 class="text-sm font-black text-gray-800 uppercase tracking-tighter mb-3 flex items-center">
+                        <i class="pi pi-clock mr-2 text-primary"></i> Horarios de la Campaña
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        @for (horario of selectedCampania.horarios; track horario.id) {
+                            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <div class="bg-primary/10 text-primary p-2 rounded-lg">
+                                    <i class="pi pi-calendar text-sm"></i>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-gray-700">{{ horario.dia_semana }}</span>
+                                    <span class="text-xs text-gray-400">{{ horario.hora_inicio }} - {{ horario.hora_fin }}</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <p-divider></p-divider>
+
+                <div>
+                    <h4 class="text-sm font-black text-gray-800 uppercase tracking-tighter mb-3 flex items-center">
+                        <i class="pi pi-dollar mr-2 text-green-500"></i> Tabla de Tarifas
+                    </h4>
+                    <p-table [value]="selectedCampania.tarifas || []" styleClass="p-datatable-sm border border-gray-100 rounded-lg overflow-hidden">
+                        <ng-template pTemplate="header">
+                            <tr class="!bg-gray-50">
+                                <th class="!text-xs uppercase font-black text-gray-400">Sector / Horario</th>
+                                <th class="!text-xs uppercase font-black text-gray-400 text-center">Categoría</th>
+                                <th class="!text-xs uppercase font-black text-gray-400 text-center">Brandeo</th>
+                                <th class="!text-xs uppercase font-black text-gray-400 text-right">Valor</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-tarifa>
+                            <tr>
+                                <td>
+                                    <span class="text-xs font-bold text-gray-700 block">{{ tarifa.sector_nombre }}</span>
+                                    <span class="text-xs text-gray-400">{{ tarifa.horario_detalle }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <p-tag [value]="tarifa.categoria_veh_nombre || tarifa.categoria_vehiculo_nombre" severity="secondary" class="!text-xs"></p-tag>
+                                </td>
+                                <td class="text-center text-xs font-medium text-gray-600">
+                                    {{ tarifa.tipo_brandeo_nombre }}
+                                </td>
+                                <td class="text-right font-black text-green-600 text-sm">
+                                    ${{ tarifa.valor }}
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+        </div>
+    }
+
+    <ng-template pTemplate="footer">
+        <button pButton label="CERRAR" (click)="displayDetail = false" class="p-button-text !text-gray-400 !font-bold"></button>
+    </ng-template>
+</p-dialog>
